@@ -64,12 +64,12 @@ const AuthorPage = ({ history, location, match }) => {
   }, [match.params, user]);
 
   useEffect(() => {
-		authorRef(normalizeString(author.displayName)).get().then(snap => {
+    authorRef(normalizeString(author.displayName)).get().then(snap => {
       if (snap.exists) {
         if (is.current) {
           setAuthor(snap.data());
         }
-			}
+      }
       fetchFollowers();
     }).catch(err => {
       console.warn(err);
@@ -123,12 +123,13 @@ const AuthorPage = ({ history, location, match }) => {
 
   const covers = books?.map(book => <Link key={book.bid} to={`/book/${book.bid}/${normURL(book.title)}`}><Cover book={book} /></Link>);
 
-  if (loading) {
-    return <div aria-hidden="true" className="loader"><CircularProgress /></div>
-  } 
-  if (!author.lastEditByUid && !books) {
-    return <NoMatch title="Autore non trovato" history={history} location={location} />
-  }
+  if (loading) return (
+    <div aria-hidden="true" className="loader"><CircularProgress /></div>
+  );
+
+  if (!author.lastEditByUid && !books) return (
+    <NoMatch title="Autore non trovato" history={history} location={location} />
+  );
 
   const seo = author?.displayName && {
     description: `Scopri su ${app.name} i libri di ${author.displayName}`,
@@ -235,18 +236,18 @@ const AuthorPage = ({ history, location, match }) => {
       <RandomQuote author={author.displayName} skeleton={false} className="card flat fadeIn slideUp reveal" />
     </div>
   );
-}
+};
 
 AuthorPage.propTypes = {
   history: historyType,
   location: locationType,
   match: matchType
-}
+};
 
 AuthorPage.defaultProps = {
   history: null,
   location: null,
   match: null
-}
+};
 
 export default AuthorPage;

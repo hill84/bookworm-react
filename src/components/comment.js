@@ -13,7 +13,7 @@ import SnackbarContext from '../context/snackbarContext';
 import UserContext from '../context/userContext';
 import FlagDialog from './flagDialog';
 
-const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} /> );
+const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} />);
 
 const Comment = ({ bid, comment, onEdit, reviewerDisplayName, rid }) => {
   const { isAdmin, isEditor, user } = useContext(UserContext);
@@ -101,6 +101,7 @@ const Comment = ({ bid, comment, onEdit, reviewerDisplayName, rid }) => {
 
   const onRemoveFlag = useCallback(() => {
     if (bid && comment && rid && isAdmin) {
+      // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
       const { flag, ...rest } = comment;
       if (is.current) setFlagLoading(true);
       reviewerCommenterRef(bid, rid, comment.createdByUid).set(rest).then(() => {
@@ -118,7 +119,7 @@ const Comment = ({ bid, comment, onEdit, reviewerDisplayName, rid }) => {
         // console.log(`Comment deleted`);
         openSnackbar('Risposta cancellata', 'success');
       }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
-    } else console.warn(`No bid`);
+    } else console.warn('No bid');
   };
 
   const onOpenActionsMenu = e => setActionsAnchorEl(e.currentTarget);
@@ -228,7 +229,7 @@ const Comment = ({ bid, comment, onEdit, reviewerDisplayName, rid }) => {
       )}
     </>
   );
-}
+};
 
 Comment.propTypes = {
   bid: stringType.isRequired,
@@ -236,6 +237,6 @@ Comment.propTypes = {
   onEdit: funcType.isRequired,
   reviewerDisplayName: stringType.isRequired,
   rid: stringType.isRequired
-}
+};
 
 export default Comment;

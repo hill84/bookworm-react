@@ -153,7 +153,7 @@ const Challenge = () => {
       )}
     </div>
   );
-}
+};
 
 export default Challenge;
 

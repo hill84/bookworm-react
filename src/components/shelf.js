@@ -61,7 +61,7 @@ const Shelf = ({
 
     return () => {
       window.removeEventListener('resize', updateLimit());
-    }
+    };
   }, [updateLimit]);
 
   const fetchChallenges = useCallback(fullBooks => {
@@ -336,17 +336,17 @@ const Shelf = ({
       </div>
     </div>
   );
-}
+};
 
 Shelf.propTypes = {
   shelf: stringType,
   luid: stringType,
   uid: stringType.isRequired
-}
+};
 
 Shelf.defaultProps = {
   shelf: null,
   luid: null
-}
+};
  
 export default Shelf;

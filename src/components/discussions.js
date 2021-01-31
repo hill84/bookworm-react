@@ -59,7 +59,7 @@ const Discussions = ({ container, gid, limit, pagination, skeleton, uid }) => {
   const fetchNext = useCallback(() => {
     if (is.current) setLoading(true);
     
-		ref.orderBy('created_num', desc ? 'desc' : 'asc').startAfter(lastVisible).limit(limit).get().then(nextSnap => {
+    ref.orderBy('created_num', desc ? 'desc' : 'asc').startAfter(lastVisible).limit(limit).get().then(nextSnap => {
       if (!nextSnap.empty) {
         nextSnap.forEach(item => items.push(item.data()));
         if (is.current) {
@@ -70,7 +70,7 @@ const Discussions = ({ container, gid, limit, pagination, skeleton, uid }) => {
       } else if (is.current) {
         if (is.current) setEmptyState();
       }
-		}).catch(err => {
+    }).catch(err => {
       if (is.current) setEmptyState(err);
     }).finally(() => {
       if (is.current) setLoading(false);
@@ -125,7 +125,7 @@ const Discussions = ({ container, gid, limit, pagination, skeleton, uid }) => {
       )}
     </>
   );
-}
+};
 
 Discussions.propTypes = {
   container: boolType,
@@ -137,7 +137,7 @@ Discussions.propTypes = {
     stringType,
     arrayType
   ])
-}
+};
 
 Discussions.defaultProps = {
   container: true,
@@ -146,6 +146,6 @@ Discussions.defaultProps = {
   pagination: true,
   skeleton: false,
   uid: null
-}
- 
+};
+
 export default Discussions;

@@ -60,6 +60,7 @@ const Discussion = ({ discussion, gid }) => {
   const onRemoveFlag = useCallback(() => {
     if (isAdmin) {
       if (is.current) setFlagLoading(true);
+      // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
       const { flag, ...rest } = discussion;
       groupDiscussionRef(gid, discussion.did).set(rest).then(() => {
         if (is.current) {
@@ -148,15 +149,15 @@ const Discussion = ({ discussion, gid }) => {
       )}
     </>
   );
-}
+};
 
 Discussion.propTypes = {
   discussion: discussionType.isRequired,
   gid: stringType
-}
+};
 
 Discussion.defaultProps = {
   gid: null
-}
+};
 
 export default Discussion;

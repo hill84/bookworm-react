@@ -45,7 +45,7 @@ const LoginForm = ({ location }) => {
 
     return () => {
       is.current = false;
-    }
+    };
   }, [location.search]);
 
   const onChange = e => {
@@ -64,11 +64,11 @@ const LoginForm = ({ location }) => {
     const errors = {};
 
     if (!data.email) {
-      errors.email = "Inserisci un indirizzo email";
+      errors.email = 'Inserisci un indirizzo email';
     } else if (data.email.length > max.chars.email) {
-      errors.email = `Massimo ${max.chars.email} caratteri`
+      errors.email = `Massimo ${max.chars.email} caratteri`;
     } else if (!isEmail(data.email)) {
-      errors.email = "Email non valida";
+      errors.email = 'Email non valida';
     }
 
     if (data.password) {
@@ -77,12 +77,12 @@ const LoginForm = ({ location }) => {
       } else if (data.password.length > max.chars.password) {
         errors.password = `Massimo ${max.chars.password} caratteri`;
       }
-    } else errors.password = "Inserisci una password";
+    } else errors.password = 'Inserisci una password';
     
-		return errors;
+    return errors;
   };
 
-	const onSubmit = e => {
+  const onSubmit = e => {
     e.preventDefault();
     const errors = validate({ email, password });
     
@@ -91,17 +91,17 @@ const LoginForm = ({ location }) => {
       setErrors(errors);
     }
     
-		if (Object.keys(errors).length === 0) {
+    if (Object.keys(errors).length === 0) {
       if (is.current) setLoading(true);
-			auth.signInWithEmailAndPassword(email, password).then(() => {
+      auth.signInWithEmailAndPassword(email, password).then(() => {
         if (is.current) setRedirectToReferrer(true);
-			}).catch(err => {
+      }).catch(err => {
         if (is.current) setAuthError(handleFirestoreError(err));
-			}).finally(() => {
+      }).finally(() => {
         if (is.current) setLoading(false);
       });
-		}
-	};
+    }
+  };
   
   const onTogglePassword = () => setShowPassword(!showPassword);
 
@@ -109,50 +109,52 @@ const LoginForm = ({ location }) => {
 
   const { from } = { from: { pathname: '/' } };
 
-  if (redirectToReferrer) return <Redirect to={from} />
+  if (redirectToReferrer) return (
+    <Redirect to={from} />
+  );
 
   return (
-    <div id="loginFormComponent" ref={is}>
-      {loading && <div aria-hidden="true" className="loader"><CircularProgress /></div>}
+    <div id='loginFormComponent' ref={is}>
+      {loading && <div aria-hidden='true' className='loader'><CircularProgress /></div>}
       <SocialAuth />
 
-      <div className="light-text pad-v-xs">
-        <small>Effettuando il login confermi la presa visione della <Link to="/privacy">privacy</Link> di {app.name}</small>
+      <div className='light-text pad-v-xs'>
+        <small>Effettuando il login confermi la presa visione della <Link to='/privacy'>privacy</Link> di {app.name}</small>
       </div>
 
       <form onSubmit={onSubmit} noValidate>
-        <div className="form-group">
-          <FormControl className="input-field" margin="normal" fullWidth>
-            <InputLabel error={Boolean(errors.email)} htmlFor="email">Email</InputLabel>
+        <div className='form-group'>
+          <FormControl className='input-field' margin='normal' fullWidth>
+            <InputLabel error={Boolean(errors.email)} htmlFor='email'>Email</InputLabel>
             <Input
-              id="email"
-              name="email"
-              type="email"
+              id='email'
+              name='email'
+              type='email'
               autoFocus
-              placeholder="esempio@esempio.com"
+              placeholder='esempio@esempio.com'
               value={email}
               onChange={onChange}
               error={Boolean(errors.email)}
             />
-            {errors.email && <FormHelperText className="message error">{errors.email}</FormHelperText>}
+            {errors.email && <FormHelperText className='message error'>{errors.email}</FormHelperText>}
           </FormControl>
         </div>
 
-        <div className="form-group">
-          <FormControl className="input-field" margin="normal" fullWidth>
-            <InputLabel error={Boolean(errors.password)} htmlFor="password">Password</InputLabel>
+        <div className='form-group'>
+          <FormControl className='input-field' margin='normal' fullWidth>
+            <InputLabel error={Boolean(errors.password)} htmlFor='password'>Password</InputLabel>
             <Input
-              id="password"
-              name="password"
+              id='password'
+              name='password'
               type={showPassword ? 'text' : 'password'}
-              placeholder="Almeno 8 caratteri"
+              placeholder='Almeno 8 caratteri'
               value={password}
               onChange={onChange}
               error={Boolean(errors.password)}
               endAdornment={
-                <InputAdornment position="end">
+                <InputAdornment position='end'>
                   <IconButton
-                    aria-label="toggle password visibility"
+                    aria-label='toggle password visibility'
                     onClick={onTogglePassword}
                     onMouseDown={onMouseDownPassword}>
                     {showPassword ? icon.eye : icon.eyeOff}
@@ -160,26 +162,26 @@ const LoginForm = ({ location }) => {
                 </InputAdornment>
               }
             />
-            {errors.password && <FormHelperText className="message error">{errors.password}</FormHelperText>}
+            {errors.password && <FormHelperText className='message error'>{errors.password}</FormHelperText>}
           </FormControl>
         </div>
 
-        {authError && <div className="row"><div className="col message error">{authError}</div></div>}
+        {authError && <div className='row'><div className='col message error'>{authError}</div></div>}
 
-        <div className="footer no-gutter">
-          <button type="button" className="btn btn-footer primary" onClick={onSubmit}>Accedi</button>
+        <div className='footer no-gutter'>
+          <button type='button' className='btn btn-footer primary' onClick={onSubmit}>Accedi</button>
         </div>
       </form>
     </div>
   );
-}
+};
 
 LoginForm.propTypes = {
   location: locationType
-}
+};
 
 LoginForm.defaultProps = {
   location: null
-}
- 
+};
+
 export default LoginForm;

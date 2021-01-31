@@ -26,7 +26,8 @@ import Bubbles from './bubbles';
 
 const NoMatch = lazy(() => import('../noMatch'));
 
-const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} /> );
+// eslint-disable-next-line react/display-name
+const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} />);
 
 const seo = {
   title: `${app.name} | Groups`
@@ -128,107 +129,107 @@ const Group = ({ history, location, match }) => {
     });
   };
 
-  if (redirectToReferrer) return <Redirect to="/groups" />
+  if (redirectToReferrer) return <Redirect to='/groups' />;
 
-  if (!loading && !item) return <NoMatch title="Gruppo non trovato" history={history} location={location} />
+  if (!loading && !item) return <NoMatch title='Gruppo non trovato' history={history} location={location} />;
 
   return (
-    <div className="container" ref={is}>
+    <div className='container' ref={is}>
       <Helmet>
         <title>{seo.title}</title>
       </Helmet>
-      <div className="card light group relative">
-        <Link to="/groups" className="btn clear dark rounded icon prepend absolute-content left hide-sm">
+      <div className='card light group relative'>
+        <Link to='/groups' className='btn clear dark rounded icon prepend absolute-content left hide-sm'>
           {icon.arrowLeft}
         </Link>
         {isEditor && (isOwner || isModerator || isAdmin) ? (
-          <div className="absolute-top-right">
+          <div className='absolute-top-right'>
             {(isOwner || isAdmin) && (
               <>
                 <button
-                  type="button"
-                  className="btn sm flat counter icon-sm"
+                  type='button'
+                  className='btn sm flat counter icon-sm'
                   onClick={onLock}>
-                  {icon[item?.edit ? 'lock' : 'lockOpen']} <span className="hide-sm">{item?.edit ? 'Blocca' : 'Sblocca'}</span>
+                  {icon[item?.edit ? 'lock' : 'lockOpen']} <span className='hide-sm'>{item?.edit ? 'Blocca' : 'Sblocca'}</span>
                 </button>
                 <button
-                  type="button"
-                  className="btn sm flat counter icon-sm"
+                  type='button'
+                  className='btn sm flat counter icon-sm'
                   onClick={onDeleteRequest}>
-                  {icon.delete} <span className="hide-sm">Elimina</span>
+                  {icon.delete} <span className='hide-sm'>Elimina</span>
                 </button>
               </>
             )}
             <button
-              type="button"
-              className="btn sm flat counter icon-sm"
+              type='button'
+              className='btn sm flat counter icon-sm'
               onClick={onEditGroup}>
-              {icon.pencil} <span className="hide-sm">Modifica</span>
+              {icon.pencil} <span className='hide-sm'>Modifica</span>
             </button>
           </div>
         ) : !item?.edit && !loading && (
-          <Tooltip title="Gruppo bloccato">
-            <div className="absolute-top-right lighter-text">{icon.lock}</div>
+          <Tooltip title='Gruppo bloccato'>
+            <div className='absolute-top-right lighter-text'>{icon.lock}</div>
           </Tooltip>
         )}
 
-        <div className="row info-row header">
-          <div className="col-auto">
-            <Avatar className="image avatar">
+        <div className='row info-row header'>
+          <div className='col-auto'>
+            <Avatar className='image avatar'>
               {!item ? '' : !item.photoURL ? icon.accountGroup : (
-                <Zoom overlayBgColorEnd="rgba(var(--canvasClr), .8)" zoomMargin={10}>
-                  <img alt="avatar" src={item.photoURL} className="avatar thumb" />
+                <Zoom overlayBgColorEnd='rgba(var(--canvasClr), .8)' zoomMargin={10}>
+                  <img alt='avatar' src={item.photoURL} className='avatar thumb' />
                 </Zoom>
               )}
             </Avatar>
           </div>
-          <div className="col">
-            <h2 className="title flex">{item?.title || <span className="skltn area" />}</h2>
-            <div className="info-row owner flex">
+          <div className='col'>
+            <h2 className='title flex'>{item?.title || <span className='skltn area' />}</h2>
+            <div className='info-row owner flex'>
               {item ? (
                 <>
-                  <span className="counter">Creato da <Link to={`/dashboard/${item.ownerUid}`}>{item.owner}</Link></span>
+                  <span className='counter'>Creato da <Link to={`/dashboard/${item.ownerUid}`}>{item.owner}</Link></span>
                   {item.moderators?.length > 1 && (
                     <button
-                      type="button"
-                      className="counter link"
+                      type='button'
+                      className='counter link'
                       onClick={onOpenModeratorsDialog}>
                       {item.moderators.length} moderatori
                     </button>
                   )}
                 </>
-              ) : <span className="skltn rows one" />}
+              ) : <span className='skltn rows one' />}
             </div>
           </div>
         </div>
 
-        <div className="info-row text">
-          {item ? <MinifiableText text={item.description} maxChars={500} /> : <div className="skltn rows" />}
+        <div className='info-row text'>
+          {item ? <MinifiableText text={item.description} maxChars={500} /> : <div className='skltn rows' />}
         </div>
 
         {isAuth && user && (
-          <div className="info-row">
+          <div className='info-row'>
             <button 
-              type="button" 
+              type='button' 
               className={`btn sm ${follow ? 'success error-on-hover' : 'primary'}`} 
               onClick={onFollow} 
               disabled={!isEditor}>
               {follow ? (
                 <>
-                  <span className="hide-on-hover">{icon.check} Segui</span>
-                  <span className="show-on-hover">Smetti</span>
+                  <span className='hide-on-hover'>{icon.check} Segui</span>
+                  <span className='show-on-hover'>Smetti</span>
                 </> 
               ) : <span>{icon.plus} Segui</span> }
             </button>
-            <div className="counter inline">
-              <Bubbles limit={3} items={followers} label="iscritti" />
+            <div className='counter inline'>
+              <Bubbles limit={3} items={followers} label='iscritti' />
             </div>
             {follow && (
               <button
-                type="button"
-                className="link counter last inline"
+                type='button'
+                className='link counter last inline'
                 onClick={onInvite}
-                title="Questa funzionalità non è ancora pronta"
+                title='Questa funzionalità non è ancora pronta'
                 disabled>
                 Invita
               </button>
@@ -238,7 +239,7 @@ const Group = ({ history, location, match }) => {
       </div>
 
       {item?.rules && (
-        <div className="card rules">
+        <div className='card rules'>
           <h3>Regole del gruppo</h3>
           <MinifiableText text={item.rules} maxChars={500} toggle />
         </div>
@@ -252,38 +253,38 @@ const Group = ({ history, location, match }) => {
 
       {isOpenModeratorsDialog && (
         <Dialog
-          className="dropdown-menu"
+          className='dropdown-menu'
           open={isOpenModeratorsDialog}
           TransitionComponent={Transition}
           keepMounted
           onClose={onCloseModeratorsDialog}
-          aria-labelledby="moderators-dialog-title">
-          <DialogTitle id="moderators-dialog-title">
+          aria-labelledby='moderators-dialog-title'>
+          <DialogTitle id='moderators-dialog-title'>
             Moderatori del gruppo
           </DialogTitle>
-          <DialogContent className="content">
-            <div className="contacts-tab">
+          <DialogContent className='content'>
+            <div className='contacts-tab'>
               {groupModerators?.length ? groupModerators.map(user => (
-                <div key={user.uid} className="avatar-row">
-                  <div className="row">
-                    <div className="col-auto">
+                <div key={user.uid} className='avatar-row'>
+                  <div className='row'>
+                    <div className='col-auto'>
                       <Link to={`/dashboard/${user.uid}`}>
-                        <Avatar className="avatar" src={user.photoURL} alt={user.displayName}>
+                        <Avatar className='avatar' src={user.photoURL} alt={user.displayName}>
                           {!user.photoURL && getInitials(user.displayName)}
                         </Avatar>
                       </Link>
                     </div>
-                    <div className="col">
-                      <div className="row">
-                        <Link to={`/dashboard/${user.uid}`} className="col name">{user.displayName}</Link>
+                    <div className='col'>
+                      <div className='row'>
+                        <Link to={`/dashboard/${user.uid}`} className='col name'>{user.displayName}</Link>
                         {isEditor && (
-                          <div className="col-auto">
+                          <div className='col-auto'>
                             {user.uid === item.ownerUid ? (
-                              <button type="button" className="btn sm rounded flat" disabled>Creatore</button>
+                              <button type='button' className='btn sm rounded flat' disabled>Creatore</button>
                             ) : (isOwner || isAdmin) && (
                               <button
-                                type="button"
-                                className="btn sm rounded flat"
+                                type='button'
+                                className='btn sm rounded flat'
                                 data-muid={user.uid}
                                 onClick={onDeleteModerator}>
                                 Elimina
@@ -307,19 +308,19 @@ const Group = ({ history, location, match }) => {
           TransitionComponent={Transition}
           keepMounted
           onClose={onCloseDeleteDialog}
-          aria-labelledby="delete-dialog-title"
-          aria-describedby="delete-dialog-description">
-          <DialogTitle id="delete-dialog-title">
+          aria-labelledby='delete-dialog-title'
+          aria-describedby='delete-dialog-description'>
+          <DialogTitle id='delete-dialog-title'>
             Procedere con l&apos;eliminazione?
           </DialogTitle>
           <DialogContent>
-            <DialogContentText id="delete-dialog-description">
+            <DialogContentText id='delete-dialog-description'>
               Cancellando il gruppo verranno rimossi tutti i commenti.
             </DialogContentText>
           </DialogContent>
-          <DialogActions className="dialog-footer flex no-gutter">
-            <button type="button" className="btn btn-footer flat" onClick={onCloseDeleteDialog}>Annulla</button>
-            <button type="button" className="btn btn-footer primary" onClick={onDelete}>Elimina</button>
+          <DialogActions className='dialog-footer flex no-gutter'>
+            <button type='button' className='btn btn-footer flat' onClick={onCloseDeleteDialog}>Annulla</button>
+            <button type='button' className='btn btn-footer primary' onClick={onDelete}>Elimina</button>
           </DialogActions>
         </Dialog>
       )}
@@ -331,10 +332,10 @@ Group.propTypes = {
   history: historyType.isRequired,
   location: locationType.isRequired,
   match: matchType
-}
+};
 
 Group.defaultProps = {
   match: null
-}
+};
 
 export default Group;

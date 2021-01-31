@@ -2,7 +2,7 @@
 import { Tooltip } from '@material-ui/core';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import React, { lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { collectionFollowersRef, collectionRef, collectionsRef } from '../../config/firebase';
@@ -86,7 +86,7 @@ const Collection = ({ history, location, match }) => {
 
     return () => {
       unsubCollectionFollowersFetch && unsubCollectionFollowersFetch();
-    }
+    };
   }, [cid, desc, filterByName, openSnackbar, uid]);
 
   useEffect(() => {
@@ -103,7 +103,7 @@ const Collection = ({ history, location, match }) => {
     return () => {
       is.current = false;
       window.removeEventListener('resize', updateScreenSize);
-    }
+    };
   }, []);
 
   const onFollow = useCallback(() => {
@@ -160,113 +160,115 @@ const Collection = ({ history, location, match }) => {
     </MenuItem>
   ));
 
-  if (!loading && !collection) {
-    return <NoMatch title="Collezione non trovata" history={history} location={location} />
-  }
+  if (!loading && !collection) return (
+    <NoMatch title='Collezione non trovata' history={history} location={location} />
+  );
 
   return (
-    <div id="CollectionComponent" className="container" ref={is}>
+    <div id='CollectionComponent' className='container' ref={is}>
       <Helmet>
         <title>{app.name} | {collection ? collection.title : 'Collezione'}</title>
-        <link rel="canonical" href={`${app.url}/collections`} />
-        <meta name="description" content={collection?.description ? truncateString(collection.description, 155) : app.desc} />
+        <link rel='canonical' href={`${app.url}/collections`} />
+        <meta name='description' content={collection?.description ? truncateString(collection.description, 155) : app.desc} />
       </Helmet>
-      <div className="row">
-        <div className="col">
-            <div className="card dark collection-profile">
-              <h2>{denormURL(cid)}</h2>
-              {loading ? <div className="skltn rows" /> : 
-                <>
-                  <div className="info-row description">
-                    <MinifiableText text={collection.description} maxChars={500} />
+      <div className='row'>
+        <div className='col'>
+          <div className='card dark collection-profile'>
+            <h2>{denormURL(cid)}</h2>
+            {loading ? <div className='skltn rows' /> : 
+              <Fragment>
+                <div className='info-row description'>
+                  <MinifiableText text={collection.description} maxChars={500} />
+                </div>
+                {user && isEditor && (
+                  <div className='info-row'>
+                    <button 
+                      type='button' 
+                      className={`btn sm ${follow ? 'success error-on-hover' : 'primary'}`} 
+                      onClick={onFollow} 
+                      disabled={!user || !isEditor}>
+                      {follow ? (
+                        <Fragment>
+                          <span className='hide-on-hover'>{icon.check} Segui</span>
+                          <span className='show-on-hover'>Smetti</span>
+                        </Fragment> 
+                      ) : (
+                        <span>{icon.plus} Segui</span>
+                      )}
+                    </button>
+                    <div className='counter last inline'>
+                      <Bubbles limit={3} items={followers} />
+                    </div>
                   </div>
-                  {user && isEditor && (
-                    <div className="info-row">
-                      <button 
-                        type="button" 
-                        className={`btn sm ${follow ? 'success error-on-hover' : 'primary'}`} 
-                        onClick={onFollow} 
-                        disabled={!user || !isEditor}>
-                        {follow ? 
-                          <>
-                            <span className="hide-on-hover">{icon.check} Segui</span>
-                            <span className="show-on-hover">Smetti</span>
-                          </> 
-                        : <span>{icon.plus} Segui</span> }
-                      </button>
-                      <div className="counter last inline">
-                        <Bubbles limit={3} items={followers} />
-                      </div>
-                    </div>
-                  )}
-                </>
-              }
-            </div>
-            
-            <div className="card dark text-left">
-              <div className="head nav" role="navigation">
-                <span className="counter last title">Altre collezioni</span>
-                <div className="pull-right">
-                  {filterByName &&
-                  <Tooltip title="Resetta i filtri">
-                    <button
-                      type="button"
-                      className="btn icon sm flat rounded counter"
-                      onClick={onResetFilters}>
-                      {icon.close}
-                    </button>
-                  </Tooltip>
-                  }
-                  <button 
-                    type="button"
-                    className="btn sm flat rounded counter"
-                    onClick={onOpenFilterMenu}>
-                    {filterByName || 'Filtra per genere'}
+                )}
+              </Fragment>
+            }
+          </div>
+          
+          <div className='card dark text-left'>
+            <div className='head nav' role='navigation'>
+              <span className='counter last title'>Altre collezioni</span>
+              <div className='pull-right'>
+                {filterByName &&
+                <Tooltip title='Resetta i filtri'>
+                  <button
+                    type='button'
+                    className='btn icon sm flat rounded counter'
+                    onClick={onResetFilters}>
+                    {icon.close}
                   </button>
-                  <Menu 
-                    className="dropdown-menu"
-                    anchorEl={filterMenuAnchorEl} 
-                    open={Boolean(filterMenuAnchorEl)} 
-                    onClose={onCloseFilterMenu}>
-                    {filterByOptions}
-                  </Menu>
-                  <Tooltip title={desc ? 'Ascendente' : 'Discendente'}>
-                    <button
-                      type="button"
-                      className={`btn sm icon flat rounded counter ${desc ? 'desc' : 'asc'}`}
-                      onClick={onToggleDesc}>
-                      {icon.arrowDown}
-                    </button>
-                  </Tooltip>
-                </div>
-              </div>
-              <div className={`badges table ${isMini ? 'scrollable' : 'fullview'} ${filterByName ? 'stacked' : ''}`}>
-                <div className="content">
-                  {loadingCollections ? <div className="skltn rows" /> : collections ? collections.map(collection => 
-                    <Link 
-                      to={`/collection/${normURL(collection.title)}`} 
-                      key={normalizeString(collection.title)} 
-                      className="badge">
-                      {collection.title}{filterByName && <span className="pull-right">{collection.books_num} libri</span>}
-                    </Link>
-                  ) : (
-                    <div className="empty text-center">
-                      <div className="counter last">Nessuna collezione</div>
-                      <button type="button" className="btn rounded flat" onClick={onResetFilters}>Resetta i filtri</button>
-                    </div>
-                  )}
-                </div>
+                </Tooltip>
+                }
+                <button 
+                  type='button'
+                  className='btn sm flat rounded counter'
+                  onClick={onOpenFilterMenu}>
+                  {filterByName || 'Filtra per genere'}
+                </button>
+                <Menu 
+                  className='dropdown-menu'
+                  anchorEl={filterMenuAnchorEl} 
+                  open={Boolean(filterMenuAnchorEl)} 
+                  onClose={onCloseFilterMenu}>
+                  {filterByOptions}
+                </Menu>
+                <Tooltip title={desc ? 'Ascendente' : 'Discendente'}>
+                  <button
+                    type='button'
+                    className={`btn sm icon flat rounded counter ${desc ? 'desc' : 'asc'}`}
+                    onClick={onToggleDesc}>
+                    {icon.arrowDown}
+                  </button>
+                </Tooltip>
               </div>
             </div>
+            <div className={`badges table ${isMini ? 'scrollable' : 'fullview'} ${filterByName ? 'stacked' : ''}`}>
+              <div className='content'>
+                {loadingCollections ? <div className='skltn rows' /> : collections ? collections.map(collection => 
+                  <Link 
+                    to={`/collection/${normURL(collection.title)}`} 
+                    key={normalizeString(collection.title)} 
+                    className='badge'>
+                    {collection.title}{filterByName && <span className='pull-right'>{collection.books_num} libri</span>}
+                  </Link>
+                ) : (
+                  <div className='empty text-center'>
+                    <div className='counter last'>Nessuna collezione</div>
+                    <button type='button' className='btn rounded flat' onClick={onResetFilters}>Resetta i filtri</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-            <ul className="nolist inline-items info-row hide-md">
-              <li className="counter"><Link to="/collections">Collezioni</Link></li>
-              <li className="counter"><Link to="/genres">Generi</Link></li>
-              <li className="counter"><Link to="/authors">Autori</Link></li>
-            </ul>
+          <ul className='nolist inline-items info-row hide-md'>
+            <li className='counter'><Link to='/collections'>Collezioni</Link></li>
+            <li className='counter'><Link to='/genres'>Generi</Link></li>
+            <li className='counter'><Link to='/authors'>Autori</Link></li>
+          </ul>
         </div>
-        <div className="col-md-6">
-          <div className="card light">
+        <div className='col-md-6'>
+          <div className='card light'>
             <BookCollection cid={denormURL(cid)} pagination={false} booksPerRow={1} stacked />
           </div>
         </div>
@@ -279,12 +281,12 @@ Collection.propTypes = {
   history: historyType,
   location: locationType,
   match: matchType
-}
+};
 
 Collection.defaultProps = {
   history: null,
   location: null,
   match: null
-}
+};
  
 export default Collection;

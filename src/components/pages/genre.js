@@ -59,7 +59,7 @@ const Genre = ({ match }) => {
     return () => {
       is.current = false;
       window.removeEventListener('resize', updateScreenSize);
-    }
+    };
   }, []);
 
   const fetchFollowers = useCallback(() => {
@@ -80,7 +80,7 @@ const Genre = ({ match }) => {
 
     return () => {
       unsub.genreFollowersFetch && unsub.genreFollowersFetch();
-    }
+    };
   }, [gid, user]);
 
   const fetchGenre = useCallback(() => {
@@ -139,7 +139,7 @@ const Genre = ({ match }) => {
           // setLoading(false);
         }
       }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
-    } else console.warn(`No gid`);
+    } else console.warn('No gid');
   }, [desc, gid, openSnackbar, orderByIndex]);
 
   useEffect(() => {
@@ -178,7 +178,7 @@ const Genre = ({ match }) => {
       }).finally(() => {
         if (is.current) setLoading(false);
       });
-    } else console.warn(`No gid`);
+    } else console.warn('No gid');
   };
 
   const onChangeOrderBy = (e, i) => {
@@ -225,10 +225,10 @@ const Genre = ({ match }) => {
   
   const orderByOptions = useMemo(() => orderBy.map((option, i) => (
     <MenuItem
-    key={option.type}
-    disabled={i === -1}
-    selected={i === orderByIndex}
-    onClick={e => onChangeOrderBy(e, i)}>
+      key={option.type}
+      disabled={i === -1}
+      selected={i === orderByIndex}
+      onClick={e => onChangeOrderBy(e, i)}>
       {option.label}
     </MenuItem>
   )), [orderByIndex]);
@@ -375,14 +375,14 @@ const Genre = ({ match }) => {
       )}
     </div>
   );
-}
+};
 
 Genre.propTypes = {
   match: matchType
-}
+};
 
 Genre.defaultProps = {
   match: null
-}
- 
+};
+
 export default Genre;

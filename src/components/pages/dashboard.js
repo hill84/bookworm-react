@@ -81,7 +81,7 @@ const Dashboard = ({ history, location, match }) => {
       is.current = false;
       window.removeEventListener('resize', updateScreenSize);
       unsub.userFetch && unsub.userFetch();
-    }
+    };
   }, []);
 
   const calcProgress = useCallback(user => {
@@ -92,10 +92,10 @@ const Dashboard = ({ history, location, match }) => {
     keys?.forEach(i => { 
       // console.log(i + ': ' + typeof user[i] + ' - ' + user[i]);
       if (typeof user[i] === 'string') {
-        if (user[i] !== '') count++ 
+        if (user[i] !== '') count++;
       } else if (Array.isArray(user[i])) {
-        if (user[i].length > 0) count++ 
-      } else count++
+        if (user[i].length > 0) count++;
+      } else count++;
     });
     
     if (tot) return Number((100 / tot * count).toFixed(0));
@@ -148,9 +148,9 @@ const Dashboard = ({ history, location, match }) => {
         });
       }
     }
-	}, [isAuth, luid, uid]);
+  }, [isAuth, luid, uid]);
 
-	const fetchFollowings = useCallback(() => {
+  const fetchFollowings = useCallback(() => {
     unsub.uidFollowingsFetch && unsub.uidFollowingsFetch();
     unsub.uidFollowingsFetch = followingsRef(uid).onSnapshot(snap => {
       if (snap.exists) {
@@ -174,7 +174,7 @@ const Dashboard = ({ history, location, match }) => {
   }, [luid, uid]);
 
   const fetchuserChallengesRef = useCallback(() => {
-		if (luid) {
+    if (luid) {
       unsub.collectionFetch = userChallengesRef(luid).onSnapshot(snap => {
         if (!snap.empty) {
           const challenges = [];
@@ -232,20 +232,20 @@ const Dashboard = ({ history, location, match }) => {
   const onFollowUser = useCallback((e, fuid = duser.uid, fuser = duser) => {
     e.preventDefault();
     
-		if (isAuth) {
-			let computedFollowers = luid !== fuid ? { ...followers } : { ...lfollowers };
-			let computedFollowings = luid !== uid ? { ...lfollowings } : { ...followings };
-			// console.log({ luid, fuid, computedFollowers, computedFollowings, followers, followings, lfollowers, lfollowings });
+    if (isAuth) {
+      let computedFollowers = luid !== fuid ? { ...followers } : { ...lfollowers };
+      let computedFollowings = luid !== uid ? { ...lfollowings } : { ...followings };
+      // console.log({ luid, fuid, computedFollowers, computedFollowings, followers, followings, lfollowers, lfollowings });
       let snackbarMsg = '';
       let noteMsg = '';
       let followerDisplayName = '';
       const lindex = Object.keys(computedFollowers).indexOf(luid);
-			const findex = Object.keys(computedFollowings).indexOf(fuid);			
-			// console.log({ fuid, fuser, lindex, findex });
+      const findex = Object.keys(computedFollowings).indexOf(fuid);			
+      // console.log({ fuid, fuser, lindex, findex });
 
       if (lindex > -1 || findex > -1) {
         if (lindex > -1) delete computedFollowers[luid];
-				if (findex > -1) delete computedFollowings[fuid];
+        if (findex > -1) delete computedFollowings[fuid];
         snackbarMsg = `Non segui più ${fuser.displayName}`;
       } else {
         computedFollowers = { 
@@ -256,7 +256,7 @@ const Dashboard = ({ history, location, match }) => {
             timestamp: Date.now()
           }
         };
-				computedFollowings = {
+        computedFollowings = {
           ...computedFollowings,
           [fuid]: {
             displayName: fuser.displayName,
@@ -268,7 +268,7 @@ const Dashboard = ({ history, location, match }) => {
         const followerName = user.displayName.split(' ')[0];
         followerDisplayName = truncateString(followerName, 12);
         noteMsg = `<a href="/dashboard/${luid}">${followerDisplayName}</a> ha iniziato a seguirti`;
-			}
+      }
 
       const maxFollowings = isPremium || isAdmin ? max.followings.premium : max.followings.standard;
   
@@ -337,7 +337,7 @@ const Dashboard = ({ history, location, match }) => {
   const contactsSkeleton = useMemo(() => [...Array(3)].map((e, i) => <div key={i} className="avatar-row skltn" />), []);
   const creationYear = useMemo(() => duser && String(new Date(duser.creationTime).getFullYear()), [duser]);
 
-  const ShelfDetails = useMemo(() => () => (
+  const ShelfDetails = useMemo(() => (
     <div className="info-row footer centered shelfdetails">
       <span className="counter">{icon.book} <b>{duser ? duser.stats?.shelf_num : 0}</b> <span className="hide-sm">Libri</span></span>
       <span className="counter">{icon.heart} <b>{duser ? duser.stats?.wishlist_num : 0}</b> <span className="hide-sm">Desideri</span></span>
@@ -346,7 +346,9 @@ const Dashboard = ({ history, location, match }) => {
     </div>
   ), [duser]);
 
-  if (!duser && !loading) return <NoMatch title="Dashboard utente non trovata" history={history} location={location} />
+  if (!duser && !loading) return (
+    <NoMatch title="Dashboard utente non trovata" history={history} location={location} />
+  );
   
   const UsersList = ({ users }) => {
     return (
@@ -396,7 +398,7 @@ const Dashboard = ({ history, location, match }) => {
 
   UsersList.propTypes = {
     users: objectType.isRequired
-  }
+  };
 
   const EmptyRow = () => (
     <div className="avatar-row empty">
@@ -416,7 +418,7 @@ const Dashboard = ({ history, location, match }) => {
   TabLabel.propTypes = {
     icon: objectType.isRequired,
     label: stringType.isRequired
-  }
+  };
 
   const tabSeoTitle = () => {
     switch (tabSelected) {
@@ -528,7 +530,7 @@ const Dashboard = ({ history, location, match }) => {
               <div className="container">
                 <div className="progress-container">
                   <div className="progress-base" />
-                  <CircularProgress variant="static" value={progress < 100 ? progress : !challengeCompleted ? challengeProgress : 0} size={60} max={100} thickness={3} />
+                  <CircularProgress variant="determinate" value={progress < 100 ? progress : !challengeCompleted ? challengeProgress : 0} size={60} max={100} thickness={3} />
                   <div className="progress-value">
                     {progress < 100 ? `${progress}%` : challengeBooks && !challengeCompleted ? `${challengeProgress}%` : icon.reader}
                   </div>
@@ -596,18 +598,18 @@ const Dashboard = ({ history, location, match }) => {
       <ShelfDetails />
     </div>
   );
-}
+};
 
 Dashboard.propTypes = {
   history: historyType,
   location: locationType,
   match: matchType
-}
+};
 
 Dashboard.defaultProps = {
   history: null,
   location: null,
   match: null
-}
+};
  
 export default Dashboard;

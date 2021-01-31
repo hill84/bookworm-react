@@ -407,16 +407,16 @@ const SearchBookForm = ({ newBook, onBookSelect }) => {
       </div>
     </div>
   );
-}
+};
 
 SearchBookForm.propTypes = {
   newBook: boolType,
   onBookSelect: funcType
-}
+};
 
 SearchBookForm.defaultProps = {
   newBook: false,
   onBookSelect: null
-}
+};
  
 export default SearchBookForm;

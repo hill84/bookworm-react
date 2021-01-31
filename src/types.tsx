@@ -1,34 +1,4 @@
-export interface LocationModel {
-  hash: string;
-  key?: string;
-  pathname: string;
-  search: string;
-  state?: unknown[];
-}
-
-export interface MatchModel {
-  isExact: boolean;
-  params: unknown;
-  path: string;
-  url: string;
-}
-
-export interface HistoryModel {
-  action: Array<'PUSH' | 'REPLACE' | 'POP'>;
-  block: Function;
-  canGo?: Function;
-  createHref: Function;
-  entries?: LocationModel[];
-  go: Function;
-  goBack: Function;
-  goForward: Function;
-  index?: number;
-  length: number;
-  listen: Function;
-  location: LocationModel;
-  push: Function;
-  replace: Function;
-}
+import { RouteComponentProps, RouteProps } from 'react-router';
 
 export interface UserModel {
   creationTime: number;
@@ -46,6 +16,17 @@ export interface UserModel {
   sex: string;
   roles: RolesModel;
   stats: StatsModel;
+  website?: string;
+  youtube?: string;
+  instagram?: string;
+  twitch?: string;
+  facebook?: string;
+}
+
+export interface FollowerModel extends Pick<UserModel, 'displayName' | 'photoURL'> {
+  gid?: string;
+  timestamp: number;
+  uid?: string;
 }
 
 export interface BookModel {
@@ -61,10 +42,13 @@ export interface BookModel {
     lastEdit_num: number;
   };
   authors: Record<string, boolean>;
+  awards?: string[];
+  bcid?: number;
   bid: string;
+  collections?: string[];
   covers: string[];
   description: string;
-  duration: number; // audio book duration in milliseconds
+  duration?: number; // audio book duration in milliseconds
   edition_num: number;
   format: FormatType;
   genres: string[];
@@ -83,15 +67,18 @@ export interface BookModel {
   trailerURL: string;
 }
 
-export interface CoverModel {
-  bid: string;
-  title: string;
-  subtitle: string;
-  authors: unknown;
-  format: FormatType;
-  covers: string[];
-  publisher: string;
-  incipit: string;
+export interface CoverModel extends Pick<BookModel, 'authors' | 'bid' | 'covers' | 'title'> {
+  awards?: string[];
+  bcid?: number;
+  format?: FormatType;
+  incipit?: string;
+  publisher?: string;
+  rating_num?: number;
+  ratings_num?: number;
+  readingState?: ReadingStateModel;
+  readers_num?: number;
+  review?: ReviewModel;
+  subtitle?: string;
 }
 
 export interface FlagModel {
@@ -135,16 +122,20 @@ interface UserBookReviewModel {
   title: string;
 }
 
-export interface UserBookModel {
-  review: UserBookReviewModel;
-  readingState: {
-    state_num: number;
-    start_num: number;
-    end_num: number;
-  };
-  rating_num: number;
+export interface ReadingStateModel {
+  progress_num?: number;
+  end_num?: number;
+  state_num: number;
+  start_num?: number;
+}
+
+export interface UserBookModel extends Pick<BookModel, 'authors' | 'bid' | 'covers' | 'publisher' | 'subtitle' | 'title'>{
+  added_num: number;
   bookInShelf: boolean;
   bookInWishlist: boolean;
+  rating_num: number;
+  readingState: ReadingStateModel;
+  review: UserBookReviewModel;
 }
 
 export interface RatingsModel {
@@ -189,7 +180,7 @@ export interface AuthorModel {
 export interface QuoteModel {
   author: string;
   bid: string;
-  bootTitle: string;
+  bookTitle: string;
   coverURL: string;
   edit: boolean;
   lastEditBy: string;
@@ -200,9 +191,15 @@ export interface QuoteModel {
 }
 
 export interface ChallengesModel {
+  books: {
+    author: string;
+    bid: string;
+    cover: string;
+    title: string;
+  }[];
   cid: string;
+  description: string;
   title: string;
-  books: boolean[];
 }[];
 
 /* export interface ChallengeModel {
@@ -213,7 +210,7 @@ export interface ChallengesModel {
     author: string;
     bid: string;
     cover: string;
-    title: string
+    title: string;
   }[];
   followers: Array<any> ?
 } */
@@ -227,6 +224,7 @@ export interface NoteModel {
   photoURL?: string;
   tag?: string[];
   read: boolean;
+  role?: RolesType;
   uid?: string;
 }
 
@@ -263,7 +261,7 @@ export interface GroupModel {
   lastEdit_num: number;
   lastEditBy: string;
   lastEditByUid: string;
-  moderators: ModeratorModel[];
+  moderators: string[];
 }
 
 export interface DiscussionModel {
@@ -281,7 +279,7 @@ export interface DiscussionModel {
 export interface AppModel {
   name: string;
   url: string;
-  logo: unknown;
+  logo: string;
   fb: { name: string; url: string };
   tw: { name: string; url: string };
   help: {
@@ -309,6 +307,10 @@ export interface RolesModel {
   'editor': boolean;
   'premium': boolean;
 }
+
+export type HistoryType = RouteComponentProps['history'];
+
+export type LocationType = RouteProps['location']; // ALSO: path, exact, strict, component, render, children, sensitive
 
 export type StatsModel = Record<StatsType, number>;
 

@@ -15,7 +15,7 @@ import PaginationControls from '../../paginationControls';
 const limitBy = [ 15, 25, 50, 100, 250, 500];
 
 export default class NotesDash extends Component {
- 	state = {
+  state = {
     count: 0,
     desc: true,
     firstVisible: null,
@@ -29,15 +29,15 @@ export default class NotesDash extends Component {
     selectedEl: null,
     selectedId: null,
     loading: false
-	}
+  }
 
-	static propTypes = {
+  static propTypes = {
     inView: boolType.isRequired,
     onToggleDialog: funcType.isRequired,
     openSnackbar: funcType.isRequired
-	}
+  }
 
-	componentDidMount() { 
+  componentDidMount() { 
     this._isMounted = true;
     if (this.props.inView) this.fetch();
     // this.getLastNotes(); // TODO: 
@@ -83,7 +83,7 @@ export default class NotesDash extends Component {
           }));
         } else this.setState({ items: null, count: 0, loading: false });
       });
-    }
+    };
 
     if (!direction) {
       countRef('notifications').get().then(fullSnap => {
@@ -145,10 +145,12 @@ export default class NotesDash extends Component {
     })
   } */
 
-	render() {
+  render() {
     const { count, isOpenDeleteDialog, items, limitByIndex, limitMenuAnchorEl, loading, page, redirectTo, selectedId } = this.state;
 
-    if (redirectTo) return <Redirect to={`/notifications/${redirectTo}`} />
+    if (redirectTo) return (
+      <Redirect to={`/notifications/${redirectTo}`} />
+    );
 
     const limitByOptions = limitBy.map((option, index) => (
       <MenuItem
@@ -205,7 +207,7 @@ export default class NotesDash extends Component {
       ))
     );
 
-		return (
+    return (
       <>
         <div className="head nav">
           <div className="row">
@@ -255,7 +257,7 @@ export default class NotesDash extends Component {
             </DialogActions>
           </Dialog>
         )}
-			</>
-		);
-	}
+      </>
+    );
+  }
 }

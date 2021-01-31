@@ -23,7 +23,7 @@ const orderBy = [
 ];
 
 export default class QuotesDash extends Component {
- 	state = {
+  state = {
     count: 0,
     desc: true,
     firstVisible: null,
@@ -38,15 +38,15 @@ export default class QuotesDash extends Component {
     page: 1,
     selectedId: null,
     loading: false
-	}
+  }
 
-	static propTypes = {
+  static propTypes = {
     inView: boolType.isRequired,
     onToggleDialog: funcType.isRequired,
     openSnackbar: funcType.isRequired
   }
 
-	componentDidMount() { 
+  componentDidMount() { 
     this._isMounted = true;
     if (this.props.inView) this.fetch();
   }
@@ -91,7 +91,7 @@ export default class QuotesDash extends Component {
           }));
         } else this.setState({ firstVisible: null, items: null, lastVisible: null, loading: false });
       });
-    }
+    };
 
     if (!direction) {
       countRef('quotes').get().then(fullSnap => {
@@ -147,10 +147,12 @@ export default class QuotesDash extends Component {
     }).catch(error => console.warn(error));
   }
 
-	render() {
+  render() {
     const { count, desc, isOpenDeleteDialog, items, limitByIndex, limitMenuAnchorEl, loading, orderByIndex, orderMenuAnchorEl, page, redirectTo } = this.state;
 
-    if (redirectTo) return <Redirect to={`/author/${redirectTo}`} />
+    if (redirectTo) return (
+      <Redirect to={`/author/${redirectTo}`} />
+    );
 
     const orderByOptions = orderBy.map((option, index) => (
       <MenuItem
@@ -205,8 +207,8 @@ export default class QuotesDash extends Component {
       ))
     );
 
-		return (
-			<>
+    return (
+      <>
         <div className="head nav">
           <div className="row">
             <div className="col">
@@ -271,7 +273,7 @@ export default class QuotesDash extends Component {
             </DialogActions>
           </Dialog>
         )}
-			</>
-		);
-	}
+      </>
+    );
+  }
 }

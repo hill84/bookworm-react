@@ -103,8 +103,8 @@ const BookProfile = ({
     if (is.current) setIsOpenIncipit(!isOpenIncipit);
 
     history.push(location.pathname.indexOf('/incipit') === -1 
-    ? `${location.pathname}/incipit` 
-    : location.pathname.replace('/incipit', ''), null);
+      ? `${location.pathname}/incipit` 
+      : location.pathname.replace('/incipit', ''), null);
   };
 
   const onToggleReadingState = () => setIsOpenReadingState(!isOpenReadingState);
@@ -138,7 +138,9 @@ const BookProfile = ({
   const hasBid = useMemo(() => Boolean(book?.bid), [book]);
   const isLocked = useMemo(() => !book?.EDIT.edit && !isAdmin, [book, isAdmin]);
 
-  if (!book && !loading) return <NoMatch title="Libro non trovato" history={history} location={location} />
+  if (!book && !loading) return (
+    <NoMatch title="Libro non trovato" history={history} location={location} />
+  );
 
   // const authors = book && <Link to={`/author/${normURL(Object.keys(book.authors)[0])}`}>{Object.keys(book.authors)[0]}</Link>;
 
@@ -392,7 +394,7 @@ const BookProfile = ({
       )}
     </>
   );
-}
+};
 
 BookProfile.propTypes = {
   addReview: funcType.isRequired,
@@ -410,13 +412,13 @@ BookProfile.propTypes = {
   rateBook: funcType.isRequired,
   onEditing: funcType.isRequired,
   userBook: userBookType
-}
+};
 
 BookProfile.defaultProps = {
   book: null,
   loading: null,
   location: null,
   userBook: null
-}
+};
  
 export default BookProfile;

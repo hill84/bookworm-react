@@ -10,8 +10,8 @@ import Zoom from 'react-medium-image-zoom';
 import { Link, Redirect } from 'react-router-dom';
 import { authorRef, authorsRef, countRef } from '../../../config/firebase';
 import icon from '../../../config/icons';
+import { funcType } from '../../../config/proptypes';
 import { app, getInitials, handleFirestoreError, normalizeString, normURL, timeSince } from '../../../config/shared';
-import { boolType, funcType } from '../../../config/proptypes';
 import SnackbarContext from '../../../context/snackbarContext';
 import CopyToClipboard from '../../copyToClipboard';
 import PaginationControls from '../../paginationControls';
@@ -30,7 +30,7 @@ const unsub = {
   authorsFetch: null
 };
 
-const AuthorsDash = ({ inView, onToggleDialog }) => {
+const AuthorsDash = ({ onToggleDialog }) => {
   const { openSnackbar } = useContext(SnackbarContext);
   const [count, setCount] = useState(0);
   const [desc, setDesc] = useState(true);
@@ -94,9 +94,9 @@ const AuthorsDash = ({ inView, onToggleDialog }) => {
   }, [count, desc, firstVisible, lastVisible, limit, openSnackbar, orderByIndex, page]);
 
   useEffect(() => {
-    if (inView) fetch();
+    fetch();
     // eslint-disable-next-line
-  }, [inView, desc, limitByIndex, orderByIndex]);
+  }, [desc, limitByIndex, orderByIndex]);
 
   useEffect(() => () => {
     is.current = false;
@@ -159,7 +159,9 @@ const AuthorsDash = ({ inView, onToggleDialog }) => {
 
   const skeletons = useMemo(() => [...Array(limit)].map((e, i) => <li key={i} className="skltn dash" />), [limit]);
 
-  if (redirectTo) return <Redirect to={`/author/${redirectTo}`} />
+  if (redirectTo) return (
+    <Redirect to={`/author/${redirectTo}`} />
+  );
     
   const orderByOptions = orderBy.map((option, index) => (
     <MenuItem
@@ -187,11 +189,11 @@ const AuthorsDash = ({ inView, onToggleDialog }) => {
         <div className="row">
           <div className="col-auto hide-xs avatar-container">
             <Avatar className="avatar">
-              {item.photoURL ? 
+              {item.photoURL ? (
                 <Zoom overlayBgColorEnd="rgba(var(--canvasClr), .8)" zoomMargin={10}>
                   <img alt={item.displayName} src={item.photoURL} className="avatar thumb" />
                 </Zoom>
-              : getInitials(item.displayName)}
+              ) : getInitials(item.displayName)}
             </Avatar>
           </div>
           <div className="col-6 col-sm-4 col-lg-2" title={item.displayName}><CopyToClipboard text={item.displayName}/></div>
@@ -286,11 +288,10 @@ const AuthorsDash = ({ inView, onToggleDialog }) => {
       )}
     </>
   );
-}
+};
 
 AuthorsDash.propTypes = {
-  inView: boolType.isRequired,
   onToggleDialog: funcType.isRequired
-}
+};
 
 export default AuthorsDash;

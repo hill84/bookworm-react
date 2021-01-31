@@ -11,8 +11,8 @@ import Zoom from 'react-medium-image-zoom';
 import { Link, Redirect } from 'react-router-dom';
 import { auth, authorFollowerRef, collectionFollowersRef, commentersGroupRef, countRef, followersGroupRef, genreFollowerRef, noteRef, notesRef, reviewerCommenterRef, reviewerRef, reviewersGroupRef, userNotificationsRef, userRef, usersRef } from '../../../config/firebase';
 import icon from '../../../config/icons';
-import { asyncForEach, dateOptions, getInitials, handleFirestoreError, timeOptions } from '../../../config/shared';
 import { funcType } from '../../../config/proptypes';
+import { asyncForEach, dateOptions, getInitials, handleFirestoreError, timeOptions } from '../../../config/shared';
 import SnackbarContext from '../../../context/snackbarContext';
 import CopyToClipboard from '../../copyToClipboard';
 import PaginationControls from '../../paginationControls';
@@ -158,7 +158,7 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
   const onSendReset = e => {
     const { email } = e.currentTarget?.parentNode?.dataset;
     auth.sendPasswordResetEmail(email).then(() => {
-      openSnackbar(`Email inviata`, 'success');
+      openSnackbar('Email inviata', 'success');
     }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
   };
 
@@ -185,7 +185,7 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
   };
   const onCloseDeleteDialog = () => {
     setIsOpenDeleteDialog(false);
-    setSelected(null)
+    setSelected(null);
   };
   const onDelete = useCallback(() => {
     if (is.current) setIsOpenDeleteDialog(false);
@@ -266,7 +266,7 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
     userRef(uid).update({ [`roles.${role}`]: !state }).catch(err => console.warn(err));
   };
 
-  if (redirectTo) return <Redirect to={`/dashboard/${redirectTo}`} />
+  if (redirectTo) return <Redirect to={`/dashboard/${redirectTo}`} />;
   
   const orderByOptions = orderBy.map((option, index) => (
     <MenuItem
@@ -300,7 +300,7 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
                 <Zoom overlayBgColorEnd="rgba(var(--canvasClr), .8)" zoomMargin={10}>
                   <img alt={item.displayName} src={item.photoURL} className="avatar thumb" />
                 </Zoom>
-              : getInitials(item.displayName)}
+                : getInitials(item.displayName)}
             </Avatar>
           </div>
           <Link to={`/dashboard/${item.uid}`} className="col col-lg-2" title={item.displayName}>
@@ -476,11 +476,11 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
       )}
     </>
   );
-}
+};
 
 UsersDash.propTypes = {
   onToggleDialog: funcType.isRequired,
   onToggleNoteDialog: funcType.isRequired
-}
+};
  
 export default UsersDash;

@@ -142,13 +142,13 @@ const ReadingStats = ({ loading: _loading, uid }) => {
   
   const tableSkltn = useMemo(() => [...Array(data ? 3 : 5)].map((e, i) => <li key={i} className="avatar-row skltn dash" />), [data]);
   
-  if (!loading && !userBooks) return <div className="text-center">Statistiche non disponibili</div>
+  if (!loading && !userBooks) return <div className="text-center">Statistiche non disponibili</div>;
   
   return (
     <div ref={is}>
       <div className="head row">
         <h2 className="col">
-          Statistiche <span className="hide-sm">di lettura</span> <Tooltip title={`Aggiornate ogni 24 ore. Conteggiano solo i libri segnati come "letti" con una "data di fine" nello "stato di lettura".`}><button type="button" className="link">{icon.informationOutline}</button></Tooltip>
+          Statistiche <span className="hide-sm">di lettura</span> <Tooltip title={'Aggiornate ogni 24 ore. Conteggiano solo i libri segnati come "letti" con una "data di fine" nello "stato di lettura".'}><button type="button" className="link">{icon.informationOutline}</button></Tooltip>
         </h2>
         {timestamp && <span className="col-auto text-sm light-text"><span className="hide-sm">Aggiornate al</span> {new Date(timestamp).toLocaleString()}</span>}
       </div>
@@ -256,7 +256,7 @@ const ReadingStats = ({ loading: _loading, uid }) => {
       )}
     </div>
   );
-}
+};
 
 ReadingStats.propTypes = {
   loading: boolType,

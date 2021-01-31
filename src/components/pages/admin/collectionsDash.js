@@ -19,8 +19,8 @@ const orderBy = [
   { type: 'title', label: 'Titolo'}
 ];
 
-export default class collectionsDash extends Component {
- 	state = {
+export default class CollectionsDash extends Component {
+  state = {
     count: 0,
     desc: false,
     isOpenDeleteDialog: false,
@@ -33,15 +33,15 @@ export default class collectionsDash extends Component {
     page: 1,
     selectedId: null,
     loading: false
-	}
+  }
 
-	static propTypes = {
+  static propTypes = {
     inView: boolType.isRequired,
     onToggleDialog: funcType.isRequired,
     openSnackbar: funcType.isRequired
   } 
 
-	componentDidMount() { 
+  componentDidMount() { 
     this._isMounted = true;
     if (this.props.inView) this.fetch();
   }
@@ -95,7 +95,7 @@ export default class collectionsDash extends Component {
           }));
         } else this.setState({ firstVisible: null, items: null, lastVisible: null, loading: false });
       });
-    }
+    };
 
     if (!direction) {
       countRef('collections').get().then(fullSnap => {
@@ -151,10 +151,12 @@ export default class collectionsDash extends Component {
     }).catch(error => console.warn(error));
   }
 
-	render() {
+  render() {
     const { count, desc, isOpenDeleteDialog, items, limitByIndex, limitMenuAnchorEl, loading, orderByIndex, orderMenuAnchorEl, page, redirectTo } = this.state;
 
-    if (redirectTo) return <Redirect to={`/collection/${redirectTo}`} />
+    if (redirectTo) return (
+      <Redirect to={`/collection/${redirectTo}`} />
+    );
 
     const orderByOptions = orderBy.map((option, index) => (
       <MenuItem
@@ -203,7 +205,7 @@ export default class collectionsDash extends Component {
       `<url> <loc>${app.url}/collection/${normURL(item.title)}</loc> </url>`
     ]));
 
-		return (
+    return (
       <>
         <div className="head nav">
           <div className="row">
@@ -273,7 +275,7 @@ export default class collectionsDash extends Component {
             </DialogActions>
           </Dialog>
         )}
-			</>
-		);
-	}
+      </>
+    );
+  }
 }

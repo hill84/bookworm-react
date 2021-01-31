@@ -110,7 +110,7 @@ const Notifications = () => {
     }).finally(() => {
       if (is.current) setLoading(false);
     });
-  }
+  };
 
   const onChangeOrderBy = (e, i) => {
     setOrderByIndex(i);
@@ -193,6 +193,6 @@ const Notifications = () => {
       )}
     </div>
   );
-}
+};
  
 export default Notifications;

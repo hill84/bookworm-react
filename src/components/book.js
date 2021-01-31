@@ -175,7 +175,7 @@ const Book = ({
           }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
         }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
       }      
-    } else console.warn(`Cannot addBookToShelf. User not authenticated`);
+    } else console.warn('Cannot addBookToShelf. User not authenticated');
   }, [authid, book, isAdmin, isAuth, isPremium, openSnackbar, user, userBook]);
   
   const addBookToWishlist = useCallback(bid => {
@@ -201,7 +201,7 @@ const Book = ({
           }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
         }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
       }
-    } else console.warn(`Cannot addBookToWishlist. User not authenticated`);
+    } else console.warn('Cannot addBookToWishlist. User not authenticated');
   }, [authid, isAdmin, isAuth, isPremium, openSnackbar, user, userBook]);
   
   const removeBookFromUserBooks = useCallback((bid, bookshelf) => {
@@ -297,7 +297,7 @@ const Book = ({
               ratings_num: bookRatings_num
             }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
           });
-        };
+        }
       } else if (bookshelf === 'wishlist') {
         // console.log('will remove book from user wishlist stats');
         userRef(authid).update({
@@ -308,14 +308,14 @@ const Book = ({
           }
         }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
       } else console.warn(`no bookshelf named "${bookshelf}"`);
-    } else console.warn(`Cannot removeBookFromUserBooks. User not authenticated`);
+    } else console.warn('Cannot removeBookFromUserBooks. User not authenticated');
   }, [authid, book, isAuth, openSnackbar, user, userBook]);
 
   const removeBookFromShelf = useCallback(bid => removeBookFromUserBooks(bid, 'shelf'), [removeBookFromUserBooks]);
 
   const removeBookFromWishlist = useCallback(bid => removeBookFromUserBooks(bid, 'wishlist'), [removeBookFromUserBooks]);
 
-	const rateBook = useCallback((bid, rate) => {
+  const rateBook = useCallback((bid, rate) => {
     if (isAuth) {
       let bookRating_num = book.rating_num;
       const userBookRating_num = userBook.rating_num;
@@ -351,7 +351,7 @@ const Book = ({
               ratings_num: bookRatings_num
             }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
           });
-        };
+        }
   
         userBookRef(authid, bid).update({
           rating_num: rate
@@ -369,7 +369,7 @@ const Book = ({
         }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
       }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
 
-    } else console.warn(`Cannot rateBook. User not authenticated`);
+    } else console.warn('Cannot rateBook. User not authenticated');
   }, [authid, book, isAuth, openSnackbar, user, userBook]);
   
   const addReview = useCallback(() => {
@@ -392,7 +392,9 @@ const Book = ({
     } else console.warn('Cannot edit book. Book locked');
   }, [book, user]);
 
-  if (!loading && !book) return <NoMatch title="Libro non trovato" history={history} location={location} />
+  if (!loading && !book) return (
+    <NoMatch title="Libro non trovato" history={history} location={location} />
+  );
 
   const bgStyle = book ? { backgroundImage: `url(${book.covers[0]})`, } : {};
 
@@ -445,7 +447,7 @@ const Book = ({
       )}
     </>
   );
-}
+};
 
 Book.propTypes = {
   bid: stringType,
@@ -454,13 +456,13 @@ Book.propTypes = {
   isEditing: boolType,
   location: objectType.isRequired,
   // userBook: userBookType
-}
+};
 
 Book.defaultProps = {
   bid: null,
   book: null,
   isEditing: false,
   // userBook: null
-}
+};
  
 export default Book;

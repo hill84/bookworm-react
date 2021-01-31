@@ -54,7 +54,7 @@ const FlagDialog = ({
       </DialogActions>
     </Dialog>
   );
-}
+};
 
 FlagDialog.propTypes = {
   loading: boolType,
@@ -63,12 +63,12 @@ FlagDialog.propTypes = {
   open: boolType.isRequired,
   TransitionComponent: objectType,
   value: stringType
-}
+};
 
 FlagDialog.defaultProps = {
   loading: false,
   TransitionComponent: null,
   value: ''
-}
+};
 
 export default FlagDialog;

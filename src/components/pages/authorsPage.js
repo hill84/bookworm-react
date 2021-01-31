@@ -22,7 +22,7 @@ const orderBy = [
 const limit = 27;
 
 export default class AuthorsPage extends Component {
-	state = {
+  state = {
     items: null,
     count: 0,
     desc: false,
@@ -83,7 +83,7 @@ export default class AuthorsPage extends Component {
           this.setState({ firstVisible: null, items: null, lastVisible: null, loading: false, page: 1 });
         }
       }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
-    }
+    };
 
     if (!direction) {
       countRef('authors').get().then(fullSnap => {
@@ -104,7 +104,7 @@ export default class AuthorsPage extends Component {
   onChangeOrderBy = (e, i) => this.setState({ orderByIndex: i, orderMenuAnchorEl: null, page: 1 });
   onCloseOrderMenu = () => this.setState({ orderMenuAnchorEl: null });
 	
-	render() {
+  render() {
     const { count, desc, items, loading, orderByIndex, orderMenuAnchorEl, page } = this.state;
 
     // if (loading) return <div aria-hidden="true" className="loader"><CircularProgress /></div> 
@@ -119,7 +119,7 @@ export default class AuthorsPage extends Component {
       </MenuItem>
     ));
 
-		return (
+    return (
       <div className="container" id="authorsComponent">
         <Helmet>
           <title>{app.name} | Autori</title>
@@ -185,6 +185,6 @@ export default class AuthorsPage extends Component {
           )}
         </div>
       </div>
-		);
-	}
+    );
+  }
 }

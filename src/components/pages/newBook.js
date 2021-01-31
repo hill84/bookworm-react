@@ -34,16 +34,16 @@ const NewBook = ({ history, location }) => {
       )}
     </div>
   );
-}
+};
 
 NewBook.propTypes = {
   history: historyType,
   location: locationType
-}
+};
 
 NewBook.defaultProps = {
   history: null,
   location: null
-}
+};
 
 export default NewBook;
