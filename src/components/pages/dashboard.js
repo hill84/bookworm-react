@@ -570,10 +570,10 @@ const Dashboard = ({ history, location, match }) => {
         index={tabSelected}
         onChangeIndex={onTabSelectIndex}>
         <div className="card tab" dir={tabDir}>
-          {tabSelected === 0 && <Shelf openSnackbar={openSnackbar} luid={luid} uid={uid} shelf="bookInShelf" />}
+          {tabSelected === 0 && <Shelf luid={luid} uid={uid} shelf="bookInShelf" />}
         </div>
         <div className="card tab" dir={tabDir}>
-          {tabSelected === 1 && <Shelf openSnackbar={openSnackbar} luid={luid} uid={uid} shelf="bookInWishlist" />}
+          {tabSelected === 1 && <Shelf luid={luid} uid={uid} shelf="bookInWishlist" />}
         </div>
         <div className="card tab" dir={tabDir}>
           {tabSelected === 2 && <Reviews uid={uid} limit={3} container={false} pagination skeleton />}

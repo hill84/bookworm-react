@@ -77,7 +77,7 @@ export interface CoverModel extends Pick<BookModel, 'authors' | 'bid' | 'covers'
   ratings_num?: number;
   readingState?: ReadingStateModel;
   readers_num?: number;
-  review?: ReviewModel;
+  review?: UserBookReviewModel;
   subtitle?: string;
 }
 
@@ -190,30 +190,27 @@ export interface QuoteModel {
   quote: string;
 }
 
+export interface ChallengeBookModel {
+  author: string;
+  bid: string;
+  cover: string;
+  title: string;
+}
+
 export interface ChallengesModel {
-  books: {
-    author: string;
-    bid: string;
-    cover: string;
-    title: string;
-  }[];
+  books: ChallengeBookModel[];
   cid: string;
   description: string;
   title: string;
 }[];
 
-/* export interface ChallengeModel {
+export interface ChallengeModel {
   cid: string;
   title: string;
   description: string;
-  books: {
-    author: string;
-    bid: string;
-    cover: string;
-    title: string;
-  }[];
-  followers: Array<any> ?
-} */
+  books: Record<string, ChallengeBookModel>;
+  // followers?: any;
+}
 
 export interface NoteModel {
   nid?: string;

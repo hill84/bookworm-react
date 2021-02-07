@@ -47,8 +47,8 @@ const RecommendationForm = ({ book, onToggle }) => {
     
     return () => {
       unsubFetch && unsubFetch();
-    }
-	}, [uid]);
+    };
+  }, [uid]);
   
   useEffect(() => {
     fetch();
@@ -88,8 +88,8 @@ const RecommendationForm = ({ book, onToggle }) => {
 
     return () => {
       unsubFetchFollowings && unsubFetchFollowings();
-    }
-	}, [uid]);
+    };
+  }, [uid]);
 
   useEffect(() => {
     fetchFollowings();
@@ -210,11 +210,11 @@ const RecommendationForm = ({ book, onToggle }) => {
       </div>
     </>
   );
-}
+};
 
 RecommendationForm.propTypes = {
   book: bookType.isRequired,
   onToggle: funcType.isRequired
-}
+};
  
 export default RecommendationForm;
