@@ -1,46 +1,74 @@
-/* eslint-disable @typescript-eslint/camelcase */
+import { DocumentData, FirestoreError, Query } from '@firebase/firestore-types';
 import { Tooltip } from '@material-ui/core';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, Fragment, MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { booksRef, collectionBooksRef } from '../config/firebase';
 import icon from '../config/icons';
-import { genres } from '../config/lists';
+import { GenreModel, genres } from '../config/lists';
 import { booksPerRow as _booksPerRow, denormURL, handleFirestoreError /* , isTouchDevice */, normURL } from '../config/shared';
-import { boolType, numberType, stringType } from '../config/proptypes';
 import SnackbarContext from '../context/snackbarContext';
+import { CollectionBookModel, EventTargetWithDataset } from '../types';
 import Cover from './cover';
 import { skltn_shelfRow, skltn_shelfStack } from './skeletons';
 
-const BookCollection = ({
-  bcid,
-  booksPerRow,
-  cid,
-  desc: _desc,
-  inView,
-  limit: _limit,
-  pagination,
-  rating,
-  scrollable,
-  stacked
-}) => {
-  const { openSnackbar } = useContext(SnackbarContext);
-  const [collection, setCollection] = useState([]);
-  const [count, setCount] = useState(0);
-  const [desc, setDesc] = useState(_desc);
-  // const [lastVisible, setLastVisible] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(null);
-  const is = useRef(true);
+interface BookCollectionProps {
+  cid: string;
+  bcid?: string;
+  booksPerRow?: number;
+  desc?: boolean;
+  inView?: boolean;
+  limit?: number;
+  pagination?: boolean;
+  rating?: boolean;
+  scrollable?: boolean;
+  stacked?: boolean;
+}
 
-  const limit = useMemo(() => _limit || (pagination ? _booksPerRow() : 98), [pagination, _limit]);
+interface StateModel {
+  collection: CollectionBookModel[];
+  count: number;
+  desc: boolean;
+  loading: boolean;
+  page: number;
+}
+
+const initialState: StateModel = {
+  collection: [],
+  count: 0,
+  desc: false,
+  loading: true,
+  page: 1,  
+};
+
+const BookCollection: FC<BookCollectionProps> = ({
+  bcid = 'bcid',
+  booksPerRow = 1,
+  cid,
+  desc: _desc = false,
+  inView = true,
+  limit: _limit = 0,
+  pagination = false,
+  rating = true,
+  scrollable = false,
+  stacked = false,
+}: BookCollectionProps) => {
+  const { openSnackbar } = useContext(SnackbarContext);
+  const [collection, setCollection] = useState<CollectionBookModel[]>(initialState.collection);
+  const [count, setCount] = useState<number>(initialState.count);
+  const [desc, setDesc] = useState<boolean>(_desc);
+  // const [lastVisible, setLastVisible] = useState(null);
+  const [loading, setLoading] = useState<boolean>(initialState.loading);
+  const [page, setPage] = useState<number>(initialState.page);
+
+  const limit = useMemo((): number => _limit || (pagination ? _booksPerRow() : 98), [pagination, _limit]);
   
-  const fetch = useCallback(e => {
-    const direction = e?.currentTarget.dataset.direction;
-    const prev = direction === 'prev';
+  const fetch = useCallback((e?: MouseEvent): void => {
+    const direction: string = (e?.currentTarget as EventTargetWithDataset)?.dataset?.direction || '';
+    const prev: boolean = direction === 'prev';
     // const startAfter = (direction === 'prev') ? firstVisible : lastVisible;
-    const startAfter = prev ? page > 1 ? (page - 1) * limit - limit : 0 : ((page * limit) > count) ? (page - 1) * limit : page * limit;
-    const isGenre = genres.some(item => item.name === cid);
-    let baseRef;
+    const startAfter: number = prev ? page > 1 ? (page - 1) * limit - limit : 0 : ((page * limit) > count) ? (page - 1) * limit : page * limit;
+    const isGenre: boolean = genres.some((item: GenreModel): boolean => item.name === cid);
+    let baseRef: Query<DocumentData>;
 
     switch (cid) {
       case 'Top': baseRef = booksRef.orderBy('readers_num', 'desc'); break;
@@ -52,34 +80,31 @@ const BookCollection = ({
       ); break;
     }
     
-    const lRef = baseRef.limit(limit);
-    const paginatedRef = lRef.startAfter(startAfter);
-    const ref = direction ? paginatedRef : lRef;
+    const lRef: Query<DocumentData> = baseRef.limit(limit);
+    const paginatedRef: Query<DocumentData> = lRef.startAfter(startAfter);
+    const ref: Query<DocumentData> = direction ? paginatedRef : lRef;
     
-    if (is.current) setLoading(true);
-
+    setLoading(true);
     if (inView) {
-      const fetcher = () => {
-        ref.get().then(snap => {
+      const fetcher = (): void => {
+        ref.get().then((snap: DocumentData): void => {
           if (!snap.empty) {
-            const books = [];
-            snap.forEach(book => books.push(book.data()));
-            if (is.current) {
-              setCollection(books);
-              // setLastVisible(snap.docs[snap.docs.length - 1] || lastVisible);
-              setPage(page => (direction ? prev ? page > 1 ? page - 1 : 1 : ((page * limit) > count) ? page : page + 1 : 1));
-            }
+            const books: CollectionBookModel[] = [];
+            snap.forEach((book: DocumentData): number => books.push(book.data()));
+            setCollection(books);
+            // setLastVisible(snap.docs[snap.docs.length - 1] || lastVisible);
+            setPage(page => (direction ? prev ? page > 1 ? page - 1 : 1 : ((page * limit) > count) ? page : page + 1 : 1));
             // console.log({ 'direction': direction, 'page': page });
-          } else if (is.current) {
+          } else {
             // setLastVisible(null);
-            setCollection([]);
-            setCount(0);
-            setPage(null);
+            setCollection(initialState.collection);
+            setCount(initialState.count);
+            setPage(initialState.page);
           }
-        }).catch(err => {
+        }).catch((err: FirestoreError): void => {
           openSnackbar(handleFirestoreError(err), 'error');
-        }).finally(() => {
-          if (is.current) setLoading(false);
+        }).finally((): void => {
+          setLoading(false);
         });
       };
 
@@ -89,10 +114,8 @@ const BookCollection = ({
       } else if (!direction) {
         lRef.get().then(fullSnap => {
           if (!fullSnap.empty) { 
-            if (is.current) {
-              setCount(fullSnap.docs.length);
-              fetcher();
-            }
+            setCount(fullSnap.docs.length);
+            fetcher();
           }
         }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
       } else fetcher();
@@ -102,16 +125,10 @@ const BookCollection = ({
   useEffect(() => {
     fetch();
   }, [fetch]);
-  
-  useEffect(() => () => {
-    is.current = false;
-  }, []);
-
-  const onToggleDesc = () => setDesc(!desc);
 
   const covers = (collection?.length ? (
     <div className={`shelf-row books-per-row-${booksPerRow} ${stacked ? 'stacked' : 'abreast'}`}>
-      {collection.map((book, i) => 
+      {collection.map((book: CollectionBookModel, i: number) => 
         <Link key={book.bid} to={`/book/${book.bid}/${normURL(book.title)}`}>
           <Cover book={book} rating={rating} full={stacked} index={i} bcid={book.bcid} showReaders={cid === 'Top'} />
         </Link>
@@ -121,12 +138,12 @@ const BookCollection = ({
     <div className="info-row empty">Non ci sono libri in questa collezione.</div>
   ));
 
-  const hasMore = useMemo(() => pagination && count > limit, [count, limit, pagination]);
-  const isGenre = useMemo(() => genres.some(item => item.name === cid), [cid]);
+  const hasMore: boolean = pagination && count > limit;
+  const isGenre = useMemo((): boolean => genres.some(item => item.name === cid), [cid]);
 
   return (
-    <>
-      <div className="head nav" role="navigation" ref={is}>
+    <Fragment>
+      <div className="head nav" role="navigation">
         <span className="counter last title"><span className="primary-text hide-sm">{isGenre ? 'Genere' : 'Collezione'}:</span> {cid}</span> {count !== 0 && <span className="count hide-xs">({count} libri)</span>} 
         {!loading && count > 0 && (
           <div className="pull-right">
@@ -140,7 +157,7 @@ const BookCollection = ({
                   <button
                     type="button"
                     className={`btn sm icon flat counter ${desc ? 'desc' : 'asc'}`}
-                    onClick={onToggleDesc}
+                    onClick={() => setDesc(desc => !desc)}
                     disabled={count < 2}>
                     {icon.arrowDown}
                   </button>
@@ -148,10 +165,10 @@ const BookCollection = ({
               </Tooltip>
             )}
             {hasMore && (
-              <>
+              <Fragment>
                 <button 
                   type="button"
-                  disabled={page < 2 && 'disabled'} 
+                  disabled={page < 2} 
                   className="btn sm flat icon rounded" 
                   data-direction="prev"
                   onClick={fetch} title="precedente">
@@ -159,13 +176,13 @@ const BookCollection = ({
                 </button>
                 <button 
                   type="button"
-                  disabled={page > (count / limit) && 'disabled'} 
+                  disabled={page > (count / limit)} 
                   className="btn sm flat icon rounded" 
                   data-direction="next"
                   onClick={fetch} title="successivo">
                   {icon.chevronRight}
                 </button>
-              </>
+              </Fragment>
             )}
           </div>
         )}
@@ -174,33 +191,8 @@ const BookCollection = ({
       <div className={`shelf collection hoverable-items ${scrollable ? 'scrollable' : ''}`}>
         {loading ? stacked ? skltn_shelfStack : skltn_shelfRow : covers}
       </div>
-    </>
+    </Fragment>
   );
-};
-
-BookCollection.propTypes = {
-  cid: stringType.isRequired,
-  bcid: stringType,
-  booksPerRow: numberType,
-  desc: boolType,
-  inView: boolType,
-  limit: numberType,
-  pagination: boolType,
-  rating: boolType,
-  scrollable: boolType,
-  stacked: boolType
-};
-
-BookCollection.defaultProps = {
-  bcid: 'bcid',
-  booksPerRow: 1,
-  desc: false,
-  inView: true,
-  limit: null,
-  pagination: false,
-  rating: true,
-  scrollable: false,
-  stacked: false
 };
  
 export default BookCollection;

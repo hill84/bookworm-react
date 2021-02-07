@@ -241,16 +241,20 @@ export interface NoteModel {
   uid?: string;
 }
 
-/* export interface CollectionModel {
+export interface CollectionModel {
   books_num: number;
   description: string;
   edit: boolean;
-  genres: arrayOf(string);
+  genres: string[];
   lastEdit_num: number;
   lastEditBy: string;
   lastEditByUid: string;
-  title: string
-} */
+  title: string;
+}
+
+export interface CollectionBookModel extends Pick<BookModel, 'authors' | 'bid' | 'covers' | 'publication' | 'publisher' | 'rating_num' | 'ratings_num' | 'subtitle' | 'title'> {
+  bcid: number;
+}
 
 export interface ModeratorModel {
   uid: string;
@@ -319,6 +323,10 @@ export interface RolesModel {
   'author'?: boolean;
   'editor': boolean;
   'premium': boolean;
+}
+
+export interface EventTargetWithDataset extends EventTarget {
+  dataset?: Record<string, string>;
 }
 
 export type FollowersModel = Record<string, FollowerModel>;

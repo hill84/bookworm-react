@@ -29,7 +29,7 @@ const Home: FC = () => {
   const [screenSize, setScreenSize] = useState<ScreenSizeType>(_screenSize());
 
   useEffect(() => {
-    const updateScreenSize = () => setScreenSize(_screenSize());
+    const updateScreenSize = (): void => setScreenSize(_screenSize());
 
     window.addEventListener('resize', updateScreenSize);
 
@@ -46,7 +46,7 @@ const Home: FC = () => {
 
   const isMini = useMemo((): boolean => isTouchDevice() || ['md', 'sm', 'xs'].some((s: string): boolean => s === screenSize), [screenSize]);
 
-  const Hero = useMemo(() => (
+  const Hero: FC = () => (
     <div className='container text-center'>
       <h1 className='title'>Scopriamo nuovi libri, insieme</h1>
       <p className='subtitle'>Crea la tua libreria, ascolta gli incipit, scopri cosa leggono i tuoi amici</p>
@@ -65,7 +65,7 @@ const Home: FC = () => {
         </div>
       </div>
     </div>
-  ), [user]);
+  );
 
   if (redirectTo) return (
     <Redirect to={redirectTo} />
@@ -80,7 +80,7 @@ const Home: FC = () => {
 
       <div className='hero' style={heroStyle}>
         <div className='overlay' />
-        {Hero}
+        <Hero />
       </div>
 
       <div className='container'>

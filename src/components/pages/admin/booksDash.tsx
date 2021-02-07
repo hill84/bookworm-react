@@ -13,7 +13,7 @@ import { bookRef, booksRef, countRef /* , reviewRef */ } from '../../../config/f
 import icon from '../../../config/icons';
 import { app, handleFirestoreError, isToday, normURL, timeSince } from '../../../config/shared';
 import SnackbarContext from '../../../context/snackbarContext';
-import { BookModel } from '../../../types';
+import { BookModel, EventTargetWithDataset } from '../../../types';
 import CopyToClipboard from '../../copyToClipboard';
 import PaginationControls from '../../paginationControls';
 
@@ -78,10 +78,6 @@ const BooksDash: FC = () => {
 
   const limit = useMemo((): number => limitBy[limitByIndex], [limitByIndex]);
   const order = useMemo((): OrderByType => orderBy[orderByIndex], [orderByIndex]);
-
-  interface EventTargetWithDataset extends EventTarget {
-    dataset?: Record<string, string>;
-  }
 
   const fetcher = useCallback(() => {
     const ref = booksRef.orderBy(order.type, desc ? 'desc' : 'asc').limit(limit);
