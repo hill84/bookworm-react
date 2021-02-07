@@ -4,7 +4,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Tooltip from '@material-ui/core/Tooltip';
-import React, { lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Zoom from 'react-medium-image-zoom';
 import { Link } from 'react-router-dom';
@@ -13,8 +13,8 @@ import { bindKeyboard } from 'react-swipeable-views-utils';
 import { followersRef, followingsRef, notesRef, userChallengesRef, userRef } from '../../config/firebase';
 import icon from '../../config/icons';
 import { dashboardTabs as tabs, profileKeys } from '../../config/lists';
-import { app, calcAge, capitalize, getInitials, isScrollable, joinToLowerCase, normURL, screenSize as _screenSize, timeSince, truncateString } from '../../config/shared';
 import { historyType, locationType, matchType, objectType, stringType } from '../../config/proptypes';
+import { app, calcAge, capitalize, getInitials, isScrollable, joinToLowerCase, normURL, screenSize as _screenSize, timeSince, truncateString } from '../../config/shared';
 import SnackbarContext from '../../context/snackbarContext';
 import UserContext from '../../context/userContext';
 import '../../css/dashboard.css';
@@ -303,30 +303,30 @@ const Dashboard = ({ history, location, match }) => {
     }
   }, [duser, followers, followings, isAdmin, isAuth, isPremium, lfollowers, lfollowings, luid, openSnackbar, uid, user]);
 
-  const historyPushTabIndex = useCallback(index => {
+  const historyPushTabIndex = index => {
     const newPath = `/dashboard/${uid}/${tabs[index]}`;
     if (history !== newPath) {
       history.push(newPath, null);
     }
-  }, [history, uid]);
+  };
 
-  const onTabSelect = useCallback((e, value) => {
+  const onTabSelect = (e, value) => {
     if (value !== -1) {
       if (is.current) {
         setTabSelected(value);
         historyPushTabIndex(value);
       }
     }
-  }, [historyPushTabIndex]);
+  };
 
-  const onTabSelectIndex = useCallback((index, /* indexLatest, meta */) => {
+  const onTabSelectIndex = (index, /* indexLatest, meta */) => {
     if (index !== -1) {
       if (is.current) {
         setTabSelected(index);
         historyPushTabIndex(index);
       }
     }
-  }, [historyPushTabIndex]);
+  };
 
   const challengeBooks = useMemo(() => challenges?.length && challenges?.filter(challenge => challenge.completed_num !== challenge.books.length)[0].books, [challenges]);
   const challengeBooks_num = useMemo(() => challengeBooks && Object.keys(challengeBooks).length, [challengeBooks]);
@@ -334,17 +334,18 @@ const Dashboard = ({ history, location, match }) => {
   const challengeProgress = useMemo(() => challengeBooks_num && challengeReadBooks_num ? Math.round(100 / challengeBooks_num * challengeReadBooks_num) : 0, [challengeBooks_num, challengeReadBooks_num]);
   const challengeCompleted = useMemo(() => challengeProgress === 100, [challengeProgress]);
   const isMini = useMemo(() => isScrollable(screenSize), [screenSize]);
-  const contactsSkeleton = useMemo(() => [...Array(3)].map((e, i) => <div key={i} className="avatar-row skltn" />), []);
   const creationYear = useMemo(() => duser && String(new Date(duser.creationTime).getFullYear()), [duser]);
-
-  const ShelfDetails = useMemo(() => (
+  
+  const contactsSkeleton = () => [...Array(3)].map((e, i) => <div key={i} className="avatar-row skltn" />);
+  
+  const ShelfDetails = () => (
     <div className="info-row footer centered shelfdetails">
       <span className="counter">{icon.book} <b>{duser ? duser.stats?.shelf_num : 0}</b> <span className="hide-sm">Libri</span></span>
       <span className="counter">{icon.heart} <b>{duser ? duser.stats?.wishlist_num : 0}</b> <span className="hide-sm">Desideri</span></span>
       <span className="counter">{icon.star} <b>{duser ? duser.stats?.ratings_num : 0}</b> <span className="hide-sm">Valutazioni</span></span>
       <span className="counter">{icon.messageText} <b>{duser ? duser.stats?.reviews_num : 0}</b> <span className="hide-sm">Recensioni</span></span>
     </div>
-  ), [duser]);
+  );
 
   if (!duser && !loading) return (
     <NoMatch title="Dashboard utente non trovata" history={history} location={location} />
@@ -352,7 +353,7 @@ const Dashboard = ({ history, location, match }) => {
   
   const UsersList = ({ users }) => {
     return (
-      <>
+      <Fragment>
         {Object.keys(users).map(f => (
           <div key={f} className="avatar-row rounded">
             <Link to={`/dashboard/${f}`} className="row ripple">
@@ -392,7 +393,7 @@ const Dashboard = ({ history, location, match }) => {
             page={users === followers ? followersPage : followingsPage}
           /> 
         */}
-      </>
+      </Fragment>
     );
   };
 
@@ -409,10 +410,10 @@ const Dashboard = ({ history, location, match }) => {
   );
 
   const TabLabel = props => (
-    <>
+    <Fragment>
       <span className="icon show-md">{props.icon}</span>
       <span className="label">{props.label}</span>
-    </>
+    </Fragment>
   );
 
   TabLabel.propTypes = {
@@ -475,14 +476,14 @@ const Dashboard = ({ history, location, match }) => {
                       <span>
                         {duser.displayName} {duser.roles?.author && (
                           <Tooltip className="check-decagram primary-text" interactive title={(
-                            <>Pagina autentica dell&apos;autore <Link to={`/author/${normURL(duser.displayName)}`}>{duser.displayName}</Link></>
+                            <Fragment>Pagina autentica dell&apos;autore <Link to={`/author/${normURL(duser.displayName)}`}>{duser.displayName}</Link></Fragment>
                           )}>{icon.checkDecagram}</Tooltip>
                         )}
                       </span>
                     )} 
                   </h2>
                   {loading ? <div className="skltn three rows" style={skltnStyle} /> : (
-                    <>
+                    <Fragment>
                       <div className="info-row hide-xs">
                         {duser.sex && duser.sex !== 'x' && <span className="counter">{duser.sex === 'm' ? 'Uomo' : duser.sex === 'f' ? 'Donna' : ''}</span>}
                         {duser.birth_date && <span className="counter">{calcAge(duser.birth_date)} anni</span>}
@@ -502,10 +503,10 @@ const Dashboard = ({ history, location, match }) => {
                             // disabled={!isAuth}
                             onClick={onFollowUser}>
                             {!follow ? <span>{icon.plus} Segui</span> : (
-                              <>
+                              <Fragment>
                                 <span className="hide-on-hover">{icon.check} Segui</span>
                                 <span className="show-on-hover">Smetti</span>
-                              </> 
+                              </Fragment> 
                             )}
                           </button>
                         )}
@@ -517,7 +518,7 @@ const Dashboard = ({ history, location, match }) => {
                         {duser.twitch && <span className="counter">{!isMini && <b>{icon.twitch}</b>} <a href={`https://www.twitch.tv/${duser.twitch}`} target="_blank" rel="noopener noreferrer">twitch</a></span>}
                         {duser.facebook && <span className="counter">{!isMini && <b>{icon.facebook}</b>} <a href={`https://www.facebook.com/${duser.facebook}`} target="_blank" rel="noopener noreferrer">facebook</a></span>}
                       </div>
-                    </>
+                    </Fragment>
                   )}
                 </div>
               </div>
@@ -611,5 +612,5 @@ Dashboard.defaultProps = {
   location: null,
   match: null
 };
- 
+
 export default Dashboard;
