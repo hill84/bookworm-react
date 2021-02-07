@@ -4,7 +4,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import React, { FC, MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, Fragment, MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import { Data } from 'react-csv/components/CommonPropTypes';
 import Zoom from 'react-medium-image-zoom';
@@ -319,7 +319,7 @@ const BooksDash: FC = () => {
   ]));
 
   return (
-    <>
+    <Fragment>
       <div className='head nav'>
         <div className='row'>
           <div className='col'>
@@ -416,7 +416,7 @@ const BooksDash: FC = () => {
           </DialogActions>
         </Dialog>
       )}
-    </>
+    </Fragment>
   );
 };
 

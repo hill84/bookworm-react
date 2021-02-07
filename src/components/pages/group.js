@@ -6,7 +6,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grow from '@material-ui/core/Grow';
 import Tooltip from '@material-ui/core/Tooltip';
-import React, { forwardRef, lazy, useContext, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, Fragment, lazy, useContext, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Zoom from 'react-medium-image-zoom';
 import { Link, Redirect } from 'react-router-dom';
@@ -145,7 +145,7 @@ const Group = ({ history, location, match }) => {
         {isEditor && (isOwner || isModerator || isAdmin) ? (
           <div className='absolute-top-right'>
             {(isOwner || isAdmin) && (
-              <>
+              <Fragment>
                 <button
                   type='button'
                   className='btn sm flat counter icon-sm'
@@ -158,7 +158,7 @@ const Group = ({ history, location, match }) => {
                   onClick={onDeleteRequest}>
                   {icon.delete} <span className='hide-sm'>Elimina</span>
                 </button>
-              </>
+              </Fragment>
             )}
             <button
               type='button'
@@ -187,7 +187,7 @@ const Group = ({ history, location, match }) => {
             <h2 className='title flex'>{item?.title || <span className='skltn area' />}</h2>
             <div className='info-row owner flex'>
               {item ? (
-                <>
+                <Fragment>
                   <span className='counter'>Creato da <Link to={`/dashboard/${item.ownerUid}`}>{item.owner}</Link></span>
                   {item.moderators?.length > 1 && (
                     <button
@@ -197,7 +197,7 @@ const Group = ({ history, location, match }) => {
                       {item.moderators.length} moderatori
                     </button>
                   )}
-                </>
+                </Fragment>
               ) : <span className='skltn rows one' />}
             </div>
           </div>
@@ -215,10 +215,10 @@ const Group = ({ history, location, match }) => {
               onClick={onFollow} 
               disabled={!isEditor}>
               {follow ? (
-                <>
+                <Fragment>
                   <span className='hide-on-hover'>{icon.check} Segui</span>
                   <span className='show-on-hover'>Smetti</span>
-                </> 
+                </Fragment> 
               ) : <span>{icon.plus} Segui</span> }
             </button>
             <div className='counter inline'>

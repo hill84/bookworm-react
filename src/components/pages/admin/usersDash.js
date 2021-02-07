@@ -6,7 +6,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Zoom from 'react-medium-image-zoom';
 import { Link, Redirect } from 'react-router-dom';
 import { auth, authorFollowerRef, collectionFollowersRef, commentersGroupRef, countRef, followersGroupRef, genreFollowerRef, noteRef, notesRef, reviewerCommenterRef, reviewerRef, reviewersGroupRef, userNotificationsRef, userRef, usersRef } from '../../../config/firebase';
@@ -395,7 +395,7 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
   );
 
   return (
-    <>
+    <Fragment>
       <div className="head nav" ref={is}>
         <div className="row">
           <div className="col">
@@ -474,7 +474,7 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
           </DialogActions>
         </Dialog>
       )}
-    </>
+    </Fragment>
   );
 };
 

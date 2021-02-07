@@ -12,7 +12,7 @@ import { DatePicker, LocalizationProvider } from '@material-ui/pickers';
 import { storage } from 'firebase';
 import moment from 'moment';
 import 'moment/locale/it';
-import React, { ChangeEvent, FC, FormEvent, ReactText, useContext, useState } from 'react';
+import React, { ChangeEvent, FC, FormEvent, Fragment, ReactText, useContext, useState } from 'react';
 import { storageRef, userRef } from '../../config/firebase';
 import icon from '../../config/icons';
 import { continents, europeanCountries, italianProvinces, languages, northAmericanCountries } from '../../config/lists';
@@ -195,7 +195,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) =>
   // if (!user) return null;
 
   return (
-    <>
+    <Fragment>
       {loading && <div aria-hidden='true' className='loader'><CircularProgress /></div>}
       <div className='container sm'>
         <div className='row basic-profile'>
@@ -482,7 +482,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) =>
           {saved ? 'Modifiche salvate' : 'Salva le modifiche'}
         </button>
       </div>
-    </>
+    </Fragment>
   );
 };
 

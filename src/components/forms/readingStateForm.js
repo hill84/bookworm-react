@@ -5,15 +5,15 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
-import { DatePicker, LocalizationProvider } from "@material-ui/pickers";
+import { DatePicker, LocalizationProvider } from '@material-ui/pickers';
 import moment from 'moment';
 import 'moment/locale/it';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { userBookRef } from '../../config/firebase';
 import icon from '../../config/icons';
 import { readingStates } from '../../config/lists';
-import { handleFirestoreError } from '../../config/shared';
 import { funcType, numberType, shapeType, stringType } from '../../config/proptypes';
+import { handleFirestoreError } from '../../config/shared';
 import SnackbarContext from '../../context/snackbarContext';
 import UserContext from '../../context/userContext';
 import Overlay from '../overlay';
@@ -86,9 +86,9 @@ const ReadingStateForm = ({ bid, onToggle, pages, readingState }) => {
   };
   
   const errorMessages = name => ({
-    disableFuture: "Data futura non valida",
-    disablePast: "Data passata non valida",
-    invalidDate: "Data non valida",
+    disableFuture: 'Data futura non valida',
+    disablePast: 'Data passata non valida',
+    invalidDate: 'Data non valida',
     minDate: `Data non valida prima del ${new Date(min[name]).toLocaleDateString()}`,
     maxDate: `Data non valida oltre il ${new Date(max[name]).toLocaleDateString()}`
   });
@@ -133,14 +133,14 @@ const ReadingStateForm = ({ bid, onToggle, pages, readingState }) => {
         });
       }
     } else onToggle();
-  }
+  };
 
   const onNext = () => setProgress_num(progress_num + (100/steps));
 
   const onPrev = () => setProgress_num(progress_num - (100/steps));
 
   return (
-    <>
+    <Fragment>
       <Overlay onClick={onToggle} />
       <div role="dialog" aria-describedby="reading state" className="dialog light reading-state" ref={is}>
         {loading && <div aria-hidden="true" className="loader"><CircularProgress /></div>}
@@ -159,9 +159,9 @@ const ReadingStateForm = ({ bid, onToggle, pages, readingState }) => {
             </div>
           </div>
           {(state_num === 2 || state_num === 3) && (
-            <>
+            <Fragment>
               <div className="row">
-                <div className={`form-group ${state_num === 3 ? `col-6` : `col-12`}`}>
+                <div className={`form-group col-${state_num === 3 ? '6' : '12'}`}>
                   <LocalizationProvider dateAdapter={MomentUtils} dateLibInstance={moment} locale="it">
                     <DatePicker 
                       className="date-picker"
@@ -228,7 +228,7 @@ const ReadingStateForm = ({ bid, onToggle, pages, readingState }) => {
                   className="form-control" 
                 />
               )}
-            </>
+            </Fragment>
           )}
         </div>
         <div className="footer no-gutter">
@@ -241,8 +241,8 @@ const ReadingStateForm = ({ bid, onToggle, pages, readingState }) => {
           </button>
         </div>
       </div>
-    </>
-  )
+    </Fragment>
+  );
 };
 
 ReadingStateForm.propTypes = {
@@ -255,10 +255,10 @@ ReadingStateForm.propTypes = {
     end_num: numberType,
     progress_num: numberType
   }).isRequired
-}
+};
 
 ReadingStateForm.defaultProps = {
   pages: null
-}
+};
  
 export default ReadingStateForm;

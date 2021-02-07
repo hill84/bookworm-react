@@ -1,7 +1,7 @@
 import { DocumentData } from '@firebase/firestore-types';
 import { Tooltip } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
-import React, { CSSProperties, FC, useCallback, useEffect, useState } from 'react';
+import React, { CSSProperties, FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { authorsRef, countRef } from '../config/firebase';
 import icon from '../config/icons';
@@ -95,7 +95,7 @@ const Authors: FC<AuthorsProps> = ({
   }, [fetch]);
 
   return (
-    <>
+    <Fragment>
       <div className='head nav' role='navigation'>
         <span className='counter last title primary-text'>Autori</span> {items && <span className='count hide-xs'>({items ? items.length : limit}{count ? ` di ${count}` : ''})</span>} 
         {!loading && count > 0 && (
@@ -116,7 +116,7 @@ const Authors: FC<AuthorsProps> = ({
               </Tooltip>
             )}
             {pagination && count > limit && (
-              <>
+              <Fragment>
                 <button 
                   type='button'
                   disabled={page < 2} 
@@ -133,7 +133,7 @@ const Authors: FC<AuthorsProps> = ({
                   onClick={fetch} title='successivo'>
                   {icon.chevronRight}
                 </button>
-              </>
+              </Fragment>
             )}
           </div>
         )}
@@ -161,7 +161,7 @@ const Authors: FC<AuthorsProps> = ({
           <div className='empty centered'>Nessun autore</div>
         )}
       </div>
-    </>
+    </Fragment>
   );
 };
 

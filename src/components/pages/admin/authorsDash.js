@@ -4,7 +4,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import Zoom from 'react-medium-image-zoom';
 import { Link, Redirect } from 'react-router-dom';
@@ -219,7 +219,7 @@ const AuthorsDash = ({ onToggleDialog }) => {
   ]));
 
   return (
-    <>
+    <Fragment>
       <div className="head nav">
         <div className="row">
           <div className="col">
@@ -286,7 +286,7 @@ const AuthorsDash = ({ onToggleDialog }) => {
           </DialogActions>
         </Dialog>
       )}
-    </>
+    </Fragment>
   );
 };
 

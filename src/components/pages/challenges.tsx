@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { FC, Fragment, useContext, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { app } from '../../config/shared';
 // import { challengeRef, userChallengesRef } from '../../config/firebase';
@@ -53,7 +53,7 @@ const Challenges: FC = () => {
       ) : !challenges ? (
         <div>Nothing to show</div>
       ) : (
-        <>
+        <Fragment>
           <h2>Sfide</h2>
           <div className='card dark card-fullwidth-sm'>
             {challenges?.map(({ cid, description, title }: ChallengesModel) => (
@@ -63,7 +63,7 @@ const Challenges: FC = () => {
               </div>
             ))}
           </div>
-        </>
+        </Fragment>
       )}
     </div>
   );

@@ -3,7 +3,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Zoom from 'react-medium-image-zoom';
 
 import { quoteRef, quotesRef } from '../../config/firebase';
@@ -61,7 +61,7 @@ const QuoteForm = ({ id, onToggle }) => {
     is.current = false;
   }, []);
 
-	const onChange = e => {
+  const onChange = e => {
     e.persist();
     const { name, value } = e.target;
     
@@ -88,7 +88,7 @@ const QuoteForm = ({ id, onToggle }) => {
     const errors = {};
     
     if (!data.quote) { 
-      errors.quote = "Inserisci la citazione"; 
+      errors.quote = 'Inserisci la citazione'; 
     } else if (data.quote.length > max.chars.quote) {
       errors.quote = `Massimo ${max.chars.quote} caratteri`;
     } else if (data.quote.length < min.chars.quote) {
@@ -97,29 +97,29 @@ const QuoteForm = ({ id, onToggle }) => {
 
     if (data.bid || data.coverURL) {
       if (!data.bookTitle) {
-        errors.bookTitle = "Inserisci il titolo del libro";
+        errors.bookTitle = 'Inserisci il titolo del libro';
       }
     }
 
     if (data.coverURL || data.bookTitle) {
       if (!data.bid) {
-        errors.bid = "Inserisci il bid";
+        errors.bid = 'Inserisci il bid';
       }
     }
 
     if (data.bookTitle?.length > max.chars.bookTitle) {
-      errors.bookTitle = `Massimo ${max.chars.bookTitle} caratteri`
+      errors.bookTitle = `Massimo ${max.chars.bookTitle} caratteri`;
     }
 
     if (!data.author) { 
-      errors.author = "Inserisci l'autore"; 
+      errors.author = 'Inserisci l\'autore'; 
     } else if (data.author.length > max.chars.author) {
-      errors.author = `Massimo ${max.chars.author} caratteri`
+      errors.author = `Massimo ${max.chars.author} caratteri`;
     }
-		return errors;
-	};
+    return errors;
+  };
 
-	const onSubmit = e => {
+  const onSubmit = e => {
     e.preventDefault();
 
     if (changes) {
@@ -159,7 +159,7 @@ const QuoteForm = ({ id, onToggle }) => {
   };
   
   return (
-    <>
+    <Fragment>
       <Overlay onClick={onToggle} />
       <div role="dialog" aria-describedby="new quote" className="dialog light">
         {loading && <div aria-hidden="true" className="loader"><CircularProgress /></div>}
@@ -268,17 +268,17 @@ const QuoteForm = ({ id, onToggle }) => {
           <button type="button" className="btn btn-footer primary" onClick={onSubmit}>Salva le modifiche</button>
         </div>
       </div>
-    </>
+    </Fragment>
   );
-}
+};
 
 QuoteForm.propTypes = {
   onToggle: funcType.isRequired,
   id: stringType
-}
+};
 
 QuoteForm.defaultProps = {
   id: null
-}
+};
  
 export default QuoteForm;

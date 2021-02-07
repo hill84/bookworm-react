@@ -1,6 +1,6 @@
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { booksRef, genreFollowersRef, genreRef } from '../../config/firebase';
@@ -290,10 +290,10 @@ const Genre = ({ match }) => {
               disabled={!isEditor}
               onClick={onFollow}>
               {follow ? (
-                <>
+                <Fragment>
                   <span className="hide-on-hover">{icon.check} Segui</span>
                   <span className="show-on-hover">Smetti</span>
-                </> 
+                </Fragment> 
               ) : <span>{icon.plus} Segui</span> }
             </button>
             <div className="counter last inline">

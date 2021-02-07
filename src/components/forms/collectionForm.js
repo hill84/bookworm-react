@@ -5,7 +5,7 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { collectionRef, collectionsRef } from '../../config/firebase';
 import { genres } from '../../config/lists';
 import { handleFirestoreError } from '../../config/shared';
@@ -185,7 +185,7 @@ const CollectionForm = ({ id, onToggle }) => {
   );
 
   return (
-    <>
+    <Fragment>
       <Overlay onClick={onToggle} />
       <div role="dialog" aria-describedby="new collection" className="dialog light" ref={is}>
         {loading && <div aria-hidden="true" className="loader"><CircularProgress /></div>}
@@ -306,7 +306,7 @@ const CollectionForm = ({ id, onToggle }) => {
           <button type="button" className="btn btn-footer primary" onClick={onSubmit}>Salva le modifiche</button>
         </div>
       </div>
-    </>
+    </Fragment>
   );
 };
 

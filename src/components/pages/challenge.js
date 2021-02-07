@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { challengeRef, userChallengesRef } from '../../config/firebase';
@@ -133,7 +133,7 @@ const Challenge = () => {
       </div>
 
       {!loading && userChallenges?.length > 0 && (
-        <>
+        <Fragment>
           <h2>Sfide completate</h2>
           {userChallenges.map((item, i) => (
             <div className="card dark card-fullwidth-sm" key={item.cid || i}>
@@ -149,7 +149,7 @@ const Challenge = () => {
               </div>
             </div>
           ))}
-        </>
+        </Fragment>
       )}
     </div>
   );
@@ -299,7 +299,7 @@ export default Challenge;
         </div>
 
         {!loading && userChallenges && (
-          <>
+          <Fragment>
             <h2>Sfide completate</h2>
             {userChallenges.map((item, i) =>
               <div className="card dark card-fullwidth-sm" key={item.cid || i}>
@@ -315,7 +315,7 @@ export default Challenge;
                 </div>
               </div>
             )}
-          </>
+          </Fragment>
         )}
       </div>
     );

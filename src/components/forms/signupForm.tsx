@@ -9,7 +9,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import InputLabel from '@material-ui/core/InputLabel';
-import React, { ChangeEvent, CSSProperties, FC, FormEvent, MouseEvent, useContext, useState } from 'react';
+import React, { ChangeEvent, CSSProperties, FC, FormEvent, Fragment, MouseEvent, useContext, useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import isEmail from 'validator/lib/isEmail';
 import { auth, userRef } from '../../config/firebase';
@@ -223,7 +223,7 @@ const SignupForm: FC = () => {
   );
 
   return (
-    <>
+    <Fragment>
       {loading && <div aria-hidden='true' className='loader'><CircularProgress /></div>}
       <FormControlLabel 
         className='text-left' 
@@ -311,7 +311,7 @@ const SignupForm: FC = () => {
           <button type='button' className='btn btn-footer primary' onClick={onSubmit}>Registrati</button>
         </div>
       </form>
-    </>
+    </Fragment>
   );
 };
  

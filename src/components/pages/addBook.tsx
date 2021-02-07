@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, Fragment, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { app } from '../../config/shared';
@@ -52,7 +52,7 @@ const AddBook: FC<AddBookProps> = ({ history, location }: AddBookProps) => {
           location={location}
         />
       ) : (
-        <>
+        <Fragment>
           <p className='text-center'>
             <Link to='/genres' className='counter'>Generi</Link>
             <Link to='/collections' className='counter'>Collezioni</Link>
@@ -64,7 +64,7 @@ const AddBook: FC<AddBookProps> = ({ history, location }: AddBookProps) => {
               <p><Link to='/new-book' className='btn primary rounded'>Aggiungilo</Link></p>
             </div>
           )}
-        </>
+        </Fragment>
       )}
     </div>
   );

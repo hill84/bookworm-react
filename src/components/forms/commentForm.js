@@ -8,7 +8,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import Grow from '@material-ui/core/Grow';
 import Input from '@material-ui/core/Input';
 import { ThemeProvider } from '@material-ui/styles';
-import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { notesRef, reviewerCommenterRef, reviewerRef, userBookRef } from '../../config/firebase';
 import { checkBadWords, extractUrls, getInitials, handleFirestoreError, join, normURL, truncateString } from '../../config/shared';
 import { darkTheme } from '../../config/themes';
@@ -84,7 +84,7 @@ const CommentForm = ({ bid, bookTitle, onCancel, rid }) => {
     const badWords = checkBadWords(text);
 
     if (!text) {
-      errors.text = "Aggiungi una risposta";
+      errors.text = 'Aggiungi una risposta';
     } else if (text.length > max.chars.text) {
       errors.text = `Massimo ${max.chars.text} caratteri`;
     } else if (text.length < min.chars.text) {
@@ -92,7 +92,7 @@ const CommentForm = ({ bid, bookTitle, onCancel, rid }) => {
     } else if (urlMatches) {
       errors.text = `Non inserire link (${join(urlMatches)})`;
     } else if (badWords) {
-      errors.text = "Niente volgarità";
+      errors.text = 'Niente volgarità';
     }
 
     return errors;
@@ -150,7 +150,7 @@ const CommentForm = ({ bid, bookTitle, onCancel, rid }) => {
               setLeftChars({ text: null });
             }
           });
-        } else console.warn(`No bid, rid or user`);
+        } else console.warn('No bid, rid or user');
       }
     }
   }, [authid, bid, changes, comment, onCancel, openSnackbar, rid, user, validate]);
@@ -169,7 +169,7 @@ const CommentForm = ({ bid, bookTitle, onCancel, rid }) => {
         }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
       }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
 
-    } else console.warn(`No bid`);
+    } else console.warn('No bid');
   }, [authid, bid, openSnackbar]);
 
   const onExitEditing = useCallback(() => {
@@ -198,7 +198,7 @@ const CommentForm = ({ bid, bookTitle, onCancel, rid }) => {
   if (!user) return null;
 
   return (
-    <>
+    <Fragment>
       <div className="comment">
         <div className="row">
           <div className="col-auto left">
@@ -259,15 +259,15 @@ const CommentForm = ({ bid, bookTitle, onCancel, rid }) => {
           </DialogActions>
         </Dialog>
       )}
-    </>
+    </Fragment>
   );
-}
+};
 
 CommentForm.propTypes = {
   bid: stringType.isRequired,
   bookTitle: stringType.isRequired,
   onCancel: funcType.isRequired,
   rid: stringType.isRequired
-}
+};
 
 export default CommentForm;

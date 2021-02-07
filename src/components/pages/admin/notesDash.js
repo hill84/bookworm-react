@@ -3,7 +3,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Redirect } from 'react-router-dom';
 import { countRef, noteRef, /* notesGroupRef, */ notesRef, notificationsRef } from '../../../config/firebase';
 import icon from '../../../config/icons';
@@ -208,7 +208,7 @@ export default class NotesDash extends Component {
     );
 
     return (
-      <>
+      <Fragment>
         <div className="head nav">
           <div className="row">
             <div className="col">
@@ -257,7 +257,7 @@ export default class NotesDash extends Component {
             </DialogActions>
           </Dialog>
         )}
-      </>
+      </Fragment>
     );
   }
 }

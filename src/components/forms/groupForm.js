@@ -6,7 +6,7 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Zoom from 'react-medium-image-zoom';
 import { Redirect } from 'react-router-dom';
 import { groupRef, groupsRef } from '../../config/firebase';
@@ -114,23 +114,23 @@ const GroupForm = ({ id, onToggle }) => {
       return false;
     }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
     return result;
-  }
+  };
 
-	const validate = async data => {
+  const validate = async data => {
     const errors = {};
     const isDuplicate = id ? false : await checkTitle(data.title);
 
     if (!data.title) { 
-      errors.title = "Inserisci il titolo"; 
+      errors.title = 'Inserisci il titolo'; 
     } else if (isDuplicate) {
-      errors.title = "Gruppo già presente";
+      errors.title = 'Gruppo già presente';
     } else if (data.title?.length > max.chars.title) {
       errors.title = `Massimo ${max.chars.title} caratteri`;
     } else if (data.title?.length < min.chars.title) {
       errors.title = `Minimo ${min.chars.title} caratteri`;
     }
     if (!data.description) { 
-      errors.description = "Inserisci una descrizione"; 
+      errors.description = 'Inserisci una descrizione'; 
     } else if (data.description?.length > max.chars.description) {
       errors.description = `Massimo ${max.chars.description} caratteri`;
     } else if (data.description?.length < min.chars.description) {
@@ -139,10 +139,10 @@ const GroupForm = ({ id, onToggle }) => {
     if (data.rules?.length > max.chars.rules) {
       errors.rules = `Massimo ${max.chars.rules} caratteri`;
     }
-		return errors;
+    return errors;
   };
   
-	const onSubmit = async e => {
+  const onSubmit = async e => {
     e.preventDefault();
 
     if (changes) {
@@ -187,10 +187,10 @@ const GroupForm = ({ id, onToggle }) => {
     } else onToggle();
   };
   
-  if (redirectToReferrer) return <Redirect to={`group/${redirectToReferrer}`} />
+  if (redirectToReferrer) return <Redirect to={`group/${redirectToReferrer}`} />;
 
   return (
-    <>
+    <Fragment>
       <Overlay onClick={onToggle} />
       <div role="dialog" aria-describedby="new group" className="dialog light" ref={is}>
         {loading && <div aria-hidden="true" className="loader"><CircularProgress /></div>}
@@ -219,7 +219,7 @@ const GroupForm = ({ id, onToggle }) => {
                   <Select
                     id="type"
                     value={data.type}
-                    onChange={onChangeSelect("type")}
+                    onChange={onChangeSelect('type')}
                     error={Boolean(errors.type)}>
                     <MenuItem value="public">Pubblico</MenuItem>
                     <MenuItem value="private">Privato</MenuItem>
@@ -246,11 +246,11 @@ const GroupForm = ({ id, onToggle }) => {
                   error={Boolean(errors.description)}
                 />
                 {errors.description && <FormHelperText className="message error">{errors.description}</FormHelperText>}
-                {(leftChars.description !== null) && 
+                {(leftChars.description !== null) && (
                   <FormHelperText className={`message ${(leftChars.description < 0) ? 'warning' : 'neutral'}`}>
                     Caratteri rimanenti: {leftChars.description}
                   </FormHelperText>
-                }
+                )}
               </FormControl>
             </div>
           </div>
@@ -330,17 +330,17 @@ const GroupForm = ({ id, onToggle }) => {
           <button type="button" className="btn btn-footer primary" onClick={onSubmit}>Salva le modifiche</button>
         </div>
       </div>
-    </>
+    </Fragment>
   );
-}
+};
 
 GroupForm.propTypes = {
   onToggle: funcType.isRequired,
   id: stringType
-}
+};
 
 GroupForm.defaultProps = {
   id: null
-}
+};
  
 export default GroupForm;

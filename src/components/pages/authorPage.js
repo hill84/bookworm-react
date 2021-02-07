@@ -1,6 +1,6 @@
 import Avatar from '@material-ui/core/Avatar';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Zoom from 'react-medium-image-zoom';
 import { Link } from 'react-router-dom';
@@ -182,10 +182,10 @@ const AuthorPage = ({ history, location, match }) => {
                   onClick={onFollow} 
                   disabled={!user || !isEditor}>
                   {follow ? (
-                    <>
+                    <Fragment>
                       <span className="hide-on-hover">{icon.check} Segui</span>
                       <span className="show-on-hover">Smetti</span>
-                    </> 
+                    </Fragment> 
                   ) : <span>{icon.plus} Segui</span> }
                 </button>
                 <div className="counter last inline">
@@ -200,7 +200,7 @@ const AuthorPage = ({ history, location, match }) => {
       {loadingBooks ? (
         <div aria-hidden="true" className="loader relative"><CircularProgress /></div>
       ) : (
-        <>
+        <Fragment>
           {books ? (
             <div className="card light">
               <div className="shelf">
@@ -231,7 +231,7 @@ const AuthorPage = ({ history, location, match }) => {
               <Link to="/new-book" className="btn primary rounded">Aggiungi libro</Link>
             </div>
           )}
-        </>
+        </Fragment>
       )}
       <RandomQuote author={author.displayName} skeleton={false} className="card flat fadeIn slideUp reveal" />
     </div>

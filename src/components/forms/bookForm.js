@@ -17,15 +17,15 @@ import isbn from 'isbn-utils';
 import ChipInput from 'material-ui-chip-input';
 import moment from 'moment';
 import 'moment/locale/it';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import isISBN from 'validator/lib/isISBN';
 import isURL from 'validator/lib/isURL';
 import { bookRef, booksRef, collectionBookRef, collectionRef, storageRef } from '../../config/firebase';
 import icon from '../../config/icons';
 import { awards, formats, genres, languages } from '../../config/lists';
-import { arrToObj, checkBadWords, extractUrls, handleFirestoreError, join, noCookie, normalizeString, numRegex, setFormatClass, validateImg } from '../../config/shared';
 import { bookType, funcType } from '../../config/proptypes';
+import { arrToObj, checkBadWords, extractUrls, handleFirestoreError, join, noCookie, normalizeString, numRegex, setFormatClass, validateImg } from '../../config/shared';
 import SnackbarContext from '../../context/snackbarContext';
 import UserContext from '../../context/userContext';
 import Cover from '../cover';
@@ -457,6 +457,7 @@ const BookForm = ({ book: _book, onEditing }) => {
         const userDisplayName = user?.displayName || '';
 
         if (_book.bid) {
+          // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
           const { covers, EDIT, title_sort, ...restBook } = book;
           bookRef(_book.bid).set({
             ...restBook,
@@ -594,7 +595,7 @@ const BookForm = ({ book: _book, onEditing }) => {
   if (redirectToBook) return <Redirect to={`/book/${redirectToBook}`} />;
   
   return (
-    <>
+    <Fragment>
       <div className="container top" ref={is}>
         <form className="card light">
           {loading && <div aria-hidden="true" className="loader"><CircularProgress /></div>}
@@ -813,7 +814,7 @@ const BookForm = ({ book: _book, onEditing }) => {
                 </FormControl>
               </div>
               {isAdmin && (
-                <>
+                <Fragment>
                   <div className="form-group">
                     <FormControl className="chip-input" margin="normal" fullWidth>
                       <ChipInput
@@ -862,7 +863,7 @@ const BookForm = ({ book: _book, onEditing }) => {
                       {errors.awards && <FormHelperText className="message error">{errors.awards}</FormHelperText>}
                     </FormControl>
                   </div>
-                </>
+                </Fragment>
               )}
               {isEditingDescription ? (
                 <div className="form-group">
@@ -957,7 +958,7 @@ const BookForm = ({ book: _book, onEditing }) => {
           </DialogActions>
         </Dialog>
       )}
-    </>
+    </Fragment>
   );
 };
 

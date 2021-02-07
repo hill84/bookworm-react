@@ -5,7 +5,7 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { noteRef, notesRef } from '../../config/firebase';
 import { noteTypes } from '../../config/lists';
 import { funcType, stringType } from '../../config/proptypes';
@@ -77,19 +77,19 @@ const NoteForm = ({ nid, onToggle, uid }) => {
     const errors = {};
     
     if (!data.text) { 
-      errors.text = "Inserisci il testo"; 
+      errors.text = 'Inserisci il testo'; 
     } else if (data.text?.length > max.chars.text) {
       errors.text = `Lunghezza massima ${max.chars.text} caratteri`;
     } else if (data.text?.length < min.chars.text) {
       errors.text = `Lunghezza minima ${min.chars.text} caratteri`;
     }
     if (!data.tag) { 
-      errors.tag = "Scegli un tag"; 
+      errors.tag = 'Scegli un tag'; 
     }
-		return errors;
-	};
+    return errors;
+  };
 
-	const onSubmit = e => {
+  const onSubmit = e => {
     e.preventDefault();
 
     if (changes) {
@@ -127,7 +127,7 @@ const NoteForm = ({ nid, onToggle, uid }) => {
         });
       } else if (is.current) setLoading(false);
     } else onToggle();
-	};
+  };
 
   useEffect(() => {
     fetch();
@@ -148,7 +148,7 @@ const NoteForm = ({ nid, onToggle, uid }) => {
   );
 
   return (
-    <>
+    <Fragment>
       <Overlay onClick={onToggle} />
       <div role="dialog" aria-describedby="new note" className="dialog light">
         {loading && <div aria-hidden="true" className="loader"><CircularProgress /></div>}
@@ -186,7 +186,7 @@ const NoteForm = ({ nid, onToggle, uid }) => {
                   id="tag"
                   error={Boolean(errors.tag)}
                   value={data.tag || []}
-                  onChange={onChangeSelect("tag")}
+                  onChange={onChangeSelect('tag')}
                   multiple>
                   {menuItemsMap(noteTypes, data.tag)}
                 </Select>
@@ -199,18 +199,18 @@ const NoteForm = ({ nid, onToggle, uid }) => {
           <button type="button" className="btn btn-footer primary" onClick={onSubmit}>Salva le modifiche</button>
         </div>
       </div>
-    </>
+    </Fragment>
   );
-}
+};
 
 NoteForm.propTypes = {
   onToggle: funcType.isRequired,
   nid: stringType,
   uid: stringType.isRequired
-}
+};
 
 NoteForm.defaultProps = {
   nid: null
-}
+};
  
 export default NoteForm;

@@ -3,7 +3,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import Zoom from 'react-medium-image-zoom';
 import { Link, Redirect } from 'react-router-dom';
 import { countRef, quoteRef, quotesRef } from '../../../config/firebase';
@@ -208,7 +208,7 @@ export default class QuotesDash extends Component {
     );
 
     return (
-      <>
+      <Fragment>
         <div className="head nav">
           <div className="row">
             <div className="col">
@@ -273,7 +273,7 @@ export default class QuotesDash extends Component {
             </DialogActions>
           </Dialog>
         )}
-      </>
+      </Fragment>
     );
   }
 }

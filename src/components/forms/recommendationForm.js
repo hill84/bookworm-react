@@ -1,5 +1,5 @@
 import Avatar from '@material-ui/core/Avatar';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { followingsRef, notesRef, userRecommendationsRef } from '../../config/firebase';
 import icon from '../../config/icons';
@@ -188,7 +188,7 @@ const RecommendationForm = ({ book, onToggle }) => {
   const hasFollowings = followings && Object.keys(followings).length;
 
   return (
-    <>
+    <Fragment>
       <Overlay onClick={onToggle} />
       <div role="dialog" aria-describedby="Recommend a book" className="dialog light book-recommendation" ref={is}>
         <div className="sticky-content">
@@ -208,7 +208,7 @@ const RecommendationForm = ({ book, onToggle }) => {
           </div>
         </div>
       </div>
-    </>
+    </Fragment>
   );
 };
 

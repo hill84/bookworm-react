@@ -86,7 +86,7 @@ const DiscussionForm = ({ gid }) => {
     const muids = extractMuids(text);
 
     if (!text) {
-      errors.text = "Aggiungi un commento";
+      errors.text = 'Aggiungi un commento';
     } else if (text.length > max.chars.text) {
       errors.text = `Massimo ${max.chars.text} caratteri`;
     } else if (text.length < min.chars.text) {
@@ -96,7 +96,7 @@ const DiscussionForm = ({ gid }) => {
     } else if (muids?.length > max.mentions) {
       errors.text = `Massimo ${max.mentions} menzioni`;
     } else if (badWords) {
-      errors.text = "Niente volgarità";
+      errors.text = 'Niente volgarità';
     }
 
     return errors;
@@ -161,7 +161,7 @@ const DiscussionForm = ({ gid }) => {
               setLeftChars({ text: null, title: null });
             }
           });
-        } else console.warn(`No gid or user`);
+        } else console.warn('No gid or user');
       }
     }
   };
@@ -344,10 +344,10 @@ const DiscussionForm = ({ gid }) => {
       )}
     </form>
   );
-}
+};
 
 DiscussionForm.propTypes = {
   gid: stringType.isRequired
-}
+};
  
 export default DiscussionForm;

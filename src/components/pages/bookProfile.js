@@ -5,7 +5,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grow from '@material-ui/core/Grow';
-import React, { forwardRef, lazy, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, Fragment, lazy, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { InView } from 'react-intersection-observer';
 import Rater from 'react-rater';
 import { Link } from 'react-router-dom';
@@ -145,7 +145,7 @@ const BookProfile = ({
   // const authors = book && <Link to={`/author/${normURL(Object.keys(book.authors)[0])}`}>{Object.keys(book.authors)[0]}</Link>;
 
   return (
-    <>
+    <Fragment>
       {book && isOpenIncipit && (
         <Incipit 
           title={book.title} 
@@ -206,7 +206,7 @@ const BookProfile = ({
                 </div>
                 
                 {book && (
-                  <>
+                  <Fragment>
                     {book.trailerURL && (
                       <button type="button" onClick={() => window.open(book.trailerURL, '_blank')} className="btn xs rounded flat centered btn-trailer">Trailer</button>
                     )}
@@ -219,38 +219,38 @@ const BookProfile = ({
                       url={`${app.url}${location.pathname}`}
                       via="BibloSpace"
                     />
-                  </>
+                  </Fragment>
                 )}
               </div>
 
               <div className="col book-profile">
                 <h2 className="title flex">
                   {loading ? <span className="skltn area" /> : (
-                    <>
+                    <Fragment>
                       {book.title} <span className="mention">
                         <CopyToClipboard icon={icon.at} text={`@book/${book.bid}/${normURL(book.title)}`}/>
                       </span>
-                    </>
+                    </Fragment>
                   )}
                 </h2>
                 {book?.subtitle && <h3 className="subtitle">{book.subtitle}</h3>}
                 {loading ? (
                   <div className="skltn rows" style={{ marginTop: '2em', }} />
                 ) : book && (
-                  <>
+                  <Fragment>
                     <div className="info-row">
                       {book.authors && <span className="counter comma author">di {Object.keys(book.authors).map(author => 
                         <Link to={`/author/${normURL(author)}`} className="counter" key={author}>{author}</Link> 
                       )}</span>}
                       {book.publisher && <span className="counter hide-sm">editore: {book.publisher}</span>}
                       {isAuth && hasBid && isEditor && (
-                        <>
-                          {isAdmin && 
+                        <Fragment>
+                          {isAdmin && (
                             <button type="button" onClick={onLock} className={`link counter ${book.EDIT.edit ? 'flat' : 'active'}`}>
                               <span className="show-sm">{book.EDIT.edit ? icon.lock : icon.lockOpen}</span>
                               <span className="hide-sm">{book.EDIT.edit ? 'Blocca' : 'Sblocca'}</span>
                             </button>
-                          }
+                          )}
                           <button type="button" onClick={onEditing} className="link counter" disabled={isLocked} title="Modifica disabilitata">
                             <span className="show-sm">{book.EDIT.edit ? icon.pencil : icon.pencilOff}</span>
                             <span className="hide-sm">Modifica</span>
@@ -259,7 +259,7 @@ const BookProfile = ({
                             <span className="show-sm">{icon.accountHeart}</span>
                             <span className="hide-sm">Consiglia</span>
                           </button>
-                        </>
+                        </Fragment>
                       )}
                     </div>
 
@@ -287,10 +287,10 @@ const BookProfile = ({
                     </div>
 
                     {isAuth && (
-                      <>
+                      <Fragment>
                         <div className="info-row">
                           {userBook.bookInShelf ? (
-                            <>
+                            <Fragment>
                               <button type="button" className="btn success rounded error-on-hover" onClick={onRemoveBookFromShelfRequest}>
                                 <span className="hide-on-hover">{icon.check} libreria</span>
                                 <span className="show-on-hover">{icon.close} libreria</span>
@@ -298,7 +298,7 @@ const BookProfile = ({
                               <button type="button" className="btn rounded" onClick={onToggleReadingState}>
                                 <span className="hide-xs">Stato</span> lettura
                               </button>
-                            </>
+                            </Fragment>
                           ) : (
                             <button type="button" className="btn primary rounded" ref={addBookToShelfRef} disabled={!hasBid || !isEditor} onClick={onAddBookToShelf}>{icon.plus} libreria</button>
                           )}
@@ -321,7 +321,7 @@ const BookProfile = ({
                             </div>
                           </div>
                         )}
-                      </>
+                      </Fragment>
                     )}
 
                     {book.description && (
@@ -335,7 +335,7 @@ const BookProfile = ({
                       <span className="counter">{icon.messageTextOutline} <b>{abbrNum(book.reviews_num || 0)}</b> <span className="hide-sm">Recension{book.reviews_num === 1 ? 'e' : 'i'}</span></span>
                       {book.pages_num && <span className="counter">{icon.timer} <span className="hide-sm">Lettura</span> <b>{calcReadingTime(book.pages_num)}</b></span>}
                     </div>
-                  </>
+                  </Fragment>
                 )}
               </div>
             </div>
@@ -345,7 +345,7 @@ const BookProfile = ({
         {book && (
           <div className="container">
             {book.bid && (
-              <>
+              <Fragment>
                 {isAuth && isEditor && userBook.bookInShelf && (
                   <ReviewForm
                     addReview={addReview}
@@ -364,7 +364,7 @@ const BookProfile = ({
                     )}
                   </InView>
                 )}
-              </>
+              </Fragment>
             )}
           </div>
         )}
@@ -392,7 +392,7 @@ const BookProfile = ({
           </DialogActions>
         </Dialog>
       )}
-    </>
+    </Fragment>
   );
 };
 
