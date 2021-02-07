@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 // import { Link } from 'react-router-dom';
 import { enrichText } from '../config/shared';
 import '../css/minifiableText.css';
@@ -43,7 +43,7 @@ const MinifiableText: FC<MinifiableTextProps> = ({
   if (!text) return null;
 
   return (
-    <>
+    <Fragment>
       <span
         className={`minifiable ${minified ? 'minified' : 'expanded'}`}
         dangerouslySetInnerHTML={{ __html: rich ? richText : text }}
@@ -58,7 +58,7 @@ const MinifiableText: FC<MinifiableTextProps> = ({
         </span>
       )}
       {((minified && !forced) || toggle) && <><br/><button type='button' className='link' onClick={onMinify}>{toggle && !minified ? 'Nascondi' : 'Mostra tutto'}</button></>}
-    </>
+    </Fragment>
   );
 };
  

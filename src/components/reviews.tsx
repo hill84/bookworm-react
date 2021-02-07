@@ -1,4 +1,4 @@
-import { DocumentData, FirestoreError, WhereFilterOp } from '@firebase/firestore-types';
+import { DocumentData, FirestoreError, Query, WhereFilterOp } from '@firebase/firestore-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import React, { FC, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -19,7 +19,7 @@ interface ReviewsProps {
   limit?: number;
   pagination?: boolean;
   skeleton?: boolean;
-  uid?: string[] | string[][];
+  uid?: string | string[];
 }
 
 interface StateModel {
@@ -54,7 +54,7 @@ const Reviews: FC<ReviewsProps> = ({
   const [page, setPage] = useState<number>(initialState.page);
   const [lastVisible, setLastVisible] = useState<DocumentData | null>(initialState.lastVisible);
 
-  const ref = useMemo(() => {
+  const ref = useMemo((): Query<DocumentData> => {
     const qop: WhereFilterOp = typeof uid === 'string' ? '==' : 'in';
     return bid ? reviewersRef(bid) : uid ? reviewersGroupRef.where('createdByUid', qop, uid) : reviewersGroupRef;
   }, [bid, uid]);

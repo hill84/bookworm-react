@@ -23,10 +23,18 @@ export interface UserModel {
   facebook?: string;
 }
 
-export interface FollowerModel extends Pick<UserModel, 'displayName' | 'photoURL'> {
+export interface FollowerModel {
+  displayName: string;
   gid?: string;
+  photoURL: string;
   timestamp: number;
   uid?: string;
+}
+
+export interface FollowingModel {
+  displayName: string;
+  photoURL: string;
+  timestamp: number;
 }
 
 export interface BookModel {
@@ -212,6 +220,14 @@ export interface ChallengeModel {
   // followers?: any;
 }
 
+export interface UserChallengeModel {
+  books: Record<string, boolean>;
+  cid: string;
+  completed_num: number;
+  created_num: number;
+  title: string;
+}
+
 export interface NoteModel {
   nid?: string;
   text: string;
@@ -304,6 +320,10 @@ export interface RolesModel {
   'editor': boolean;
   'premium': boolean;
 }
+
+export type FollowersModel = Record<string, FollowerModel>;
+
+export type FollowingsModel = Record<string, FollowingModel>;
 
 export type HistoryType = RouteComponentProps['history'];
 

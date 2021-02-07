@@ -7,7 +7,10 @@ interface CopyToClipboardProps {
   text?: string | number;
 }
 
-const CopyToClipboard: FC<CopyToClipboardProps> = ({ icon, text }: CopyToClipboardProps) => {
+const CopyToClipboard: FC<CopyToClipboardProps> = ({
+  icon,
+  text
+}: CopyToClipboardProps) => {
   const { openSnackbar } = useContext(SnackbarContext);
 
   const onCopy = (): void => {

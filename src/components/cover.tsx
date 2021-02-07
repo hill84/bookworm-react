@@ -23,7 +23,7 @@ interface CoverProps {
 }
 
 const Cover: FC<CoverProps> = ({
-  animationDelay = false,
+  animationDelay: animationdelay = false,
   bcid,
   book,
   full,
@@ -44,19 +44,19 @@ const Cover: FC<CoverProps> = ({
   const delay: number = page && page > 1 ? 0 : index / 20;
   const hasBookmark: boolean = book.readingState?.state_num === 2;
   const hasAward: boolean = (book.awards?.length || 0) > 0;
-  const hasBcid = typeof bcid === 'number' && bcid > 0 && bcid < 1000;
+  const hasBcid: boolean = typeof bcid === 'number' && bcid > 0 && bcid < 1000;
 
   return (
     <div className='book'> 
       <InView triggerOnce rootMargin='130px'>
-        {({ inView, ref }) => (
+        {({ inView: inview, ref }) => (
           <div
             ref={ref}
             className='cover'
             title={book.title || undefined}
             style={{
-              animationDelay: (animationDelay !== false) ? `${delay}s` : '',
-              backgroundImage: inView ? cover ? `url(${cover})` : undefined : undefined, 
+              animationDelay: (animationdelay !== false) ? `${delay}s` : '',
+              backgroundImage: inview ? cover ? `url(${cover}) ` : undefined : undefined,
             }}>
             {hasAward && showMedal && <div className='medal accent'>{icon.medal}</div>}
             {hasBcid && <div className='bookmark accent'><div>{bcid}</div></div>}
