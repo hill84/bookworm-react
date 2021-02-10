@@ -40,10 +40,14 @@ interface ReviewProps {
   uid?: string;
 }
 
-const Review: FC<ReviewProps> = ({ bid, review, uid }: ReviewProps) => {
+const Review: FC<ReviewProps> = ({
+  bid,
+  review,
+  uid
+}: ReviewProps) => {
   const { isAdmin, isEditor, user } = useContext<UserContextModel>(UserContext);
   const { openSnackbar } = useContext(SnackbarContext);
-  const authid = useMemo(() => user?.uid, [user]);
+  const authid: string = user?.uid || '';
   const likes_num = review.likes ? review.likes.length : 0;
   // const dislikes_num = review.dislikes ? review.dislikes.length : 0;
   const [flagLoading, setFlagLoading] = useState<boolean>(false);

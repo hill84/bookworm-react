@@ -7,9 +7,9 @@ import { getInitials, timeSince } from '../config/shared';
 import { NoteModel } from '../types';
 
 interface NoteMenuItemProps {
-  index: number;
+  index?: number;
   item?: NoteModel;
-  animation: boolean;
+  animation?: boolean;
 }
 
 const NoteMenuItem: ForwardRefRenderFunction<HTMLLIElement, NoteMenuItemProps> = ({
@@ -19,14 +19,16 @@ const NoteMenuItem: ForwardRefRenderFunction<HTMLLIElement, NoteMenuItemProps> =
 }: NoteMenuItemProps, ref: Ref<HTMLLIElement>) => {
   if (!item) return null;
 
+  const { created_num, createdBy, createdByUid, nid, photoURL, tag, text } = item;
+
   return (
-    <MenuItem key={item.nid} style={animation ? { animationDelay: `${(index + 1) / 10  }s`, } : { animation: 'none' }} ref={ref}> 
+    <MenuItem key={nid} style={animation ? { animationDelay: `${(index + 1) / 10  }s`, } : { animation: 'none' }} ref={ref}> 
       <div className='row'>
         <div className='col-auto'>
-          {(item.photoURL || (item.tag && (item.tag.indexOf('follow') > -1 || item.tag.indexOf('like') > -1))) ? (
-            <Link to={`/dashboard/${item.createdByUid}`} className='bubble'>
-              <Avatar className='image avatar' alt={item.createdBy}>
-                {item.photoURL ? <img src={item.photoURL} alt='' /> : item.createdBy ? getInitials(item.createdBy) : undefined}
+          {(photoURL || (tag && (tag.indexOf('follow') > -1 || tag.indexOf('like') > -1))) ? (
+            <Link to={`/dashboard/${createdByUid}`} className='bubble'>
+              <Avatar className='image avatar' alt={createdBy}>
+                {photoURL ? <img src={photoURL} alt='' /> : createdBy ? getInitials(createdBy) : undefined}
               </Avatar>
             </Link>
           ) : (
@@ -34,9 +36,9 @@ const NoteMenuItem: ForwardRefRenderFunction<HTMLLIElement, NoteMenuItemProps> =
           )}
         </div>
         <div className='col text'>
-          <div dangerouslySetInnerHTML={{ __html: item.text }} />
+          <div dangerouslySetInnerHTML={{ __html: text }} />
         </div>
-        <div className='col-auto date'>{timeSince(item.created_num)}</div>
+        <div className='col-auto date'>{timeSince(created_num)}</div>
       </div>
     </MenuItem>
   );

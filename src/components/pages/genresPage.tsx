@@ -5,8 +5,6 @@ import { genres } from '../../config/lists';
 import { app, denormURL } from '../../config/shared';
 import BookCollection from '../bookCollection';
 
-const rootMargin = '300px';
-
 const GenresPage: FC = () => (
   <Fragment>
     <Helmet>
@@ -14,10 +12,16 @@ const GenresPage: FC = () => (
     </Helmet>
     <div className='container'>
       {genres.map(item =>
-        <InView key={item.id} triggerOnce rootMargin={rootMargin}>
+        <InView key={item.id} triggerOnce rootMargin='300px'>
           {({ inView, ref }) => (
             <div className='card dark card-fullwidth-sm' /* style={{'--cardClr': item.color}} */ ref={ref}>
-              <BookCollection cid={denormURL(item.name)} desc pagination={false} limit={7} inView={inView} scrollable />
+              <BookCollection
+                cid={denormURL(item.name)}
+                desc pagination={false}
+                limit={7}
+                inView={inView}
+                scrollable
+              />
             </div>
           )}
         </InView>

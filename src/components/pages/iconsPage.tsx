@@ -8,13 +8,13 @@ import { app } from '../../config/shared';
 import { darkTheme } from '../../config/themes';
 import SnackbarContext, { OpenSnackbarType } from '../../context/snackbarContext';
 
-const copy = (text: string, openSnackbar: OpenSnackbarType) => {
+const copy = (text: string, openSnackbar: OpenSnackbarType): void => {
   if (typeof window !== 'undefined') {
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard.writeText(text).then((): void => {
       openSnackbar('Copiato negli appunti', 'success');
-    }, (error) => {
+    }, (err: Error): void => {
       openSnackbar('Errore interno', 'error');
-      console.warn('Async: Could not copy text: ', error);
+      console.warn('Async: Could not copy text: ', err);
     });
   }
 };
@@ -29,8 +29,12 @@ const IconsPage: FC = () => {
   };
   
   const highlightedText = (text: string) => {
-    const arr = text?.split(searchText);
-    return <Fragment>{arr?.[0]}<span className='primary-text'>{searchText}</span>{arr?.[1]}</Fragment>;
+    const arr: string[] = text.split(searchText);
+    return (
+      <Fragment>
+        {arr[0]}<span className='primary-text'>{searchText}</span>{arr[1]}
+      </Fragment>
+    );
   };
 
   return (
@@ -59,7 +63,7 @@ const IconsPage: FC = () => {
         <div>&nbsp;</div>
 
         <div className='row'>
-          {Object.keys(icon).filter(item => searchText?.length > 1 ? item.includes(searchText) : item).map((item, i) => 
+          {Object.keys(icon).filter((item: string): boolean => searchText.length > 1 ? item.includes(searchText) : Boolean(item)).map(((item: string, i: number) => 
             <div className='col text-center' key={i}>
               <div className='row'>
                 <Tooltip title={item}>
@@ -75,13 +79,13 @@ const IconsPage: FC = () => {
                   </div>
                 </Tooltip>
               </div>
-              {searchText?.length > 1 && (
+              {searchText.length > 1 && (
                 <div className='row'>
                   <div className='col ellipsis text-sm'>{highlightedText(item)}</div>
                 </div>
               )}
             </div>
-          )}
+          ))}
         </div>
       </div>   
     </div>

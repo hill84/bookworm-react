@@ -1,13 +1,8 @@
 import React, { FC } from 'react';
-import { HistoryType, LocationType } from '../../types';
+import { RouteComponentProps } from 'react-router';
 import NoMatch from '../noMatch';
 
-interface NoMatchProps {
-  history: HistoryType;
-  location: LocationType;
-}
-
-const NoMatchPage: FC<NoMatchProps> = ({ history, location }: NoMatchProps) => (
+const NoMatchPage: FC<RouteComponentProps> = ({ history, location }: RouteComponentProps) => (
   <NoMatch history={history} location={location} />
 );
 

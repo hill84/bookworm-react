@@ -15,27 +15,30 @@ const VerifyEmailPage: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const sendEmailVerification = (): void => {
-    setLoading(true);
-
-    const actionCodeSettings: ActionCodeSettings = {
-      url: `${app.url}/login/?email=${auth.currentUser?.email}`
-    };
-
-    auth.onIdTokenChanged((user: User | null): void => {
-      if (user) {
-        user.sendEmailVerification(actionCodeSettings).then((): void => {
-          setEmailSent(true);
-          // FORCE USER RELOAD
-          auth.currentUser?.reload().then(() => {
-            auth.currentUser?.getIdToken(true);
-          }).catch((err: Error): void => console.warn(err));
-        }).catch((err: FirestoreError): void => {
-          openSnackbar(handleFirestoreError(err), 'error');
-        }).finally((): void => {
-          setLoading(false);
-        });
-      }
-    });
+    if (auth.currentUser) {
+      const actionCodeSettings: ActionCodeSettings = {
+        url: `${app.url}/login/?email=${auth.currentUser.email}`
+      };
+      
+      setLoading(true);
+      auth.onIdTokenChanged((user: User | null): void => {
+        if (user) {
+          user.sendEmailVerification(actionCodeSettings).then((): void => {
+            setEmailSent(true);
+            // FORCE USER RELOAD
+            auth.currentUser?.reload().then((): void => {
+              auth.currentUser?.getIdToken(true);
+            }).catch((err: Error): void => console.warn(err));
+          }).catch((err: FirestoreError): void => {
+            openSnackbar(handleFirestoreError(err), 'error');
+          }).finally((): void => {
+            setLoading(false);
+          });
+        }
+      }), (err: Error): void => console.log(err);
+    } else {
+      console.log('No currentUser email');
+    }
   };
 
   return (

@@ -1,15 +1,10 @@
 import React, { FC } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, RouteComponentProps } from 'react-router-dom';
 import { app } from '../../config/shared';
-import { LocationType } from '../../types';
 import LoginForm from '../forms/loginForm';
 
-interface LoginProps {
-  location: LocationType;
-}
-
-const Login: FC<LoginProps> = ({ location }: LoginProps) => (
+const Login: FC<RouteComponentProps> = ({ location }: RouteComponentProps) => (
   <div className='card-container pad-v' id='loginComponent'>
     <Helmet>
       <title>{app.name} | Login</title>

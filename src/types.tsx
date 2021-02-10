@@ -114,7 +114,7 @@ export interface ReviewModel {
   title: string;
 }
 
-interface UserBookReviewModel {
+export interface UserBookReviewModel {
   bid: string;
   covers: string[];
   bookTitle: string;
@@ -141,9 +141,11 @@ export interface UserBookModel extends Pick<BookModel, 'authors' | 'bid' | 'cove
   added_num: number;
   bookInShelf: boolean;
   bookInWishlist: boolean;
+  genres?: string[];
+  pages_num?: number;
   rating_num: number;
   readingState: ReadingStateModel;
-  review: UserBookReviewModel;
+  review: Partial<UserBookReviewModel>;
 }
 
 export interface RatingsModel {
@@ -350,3 +352,5 @@ export type RefType = Function | object;
 export type ScreenSizeType = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export type BooksPerRowType = 3 | 2 | 4 | 6 | 7;
+
+export type BookshelfType = 'shelf' | 'wishlist';

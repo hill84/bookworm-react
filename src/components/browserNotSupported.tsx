@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { app } from '../config/shared';
 
 const BrowserNotSupported: FC = () => {
-  const { desc, logo, name} = app;
+  const { desc, logo, name } = app;
 
   return (
     <div style={{ padding: 30, margin: '0 auto', width: 520, textAlign: 'center', }}>

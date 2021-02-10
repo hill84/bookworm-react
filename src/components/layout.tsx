@@ -28,13 +28,8 @@ import { NoteModel, RolesType } from '../types';
 import Footer from './footer';
 import NoteMenuItem from './noteMenuItem';
 
-const unsub: {
-  fetchNotes: null | (() => void);
-  timer: null | number;
-} = {
-  fetchNotes: null,
-  timer: null,
-};
+let fetchNotesCanceler: null | (() => void) = null;
+let timer: null | number = null;
 
 const Layout: FC = ({ children }) => {
   const { error, isAdmin, isEditor, user } = useContext(UserContext);
@@ -49,7 +44,7 @@ const Layout: FC = ({ children }) => {
       const notes: NoteModel[] = [];
       roles.forEach((role: RolesType): void => {
         if (hasRole(user, role)) {
-          unsub.fetchNotes = notesRef(`__${role}`).orderBy('created_num', 'desc').limit(5).onSnapshot((snap: DocumentData): void => {
+          fetchNotesCanceler = notesRef(`__${role}`).orderBy('created_num', 'desc').limit(5).onSnapshot((snap: DocumentData): void => {
             if (!snap.empty) {
               snap.forEach((note: DocumentData): void => {
                 notes.push({ ...note.data(), role });
@@ -70,7 +65,7 @@ const Layout: FC = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    unsub.timer = window.setTimeout(() => {
+    timer = window.setTimeout(() => {
       fetchNotes();
     }, 1000);
   }, [fetchNotes]);
@@ -80,8 +75,8 @@ const Layout: FC = ({ children }) => {
   }, [error, openSnackbar]);
   
   useEffect(() => () => {
-    unsub.fetchNotes && unsub.fetchNotes();
-    unsub.timer && clearTimeout(unsub.timer);
+    fetchNotesCanceler?.();
+    timer && clearTimeout(timer);
   }, []);
 
   const onToggleDrawer = () => setDrawerIsOpen(!drawerIsOpen);

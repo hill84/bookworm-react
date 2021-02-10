@@ -16,7 +16,12 @@ import withScrollToTop from '../hocs/withScrollToTop';
 import RandomQuote from '../randomQuote';
 import Reviews from '../reviews';
 
-const seo = {
+interface SeoModel {
+  title: string;
+  description: string;
+}
+
+const seo: SeoModel = {
   title: `${app.name} | Home`,
   description: app.desc
 };

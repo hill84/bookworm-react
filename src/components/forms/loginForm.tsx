@@ -1,3 +1,4 @@
+import { FirestoreError } from '@firebase/firestore-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
@@ -5,13 +6,12 @@ import IconButton from '@material-ui/core/IconButton';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import InputLabel from '@material-ui/core/InputLabel';
-import React, { useEffect, useRef, useState } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import React, { ChangeEvent, MouseEvent, FC, useEffect, useState, FormEvent } from 'react';
+import { Link, Redirect, RouteComponentProps } from 'react-router-dom';
 import isEmail from 'validator/lib/isEmail';
 import { auth } from '../../config/firebase';
 import icon from '../../config/icons';
 import { app, handleFirestoreError } from '../../config/shared';
-import { locationType } from '../../config/proptypes';
 import SocialAuth from '../socialAuth';
 
 const max = {
@@ -25,30 +25,54 @@ const min = {
   chars: { password: 8 }
 };
 
-const LoginForm = ({ location }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [authError, setAuthError] = useState('');
-  const [redirectToReferrer, setRedirectToReferrer] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const is = useRef(true);
+interface LoginFormProps {
+  location: RouteComponentProps['location'];
+}
+
+interface ErrorsModel {
+  email?: string;
+  password?: string;
+}
+
+interface StateModel {
+  email: string;
+  password: string;
+  loading: boolean;
+  errors: ErrorsModel;
+  authError: string;
+  redirectToReferrer: boolean;
+  showPassword: boolean;
+}
+
+const initialState: StateModel = {
+  email: '',
+  password: '',
+  loading: false,
+  errors: {},
+  authError: '',
+  redirectToReferrer: false,
+  showPassword: false,
+};
+
+const LoginForm: FC<LoginFormProps> = ({ location }: LoginFormProps) => {
+  const [email, setEmail] = useState<string>(initialState.email);
+  const [password, setPassword] = useState<string>(initialState.password);
+  const [loading, setLoading] = useState<boolean>(initialState.loading);
+  const [errors, setErrors] = useState<ErrorsModel>(initialState.errors);
+  const [authError, setAuthError] = useState<string>(initialState.authError);
+  const [redirectToReferrer, setRedirectToReferrer] = useState<boolean>(initialState.redirectToReferrer);
+  const [showPassword, setShowPassword] = useState<boolean>(initialState.showPassword);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const email = params.get('email');
+    const email: string | null = params.get('email');
     
-    if (is.current && email) {
+    if (email) {
       setEmail(email);
     }
-
-    return () => {
-      is.current = false;
-    };
   }, [location.search]);
 
-  const onChange = e => {
+  const onChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
     e.persist();
     const { name, value } = e.target;
 
@@ -57,11 +81,14 @@ const LoginForm = ({ location }) => {
       case 'password': setPassword(value); break;
       default: break;
     }
-    setErrors({ ...errors, [name]: null });
+    setErrors({ ...errors, [name]: undefined });
   };
   
-  const validate = data => {
-    const errors = {};
+  const validate = (data: {
+    email: string;
+    password: string;
+  }): ErrorsModel => {
+    const errors: ErrorsModel = {};
 
     if (!data.email) {
       errors.email = 'Inserisci un indirizzo email';
@@ -82,30 +109,28 @@ const LoginForm = ({ location }) => {
     return errors;
   };
 
-  const onSubmit = e => {
+  const onSubmit = (e: MouseEvent | FormEvent): void => {
     e.preventDefault();
-    const errors = validate({ email, password });
+    const errors: ErrorsModel = validate({ email, password });
     
-    if (is.current) {
-      setAuthError('');
-      setErrors(errors);
-    }
+    setAuthError('');
+    setErrors(errors);
     
     if (Object.keys(errors).length === 0) {
-      if (is.current) setLoading(true);
-      auth.signInWithEmailAndPassword(email, password).then(() => {
-        if (is.current) setRedirectToReferrer(true);
-      }).catch(err => {
-        if (is.current) setAuthError(handleFirestoreError(err));
-      }).finally(() => {
-        if (is.current) setLoading(false);
+      setLoading(true);
+      auth.signInWithEmailAndPassword(email, password).then((): void => {
+        setRedirectToReferrer(true);
+      }).catch((err: FirestoreError): void => {
+        setAuthError(handleFirestoreError(err));
+      }).finally((): void => {
+        setLoading(false);
       });
     }
   };
   
-  const onTogglePassword = () => setShowPassword(!showPassword);
+  const onTogglePassword = () => setShowPassword(showPassword => !showPassword);
 
-  const onMouseDownPassword = e => e.preventDefault();
+  const onMouseDownPassword = (e: MouseEvent<HTMLButtonElement>): void => e.preventDefault();
 
   const { from } = { from: { pathname: '/' } };
 
@@ -114,7 +139,7 @@ const LoginForm = ({ location }) => {
   );
 
   return (
-    <div id='loginFormComponent' ref={is}>
+    <div id='loginFormComponent'>
       {loading && <div aria-hidden='true' className='loader'><CircularProgress /></div>}
       <SocialAuth />
 
@@ -151,7 +176,7 @@ const LoginForm = ({ location }) => {
               value={password}
               onChange={onChange}
               error={Boolean(errors.password)}
-              endAdornment={
+              endAdornment={(
                 <InputAdornment position='end'>
                   <IconButton
                     aria-label='toggle password visibility'
@@ -160,13 +185,17 @@ const LoginForm = ({ location }) => {
                     {showPassword ? icon.eye : icon.eyeOff}
                   </IconButton>
                 </InputAdornment>
-              }
+              )}
             />
             {errors.password && <FormHelperText className='message error'>{errors.password}</FormHelperText>}
           </FormControl>
         </div>
 
-        {authError && <div className='row'><div className='col message error'>{authError}</div></div>}
+        {authError && (
+          <div className='row'>
+            <div className='col message error'>{authError}</div>
+          </div>
+        )}
 
         <div className='footer no-gutter'>
           <button type='button' className='btn btn-footer primary' onClick={onSubmit}>Accedi</button>
@@ -174,14 +203,6 @@ const LoginForm = ({ location }) => {
       </form>
     </div>
   );
-};
-
-LoginForm.propTypes = {
-  location: locationType
-};
-
-LoginForm.defaultProps = {
-  location: null
 };
 
 export default LoginForm;

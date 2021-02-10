@@ -9,7 +9,11 @@ interface MatchParams {
   bid: string;
 }
 
-const BookContainer: FC<BookContainerProps> = ({ history, location, match }: BookContainerProps) =>  (
+const BookContainer: FC<BookContainerProps> = ({
+  history,
+  location,
+  match
+}: BookContainerProps) =>  (
   <div id='BookContainerComponent'>
     <Book 
       bid={match.params.bid}
