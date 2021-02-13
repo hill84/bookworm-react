@@ -1,5 +1,5 @@
 import MomentUtils from '@date-io/moment';
-import { DocumentData, FirestoreError } from '@firebase/firestore-types';
+import { DocumentData, DocumentReference, FirestoreError } from '@firebase/firestore-types';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -18,7 +18,7 @@ import isbn from 'isbn-utils';
 import ChipInput from 'material-ui-chip-input';
 import moment from 'moment';
 import 'moment/locale/it';
-import React, { ChangeEvent, FC, Fragment, MouseEvent, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, FC, FormEvent, Fragment, MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import isISBN from 'validator/lib/isISBN';
 import isURL from 'validator/lib/isURL';
@@ -151,14 +151,9 @@ const BookForm: FC<BookFormProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [prevBook, setPrevBook] = useState<BookModel>(_book);
   const [redirectToBook, setRedirectToBook] = useState<string>('');
-  const is = useRef(true);
 
   useEffect(() => {
     setPrevBook(book);
-
-    return () => {
-      is.current = false;
-    };
     // eslint-disable-next-line
   }, []);
 
@@ -166,16 +161,14 @@ const BookForm: FC<BookFormProps> = ({
     // e.persist();
     e.preventDefault();
 
-    if (is.current) {
-      setIsEditingDescription(isEditingDescription => !isEditingDescription);
-    }
+    setIsEditingDescription(isEditingDescription => !isEditingDescription);
   };
   
   const onToggleIncipit = (e: MouseEvent): void => {
     // e.persist();
     e.preventDefault();
     
-    if (is.current) setIsEditingIncipit(isEditingIncipit => !isEditingIncipit);
+    setIsEditingIncipit(isEditingIncipit => !isEditingIncipit);
   };
 
   const setChange = useCallback((name: keyof BookModel, value: unknown): void => {
@@ -196,11 +189,9 @@ const BookForm: FC<BookFormProps> = ({
   }, [changes, prevBook, setChanges]);
 
   const setBookChange = useCallback((name: keyof BookModel, value: unknown): void => {
-    if (is.current) {
-      setBook(book => ({ ...book, [name]: value }));
-      setChange(name, value);
-      if (errors[name]) setErrors(errors => ({ ...errors, [name]: null }));
-    }
+    setBook(book => ({ ...book, [name]: value }));
+    setChange(name, value);
+    if (errors[name]) setErrors(errors => ({ ...errors, [name]: null }));
   }, [errors, setChange]);
 
   const onChange = useCallback(e => {
@@ -221,7 +212,7 @@ const BookForm: FC<BookFormProps> = ({
     setErrors(errors => ({ ...errors, [name]: match ? null : 'Numero non valido' }));
   }, [setBookChange]);
 
-  const onChangeSelect = useCallback((name: keyof BookModel) => (e: ChangeEvent<{ name?: string; value: unknown }>): void => {
+  const onChangeSelect = useCallback((name: keyof BookModel) => (e: ChangeEvent<{ value: unknown }>): void => {
     e.persist();
     const { value } = e.target;
     setBookChange(name, value);
@@ -232,22 +223,22 @@ const BookForm: FC<BookFormProps> = ({
     setBookChange(name, value);
   }, [setBookChange]);
 
-  const onAddChip = useCallback((name: 'authors' | 'collections', chip: any): void => {
+  const onAddChip = useCallback((name: 'authors' | 'collections', chip): void => {
     const value: any[] = [...book[name] as any[], chip];
     setBookChange(name, value);
   }, [book, setBookChange]);
 
-  const onDeleteChip = useCallback((name: 'authors' | 'collections', chip: any): void => {
+  const onDeleteChip = useCallback((name: 'authors' | 'collections', chip): void => {
     const value: any[] = (book[name] as any[])?.filter((c: any) => c !== chip);
     setBookChange(name, value);
   }, [book, setBookChange]);
   
-  const onAddChipToObj = useCallback((name: 'authors' | 'collections', chip: any): void => {
+  const onAddChipToObj = useCallback((name: 'authors' | 'collections', chip): void => {
     const value: Record<string, unknown> = { ...book[name], [chip.split('.').join('')]: true };
     setBookChange(name, value);
   }, [book, setBookChange]);
 
-  const onDeleteChipFromObj = useCallback((name: 'authors' | 'collections', chip: any): void => {
+  const onDeleteChipFromObj = useCallback((name: 'authors' | 'collections', chip): void => {
     const value: Record<string, unknown> = arrToObj(Object.keys(book[name] as any[]).filter((c: any): boolean => c !== chip.split('.').join('')), (item: string): { key: string; value: boolean } => ({ key: item, value: true }));
     setBookChange(name, value);
   }, [book, setBookChange]);
@@ -256,10 +247,8 @@ const BookForm: FC<BookFormProps> = ({
     e.persist();
     const { name, value } = e.target;
 
-    if (is.current) {
-      setBookChange((name as keyof BookModel), value);
-      setLeftChars(leftChars => ({ ...leftChars, [name]: max.chars[name as keyof MaxModel['chars']] - value.length }));
-    }
+    setBookChange((name as keyof BookModel), value);
+    setLeftChars(leftChars => ({ ...leftChars, [name]: max.chars[name as keyof MaxModel['chars']] - value.length }));
   }, [setBookChange]);
 
   const onSetDatePickerError = (name: string, reason: keyof ErrorMessagesModel): void => {
@@ -288,7 +277,7 @@ const BookForm: FC<BookFormProps> = ({
 
   const validate = useCallback(async book => {
     const errors: ErrorsModel = {};
-    const isDuplicate = await checkISBNnum(book.ISBN_13);
+    const isDuplicate: boolean = await checkISBNnum(book.ISBN_13);
     
     if (!book.title) {
       errors.title = 'Inserisci il titolo';
@@ -380,20 +369,20 @@ const BookForm: FC<BookFormProps> = ({
     if (book.description) {
       if (book.description.length < min.chars.description) {
         errors.description = `Lunghezza minima ${min.chars.description} caratteri`;
-        if (is.current) setIsEditingDescription(true);
+        setIsEditingDescription(true);
       } else if (book.description.length > max.chars.description) {
         errors.description = `Lunghezza massima ${max.chars.description} caratteri`;
-        if (is.current) setIsEditingDescription(true);
+        setIsEditingDescription(true);
       }
     }
 
     if (book.incipit) {
       if (book.incipit.length < min.chars.incipit) {
         errors.incipit = `Lunghezza minima ${min.chars.incipit} caratteri`;
-        if (is.current) setIsEditingIncipit(true);
+        setIsEditingIncipit(true);
       } else if (book.incipit.length > max.chars.incipit) {
         errors.incipit = `Lunghezza massima ${max.chars.incipit} caratteri`;
-        if (is.current) setIsEditingIncipit(true);
+        setIsEditingIncipit(true);
       }
     }
 
@@ -409,8 +398,8 @@ const BookForm: FC<BookFormProps> = ({
     const potentiallyVulgarFields: Array<keyof BookModel> = ['description', 'publisher', 'subtitle', 'title'];
 
     potentiallyVulgarFields.forEach((text: string): void => {
-      const urlMatches = extractUrls(book[text]);
-      const badWords = checkBadWords(book[text]);
+      const urlMatches: RegExpMatchArray | null = extractUrls(book[text]);
+      const badWords: boolean = checkBadWords(book[text]);
       if (urlMatches) {
         errors[text as keyof ErrorsModel] = `Non inserire link (${join(urlMatches)})`;
       } else if (badWords) {
@@ -423,71 +412,62 @@ const BookForm: FC<BookFormProps> = ({
 
   const onImageChange = useCallback(e => {
     e.preventDefault();
-    const file = e.target.files[0];
+    const file: File = e.target?.files[0];
 
     if (file) {
-      const uploadError = validateImg(file, 1);
+      const uploadError: string = validateImg(file, 1) || '';
       
       if (!uploadError) {
-        if (is.current) {
-          setImgLoading(true);
-          setErrors(errors => ({ ...errors, upload: '' }));
-        }
+        setImgLoading(true);
+        setErrors(errors => ({ ...errors, upload: '' }));
         const uploadTask = storageRef.child(`books/${_book.bid || book.bid}/cover`).put(file);
         const unsubUploadTask = uploadTask.on('state_changed', snap => {
-          if (is.current) { 
-            setImgProgress(snap.bytesTransferred / snap.totalBytes * 100);
-          }
-        }, err => {
+          setImgProgress(snap.bytesTransferred / snap.totalBytes * 100);
+        }, (err: Error): void => {
           // console.warn(`upload error: ${error.message}`);
-          if (is.current) { 
-            setErrors(errors => ({ ...errors, upload: err.message }));
-            setImgLoading(false);
-            setImgProgress(0);
-            openSnackbar(err.message, 'error');
-          }
-        }, () => {
+          setErrors(errors => ({ ...errors, upload: err.message }));
+          setImgLoading(false);
+          setImgProgress(0);
+          openSnackbar(err.message, 'error');
+        }, (): void => {
           // console.log('upload completed');
-          uploadTask.then(snap => 
-            snap.ref.getDownloadURL().then(url => {
+          uploadTask.then(snap => {
+            snap.ref.getDownloadURL().then((url: string): void => {
               const name = 'covers';
-              const value = [url];
-              
-              if (is.current) {
-                setImgLoading(false);
-                setImgPreview(url);
-                setBookChange(name, value);
-                openSnackbar('Immagine caricata', 'success');
-                setTimeout(() => {
-                  if (is.current) setImgProgress(0);
-                }, 2000);
-              }
-            })
-          );
+              const value: string[] = [url];
+              setImgLoading(false);
+              setImgPreview(url);
+              setBookChange(name, value);
+              openSnackbar('Immagine caricata', 'success');
+              setTimeout((): void => {
+                setImgProgress(0);
+              }, 2000);
+            });
+          });
           unsubUploadTask();
         });
-      } else if (is.current) {
+      } else {
         setErrors(errors => ({ ...errors, upload: uploadError }));
         openSnackbar(uploadError, 'error');
       }
     }
   }, [book, openSnackbar, _book, setBookChange]);
   
-  const onSubmit = useCallback(async e => {
+  const onSubmit = useCallback(async (e: FormEvent): Promise<void> => {
     e.preventDefault();
 
     if (changes.length || !book.bid) {
-      if (is.current) setLoading(true);
+      setLoading(true);
 
-      const errors = await validate(book);
+      const errors: ErrorsModel = await validate(book);
 
-      if (is.current) setErrors(errors);
+      setErrors(errors);
 
       if (Object.keys(errors).length === 0) {
         let newBid = '';
-        const bookCover = book.covers[0];
-        const userUid = user?.uid || '';
-        const userDisplayName = user?.displayName || '';
+        const bookCover: string = book.covers[0];
+        const userUid: string = user?.uid || '';
+        const userDisplayName: string = user?.displayName || '';
 
         if (_book.bid) {
           // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
@@ -502,21 +482,17 @@ const BookForm: FC<BookFormProps> = ({
               lastEditBy: userDisplayName,
               lastEditByUid: userUid
             }
-          }).then(() => {
-            if (is.current) {
-              setChanges([]);
-              onEditing();
-              openSnackbar('Modifiche salvate', 'success');
-            }
+          }).then((): void => {
+            setChanges([]);
+            onEditing();
+            openSnackbar('Modifiche salvate', 'success');
           }).catch((err: FirestoreError): void => {
-            if (is.current) {
-              openSnackbar(handleFirestoreError(err), 'error');
-            }
-          }).finally(() => {
-            if (is.current) setLoading(false);
+            openSnackbar(handleFirestoreError(err), 'error');
+          }).finally((): void => {
+            setLoading(false);
           });
         } else {
-          const newBookRef = booksRef.doc();
+          const newBookRef: DocumentReference<DocumentData> = booksRef.doc();
           newBid = newBookRef.id;
           newBookRef.set({
             ISBN_10: String(book.ISBN_10),
@@ -553,23 +529,19 @@ const BookForm: FC<BookFormProps> = ({
             title_sort: book.title_sort,
             trailerURL: noCookie(book.trailerURL)
           }).then(() => {
-            if (is.current) {
-              setRedirectToBook(`${newBid}/${book.title}`);
-              // setLoading(false);
-              // setChanges([]);
-              // onEditing();
-              openSnackbar('Nuovo libro creato', 'success');
-              // console.log(`New book created with bid ${newBid}`);
-            }
+            setRedirectToBook(`${newBid}/${book.title}`);
+            // setLoading(false);
+            // setChanges([]);
+            // onEditing();
+            openSnackbar('Nuovo libro creato', 'success');
+            // console.log(`New book created with bid ${newBid}`);
           }).catch((err: FirestoreError): void => {
-            if (is.current) {
-              setLoading(false);
-              openSnackbar(handleFirestoreError(err), 'error');
-            }
+            setLoading(false);
+            openSnackbar(handleFirestoreError(err), 'error');
           });
         }
         if (book.collections) {
-          book.collections.forEach(cid => {
+          book.collections.forEach((cid: string): void => {
             collectionBookRef(cid, book.bid || newBid).get().then((collection: DocumentData): void => {
               if (collection.exists) { 
                 collectionBookRef(cid, book.bid || newBid).get().then((collectionBook: DocumentData): void => {
@@ -598,7 +570,7 @@ const BookForm: FC<BookFormProps> = ({
             }).catch((err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
           });
         }
-      } else if (is.current) {
+      } else {
         setLoading(false);
         if (errors.description) setIsEditingDescription(true);
         if (errors.incipit) setIsEditingIncipit(true);
@@ -609,13 +581,13 @@ const BookForm: FC<BookFormProps> = ({
 
   const onExitEditing = useCallback(() => {
     if (changes.length) {
-      if (is.current) setIsOpenChangesDialog(true);
+      setIsOpenChangesDialog(true);
     } else onEditing();
   }, [changes, onEditing]);
 
-  const onCloseChangesDialog = () => setIsOpenChangesDialog(false);
+  const onCloseChangesDialog = (): void => setIsOpenChangesDialog(false);
   
-  const menuItemsMap = (arr: any[], values?: string[]) => arr.map((item: any) => 
+  const menuItemsMap = (arr: any[], values?: string[]) => arr.map((item: any) => (
     <MenuItem 
       value={item.name} 
       key={item.id} 
@@ -623,7 +595,7 @@ const BookForm: FC<BookFormProps> = ({
       selected={values ? values.includes(item.name) : false}>
       {item.name}
     </MenuItem>
-  );
+  ));
   
   if (redirectToBook) return <Redirect to={`/book/${redirectToBook}`} />;
   

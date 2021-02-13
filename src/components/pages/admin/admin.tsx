@@ -137,9 +137,9 @@ const Admin: FC<AdminProps> = ({ history, match }: AdminProps) => {
     setSelectedId(son(id));
   };
 
-  const onToggleCollectionDialog = (id: string): void => {
+  const onToggleCollectionDialog = (id?: string): void => {
     setIsOpenCollectionDialog(!isOpenCollectionDialog);
-    setSelectedId(son(id));
+    id && setSelectedId(son(id));
   };
 
   const onToggleUserDialog = (item?: UserModel): void => {
@@ -150,10 +150,10 @@ const Admin: FC<AdminProps> = ({ history, match }: AdminProps) => {
     }
   };
 
-  const onToggleNoteDialog = (id: string, el: string): void => {
+  const onToggleNoteDialog = (id?: string, el?: string): void => {
     setIsOpenNoteDialog(!isOpenNoteDialog);
-    setSelectedId(son(id));
-    setSelectedEl(son(el));
+    id && setSelectedId(son(id));
+    el && setSelectedEl(son(el));
   };
 
   const onToggleQuoteDialog = (id: string): void => {

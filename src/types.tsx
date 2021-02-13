@@ -322,6 +322,22 @@ export interface UserContextModel {
   user?: UserModel;
 }
 
+export interface RecommendModel {
+  bid: string;
+  cover: string;
+  title: string;
+  uid: string;
+}
+
+export interface RecommendationModel {
+  amount: number;
+  displayName?: string;
+  photoURL?: string;
+  recommends: RecommendModel[];
+  timestamp: number;
+  uid?: string;
+}
+
 export interface RolesModel {
   'admin': boolean;
   'author'?: boolean;

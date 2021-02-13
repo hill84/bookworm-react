@@ -1,9 +1,11 @@
 import { RolesType } from '../types';
 
+export type GenreNameType = 'Architettura' | 'Arte' | 'Avventura' | 'Biografie e autobiografie' | 'Cucina' | 'Economia e finanza' | 'Erotico' | 'Famiglia e relazioni' | 'Fantascienza' | 'Fantasy' | 'Filosofia' | 'Fumetti e Graphic novel' | 'Giallo' | 'Horror' | 'Informatica' | 'Per ragazzi' | 'Medicina e salute' | 'Mistero' | 'Musica' | 'Narrativa' | 'Poesia' | 'Politica' | 'Psicologia' | 'Religione e spiritualità' | 'Rosa' | 'Saggistica' | 'Scienza' | 'Sport' | 'Scienze sociali' | 'Storico' | 'Teatro' | 'Thriller' | 'Satira e umorismo' | 'Viaggi';
+
 export interface GenreModel {
   id: string;
   color: string;
-  name: string;
+  name: GenreNameType;
   canonical?: string;
 }
 
