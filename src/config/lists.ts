@@ -7,6 +7,10 @@ export interface GenreModel {
   canonical?: string;
 }
 
+export type LanguageModel = Record<'id' | 'name' | 'nativeName', string>;
+
+export type MonthModel = Record<'id' | 'eng' | 'ita', string>;
+
 export type ListModel = Record<'id' | 'name', string>
 
 export const roles: RolesType[] = ['author', 'admin', 'editor', 'premium'];
@@ -22,7 +26,7 @@ export const awards: ListModel[] = [
   { id: 'cam', name: 'Premio Campiello' },
   { id: 'nob', name: 'Premio Nobel per la letteratura' },
   { id: 'pul', name: 'Premio Pulitzer' },
-  { id: 'str', name: 'Premio Strega' }
+  { id: 'str', name: 'Premio Strega' },
 ];
 
 export const firestoreErrorMessages: Record<string, Record<'en' | 'it', string>> = {
@@ -145,14 +149,14 @@ export const ratingLabels: Record<number | string, string> = {
   '3.5': 'Discreto', 
   4: 'Buono', 
   '4.5': 'Molto Buono',
-  5: 'Ottimo' 
+  5: 'Ottimo',
 };
 
 export const formats: ListModel[] = [
   { id: '0', name: 'Libro' },
   { id: '1', name: 'Rivista' },
   { id: '3', name: 'Ebook' },
-  { id: '4', name: 'Audiolibro' }
+  { id: '4', name: 'Audiolibro' },
 ];
 
 export const genres: GenreModel[] = [
@@ -192,7 +196,7 @@ export const genres: GenreModel[] = [
   { id: 'vi', color: '#32ccc3', name: 'Viaggi', canonical: 'Travel' }
 ];
 
-export const languages: { id: string; name: string; nativeName: string }[] = [
+export const languages: LanguageModel[] = [
   { id: 'ar', name: 'Arabo', nativeName: 'العربية' },
   { id: 'zh', name: 'Cinese', nativeName: '中文 (Zhōngwén)' },
   { id: 'ko', name: 'Coreano', nativeName: '한국어 (韓國語)' },
@@ -207,7 +211,7 @@ export const languages: { id: string; name: string; nativeName: string }[] = [
   { id: 'de', name: 'Tedesco', nativeName: 'Deutsch' } 
 ];
 
-export const months: { id: string; eng: string; ita: string }[] = [
+export const months: MonthModel[] = [
   { id: 'jan', eng: 'January', ita: 'Gennaio' }, 
   { id: 'feb', eng: 'February', ita: 'Febbraio' }, 
   { id: 'mar', eng: 'March', ita: 'Marzo' }, 

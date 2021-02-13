@@ -22,8 +22,6 @@ import UserContext from '../../context/userContext';
 import '../../css/profileForm.css';
 import { UserContextModel, UserModel } from '../../types';
 
-moment.locale('it');
-
 const min: Record<string, number> = {
   birth_date: new Date().setFullYear(new Date().getFullYear() - 120)
 };
@@ -36,18 +34,40 @@ interface ProfileFormProps {
   user: UserModel;
 }
 
+interface StateModel {
+  imgLoading: boolean;
+  imgPreview: string;
+  imgProgress: number;
+  loading: boolean;
+  changes: boolean;
+  saved: boolean;
+  errors: Record<string, ReactText | null>;
+  isEditingSocial: boolean;
+}
+
+const initialState: StateModel = {
+  imgLoading: false,
+  imgPreview: '',
+  imgProgress: 0,
+  loading: false,
+  changes: false,
+  saved: false,
+  errors: {},
+  isEditingSocial: false,
+};
+
 const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) => {
   const { isAdmin, user: contextUser } = useContext<UserContextModel>(UserContext);
   const { openSnackbar } = useContext<SnackbarContextModel>(SnackbarContext);
   const [user, setUser] = useState<UserModel>(_user);
-  const [imgLoading, setImgLoading] = useState<boolean>(false);
+  const [imgLoading, setImgLoading] = useState<boolean>(initialState.imgLoading);
   const [imgPreview, setImgPreview] = useState<string>(user.photoURL);
-  const [imgProgress, setImgProgress] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [changes, setChanges] = useState<boolean>(false);
-  const [saved, setSaved] = useState<boolean>(false);
-  const [errors, setErrors] = useState<Record<string, ReactText | null>>({});
-  const [isEditingSocial, setIsEditingSocial] = useState<boolean>(false);
+  const [imgProgress, setImgProgress] = useState<number>(initialState.imgProgress);
+  const [loading, setLoading] = useState<boolean>(initialState.loading);
+  const [changes, setChanges] = useState<boolean>(initialState.changes);
+  const [saved, setSaved] = useState<boolean>(initialState.saved);
+  const [errors, setErrors] = useState<Record<string, ReactText | null>>(initialState.errors);
+  const [isEditingSocial, setIsEditingSocial] = useState<boolean>(initialState.isEditingSocial);
 
   const luid: string | undefined = contextUser?.uid;
   const uid: string = user?.uid;
@@ -130,7 +150,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) =>
         }, (): void => {
           // console.log('upload completed');
           uploadTask.then((snap: storage.UploadTaskSnapshot): void => {
-            snap.ref.getDownloadURL().then(url => {
+            snap.ref.getDownloadURL().then((url: string): void => {
               setImgLoading(false);
               setImgPreview(url);
               setChanges(true);
@@ -143,7 +163,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) =>
       } else {
         setErrors({ ...errors, upload: error });
         openSnackbar(error, 'error');
-        setTimeout(() => {
+        setTimeout((): void => {
           setErrors({ ...errors, upload: null });
         }, 2000);
       }
@@ -167,15 +187,15 @@ const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) =>
         birth_date: user.birth_date || '',
         city: user.city || '',
         country: user.country || ''
-      }).then(() => {
+      }).then((): void => {
         setImgProgress(0);
         setChanges(false);
         setSaved(true);
         openSnackbar('Modifiche salvate', 'success');
         // setRedirectToReferrer(true);
-      }).catch(err => {
+      }).catch((err: Error): void => {
         openSnackbar(err.message, 'error');
-      }).finally(() => {
+      }).finally((): void => {
         setLoading(false);
       });
     } else openSnackbar('Ricontrolla i dati inseriti', 'error');
@@ -273,7 +293,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) =>
               <LocalizationProvider dateAdapter={MomentUtils} dateLibInstance={moment} locale='it'>
                 <DatePicker 
                   className='date-picker'
-                  // cancelLabel='Annulla'
+                  cancelText='Annulla'
                   leftArrowIcon={icon.chevronLeft}
                   rightArrowIcon={icon.chevronRight}
                   inputFormat='DD/MM/YYYY'

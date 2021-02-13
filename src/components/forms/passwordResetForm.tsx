@@ -36,7 +36,7 @@ const PasswordResetForm: FC = () => {
   const [authError, setAuthError] = useState(initialState.authError);
   const [errors, setErrors] = useState(initialState.errors);
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>): void => {
     e.persist();
     const { name, value } = e.target;
 
@@ -64,12 +64,12 @@ const PasswordResetForm: FC = () => {
     if (Object.keys(errors).length === 0) {
       setLoading(true);
       
-      auth.sendPasswordResetEmail(email).then(() => {
+      auth.sendPasswordResetEmail(email).then((): void => {
         setEmailSent(true);
         openSnackbar('Ti abbiamo inviato un\'email per reimpostare la password.', 'success');
       }).catch((err: Error): void => {
         setAuthError(String(err));
-      }).finally(() => {
+      }).finally((): void => {
         setLoading(false);
       });
     }

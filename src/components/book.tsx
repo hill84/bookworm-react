@@ -30,7 +30,7 @@ interface BookProps extends Pick<RouteComponentProps, 'location' | 'history'> {
   // userBook?: UserBookModel;
 }
 
-const initialUserBook: UserBookModel = {
+export const initialUserBook: UserBookModel = {
   added_num: 0,
   authors: {},
   bid: '',
@@ -376,13 +376,13 @@ const Book: FC<BookProps> = ({
     } else console.warn('Cannot rateBook. User not authenticated');
   }, [authid, book, isAuth, openSnackbar, user, userBook]);
   
-  const addReview = useCallback((): void => {
-    setBook(book => ({ ...book, reviews_num: book ? book.reviews_num + 1 : 0 } as BookModel));
-  }, []);
+  // const addReview = useCallback((): void => {
+  //   setBook(book => ({ ...book, reviews_num: book ? book.reviews_num + 1 : 0 } as BookModel));
+  // }, []);
 
-  const removeReview = useCallback((): void => {
-    setBook(book => ({ ...book, reviews_num: book ? book.reviews_num - 1 : 0 } as BookModel));
-  }, []);
+  // const removeReview = useCallback((): void => {
+  //   setBook(book => ({ ...book, reviews_num: book ? book.reviews_num - 1 : 0 } as BookModel));
+  // }, []);
 
   const onEditing = useCallback((): void => {
     if (book?.EDIT.edit || user?.roles.admin) {
@@ -430,16 +430,16 @@ const Book: FC<BookProps> = ({
           addBookToShelfRef={addBookToShelfRef} 
           addBookToWishlist={addBookToWishlist} 
           addBookToWishlistRef={addBookToWishlistRef} 
-          addReview={addReview}
+          // addReview={addReview}
           history={history}
           location={location}
           removeBookFromShelf={removeBookFromShelf} 
           removeBookFromWishlist={removeBookFromWishlist} 
-          removeReview={removeReview}
+          // removeReview={removeReview}
           rateBook={rateBook}
           onEditing={onEditing}
           loading={loading}
-          book={book}
+          book={book || undefined}
           userBook={userBook}
         />
       )}

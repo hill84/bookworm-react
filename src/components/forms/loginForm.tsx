@@ -6,7 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import InputLabel from '@material-ui/core/InputLabel';
-import React, { ChangeEvent, MouseEvent, FC, useEffect, useState, FormEvent } from 'react';
+import React, { ChangeEvent, FC, FormEvent, MouseEvent, useEffect, useState } from 'react';
 import { Link, Redirect, RouteComponentProps } from 'react-router-dom';
 import isEmail from 'validator/lib/isEmail';
 import { auth } from '../../config/firebase';

@@ -78,7 +78,7 @@ const Notifications: FC = () => {
           snap.forEach((item: DocumentData): number => items.push(item.data()));
           setItems(items);
           setLastVisible(snap.docs[snap.docs.length-1]);
-          setPage(1);
+          setPage(initialState.page);
           notificationsRef.doc(authid).get().then((snap: DocumentData): void => {
             if (snap.exists) {
               setCount(snap.data().count);

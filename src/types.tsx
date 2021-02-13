@@ -37,18 +37,20 @@ export interface FollowingModel {
   timestamp: number;
 }
 
+export interface BookEDITModel {
+  createdBy: string;
+  createdByUid: string;
+  created_num: number;
+  edit: boolean;
+  lastEditBy: string;
+  lastEditByUid: string;
+  lastEdit_num: number;
+}
+
 export interface BookModel {
   ISBN_10: number | string;
   ISBN_13: number;
-  EDIT: {
-    createdBy: string;
-    createdByUid: string;
-    created_num: number;
-    edit: boolean;
-    lastEditBy: string;
-    lastEditByUid: string;
-    lastEdit_num: number;
-  };
+  EDIT: BookEDITModel;
   authors: Record<string, boolean>;
   awards?: string[];
   bcid?: number;
@@ -58,7 +60,7 @@ export interface BookModel {
   description: string;
   duration?: number; // audio book duration in milliseconds
   edition_num: number;
-  format: FormatType;
+  format: ItalianFormatType;
   genres: string[];
   incipit: string;
   languages: string[];
@@ -346,6 +348,8 @@ export type RolesType = 'admin' | 'author' | 'editor' | 'premium';
 export type StatsType = 'ratings_num' | 'reviews_num' | 'shelf_num' | 'wishlist_num';
 
 export type FormatType = 'audio' | 'magazine' | 'ebook' | 'book';
+
+export type ItalianFormatType = 'Libro' | 'Rivista' | 'Ebook' | 'Audiolibro';
 
 export type RefType = Function | object;
 

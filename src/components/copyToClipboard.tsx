@@ -1,9 +1,9 @@
 import Tooltip from '@material-ui/core/Tooltip';
-import React, { FC, useContext } from 'react';
+import React, { FC, ReactNode, useContext } from 'react';
 import SnackbarContext from '../context/snackbarContext';
 
 interface CopyToClipboardProps {
-  icon?: Element;
+  icon?: ReactNode;
   text?: string | number;
 }
 

@@ -35,7 +35,7 @@
     "**/*.ts",
     "**/*.tsx",
     "types/main.d.ts"
-  ],
+, "src/components/hocs/withScrollToTop.js"  ],
   "exclude": [
     "node_modules",
     "build"

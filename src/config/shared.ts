@@ -63,7 +63,7 @@ export const arrToObj = (arr: Array<unknown>, fn: Function): Record<string, unkn
   return obj;
 };
 // example: const obj = arrToObj(arr, item => { key: item, value: 'author' });
-export const truncateString = (str: string, limit: number): string => str?.length > limit ? `${str?.substr(0, limit)}…` : str;
+export const truncateString = (str = '', limit = Infinity): string => str?.length > limit ? `${str?.substr(0, limit)}…` : str;
 export const normURL = (str: string): string => str && encodeURI(str.replace(/ /g, '_'));
 export const denormURL = (str: string): string => str && decodeURI(str.replace(/_/g, ' '));
 // export const denormUserRef = (str: string): string => str.replace(/@+/g, '').replace(/_+/g, ' ');

@@ -5,39 +5,70 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grow from '@material-ui/core/Grow';
-import React, { forwardRef, Fragment, lazy, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { TransitionProps } from '@material-ui/core/transitions';
+import React, { ChangeEvent, FC, forwardRef, Fragment, lazy, ReactElement, Ref, useContext, useEffect, useMemo, useState } from 'react';
 import { InView } from 'react-intersection-observer';
 import Rater from 'react-rater';
-import { Link } from 'react-router-dom';
+import { Link, RouteComponentProps } from 'react-router-dom';
 import { bookRef } from '../../config/firebase';
 import icon from '../../config/icons';
 import { abbrNum, app, calcReadingTime, msToTime, normURL, setFormatClass, timeSince, truncateString } from '../../config/shared';
-import { bookType, boolType, funcType, locationType, objectType, refType, userBookType } from '../../config/proptypes';
 import SnackbarContext from '../../context/snackbarContext';
 import UserContext from '../../context/userContext';
 import '../../css/bookProfile.css';
+import { BookModel, UserBookModel } from '../../types';
 import BookCollection from '../bookCollection';
 import CopyToClipboard from '../copyToClipboard';
 import Cover from '../cover';
 import ReadingStateForm from '../forms/readingStateForm';
 import RecommendationForm from '../forms/recommendationForm';
+import ReviewForm from '../forms/reviewForm';
 import Incipit from '../incipit';
 import MinifiableText from '../minifiableText';
 import Rating from '../rating';
 import Reviews from '../reviews';
 import ShareButtons from '../shareButtons';
-import ReviewForm from '../forms/reviewForm';
 
 const NoMatch = lazy(() => import('../noMatch'));
 
-const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} /> );
+const Transition = forwardRef(function Transition(
+  props: TransitionProps & { children?: ReactElement<any, any> },
+  ref: Ref<unknown>,
+) {
+  return <Grow ref={ref} {...props} />;
+});
 
-const BookProfile = ({
+interface RateModel {
+  type: string;
+  rating: number;
+}
+
+interface BookProfileProps {
+  // addReview: () => void;
+  addBookToShelf: (bid: string) => void;
+  addBookToShelfRef: Ref<HTMLButtonElement>;
+  addBookToWishlist: (bid: string) => void;
+  addBookToWishlistRef: Ref<HTMLButtonElement>;
+  book?: BookModel;
+  history: RouteComponentProps['history'];
+  loading?: boolean;
+  location: RouteComponentProps['location'];
+  removeBookFromShelf: (bid: string) => void;
+  removeBookFromWishlist: (bid: string) => void;
+  // removeReview: () => void;
+  rateBook: (bid: string, rate: number) => void;
+  onEditing: () => void;
+  userBook: UserBookModel;
+}
+
+type ISBNType = 'ISBN_10' | 'ISBN_13';
+
+const BookProfile: FC<BookProfileProps> = ({
   addBookToShelf,
   addBookToShelfRef,
   addBookToWishlist,
   addBookToWishlistRef,
-  addReview,
+  // addReview,
   book,
   history,
   onEditing,
@@ -46,19 +77,18 @@ const BookProfile = ({
   rateBook,
   removeBookFromShelf,
   removeBookFromWishlist,
-  removeReview,
+  // removeReview,
   userBook: _userBook
-}) => {
+}: BookProfileProps) => {
   const { isAdmin, isAuth, isEditor } = useContext(UserContext);
   const { openSnackbar } = useContext(SnackbarContext);
   // const [errors, setErrors] = useState({});
-  const [ISBN, setISBN] = useState('ISBN_13');
-  const [isOpenRemoveDialog, setIsOpenRemoveDialog] = useState(false);
-  const [isOpenReadingState, setIsOpenReadingState] = useState(false);
-  const [isOpenRecommendation, setIsOpenRecommendation] = useState(false);
-  const [isOpenIncipit, setIsOpenIncipit] = useState(location?.pathname?.indexOf('/incipit') !== -1);
-  const [userBook, setUserBook] = useState(_userBook);
-  const is = useRef(true);
+  const [ISBN, setISBN] = useState<ISBNType>('ISBN_13');
+  const [isOpenRemoveDialog, setIsOpenRemoveDialog] = useState<boolean>(false);
+  const [isOpenReadingState, setIsOpenReadingState] = useState<boolean>(false);
+  const [isOpenRecommendation, setIsOpenRecommendation] = useState<boolean>(false);
+  const [isOpenIncipit, setIsOpenIncipit] = useState<boolean>(location?.pathname?.indexOf('/incipit') !== -1);
+  const [userBook, setUserBook] = useState<UserBookModel>(_userBook);
 
   useEffect(() => {
     setUserBook(_userBook);
@@ -66,77 +96,69 @@ const BookProfile = ({
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (is.current) {
-      setIsOpenIncipit(location.pathname.indexOf('/incipit') !== -1);
-    }
+    setIsOpenIncipit(location.pathname.indexOf('/incipit') !== -1);
   }, [location.pathname]);
 
-  useEffect(() => () => {
-    is.current = false;
-  }, []);
+  const onAddBookToShelf = (): void => book && addBookToShelf(book.bid);
 
-  const onAddBookToShelf = () => addBookToShelf(book.bid);
+  const onAddBookToWishlist = (): void => book && addBookToWishlist(book.bid);
 
-  const onAddBookToWishlist = () => addBookToWishlist(book.bid);
-
-  const onRemoveBookFromShelf = () => {
-    if (is.current) {
-      setIsOpenRemoveDialog(false);
-      removeBookFromShelf(book.bid);
-    }
+  const onRemoveBookFromShelf = (): void => {
+    setIsOpenRemoveDialog(false);
+    book && removeBookFromShelf(book.bid);
   };
 
-  const onRemoveBookFromShelfRequest = () => setIsOpenRemoveDialog(true);
+  const onRemoveBookFromShelfRequest = (): void => setIsOpenRemoveDialog(true);
 
-  const onCloseRemoveDialog = () => setIsOpenRemoveDialog(false);
+  const onCloseRemoveDialog = (): void => setIsOpenRemoveDialog(false);
 
-  const onRemoveBookFromWishlist = () => removeBookFromWishlist(book.bid);
+  const onRemoveBookFromWishlist = (): void => book && removeBookFromWishlist(book.bid);
 
-  const onRateBook = rate => {
-    if (rate.type === 'click') {
+  const onRateBook = (rate: RateModel): void => {
+    if (rate.type === 'click' && book) {
       rateBook(book.bid, rate.rating);
-      if (is.current) setUserBook({ ...userBook, rating_num: rate.rating });
+      setUserBook({ ...userBook, rating_num: rate.rating });
     }
   };
 
-  const onToggleIncipit = () => {
-    if (is.current) setIsOpenIncipit(!isOpenIncipit);
+  const onToggleIncipit = (): void => {
+    setIsOpenIncipit(!isOpenIncipit);
 
     history.push(location.pathname.indexOf('/incipit') === -1 
       ? `${location.pathname}/incipit` 
       : location.pathname.replace('/incipit', ''), null);
   };
 
-  const onToggleReadingState = () => setIsOpenReadingState(!isOpenReadingState);
+  const onToggleReadingState = (): void => setIsOpenReadingState(!isOpenReadingState);
 
-  const onToggleSuggest = () => setIsOpenRecommendation(!isOpenRecommendation); 
+  const onToggleSuggest = (): void => setIsOpenRecommendation(!isOpenRecommendation); 
 
-  const onLock = () => {
-    if (book.bid && book.EDIT) {
-      const state = book.EDIT.edit;
+  const onLock = (): void => {
+    if (book && book.bid && book.EDIT) {
+      const state: boolean = book.EDIT.edit;
 
       if (state) {
         // console.log(`Locking ${id}`);
-        bookRef(book.bid).update({ 'EDIT.edit': false }).then(() => {
+        bookRef(book.bid).update({ 'EDIT.edit': false }).then((): void => {
           openSnackbar('Elemento bloccato', 'success');
-        }).catch(err => console.warn(err));
+        }).catch((err: Error): void => console.warn(err));
       } else {
         // console.log(`Unlocking ${id}`);
-        bookRef(book.bid).update({ 'EDIT.edit': true }).then(() => {
+        bookRef(book.bid).update({ 'EDIT.edit': true }).then((): void => {
           openSnackbar('Elemento sbloccato', 'success');
-        }).catch(err => console.warn(err));
+        }).catch((err: Error): void => console.warn(err));
       }
     }
   };
 
-  const onChangeISBN = e => setISBN(e.target.value);
+  const onChangeISBN = (e: ChangeEvent<HTMLSelectElement>): void => setISBN(e.target.value as ISBNType);
 
-  const _lastEditBy = book?.EDIT.lastEditBy;
-  const _createdBy = book?.EDIT.createdBy;
-  const lastEditBy = useMemo(() => truncateString(_lastEditBy, 12), [_lastEditBy]);
-  const createdBy = useMemo(() => truncateString(_createdBy, 12), [_createdBy]);
-  const hasBid = useMemo(() => Boolean(book?.bid), [book]);
-  const isLocked = useMemo(() => !book?.EDIT.edit && !isAdmin, [book, isAdmin]);
+  const _lastEditBy: string = book?.EDIT.lastEditBy || '';
+  const _createdBy: string = book?.EDIT.createdBy || '';
+  const lastEditBy = useMemo((): string => truncateString(_lastEditBy, 12), [_lastEditBy]);
+  const createdBy = useMemo((): string => truncateString(_createdBy, 12), [_createdBy]);
+  const hasBid = Boolean(book?.bid);
+  const isLocked: boolean = !book?.EDIT.edit && !isAdmin;
 
   if (!book && !loading) return (
     <NoMatch title="Libro non trovato" history={history} location={location} />
@@ -185,9 +207,9 @@ const BookProfile = ({
                   ))}
                   {book?.EDIT && isAdmin && (
                     <Tooltip interactive title={book.EDIT.lastEdit_num ? (
-                      <span>Modificato da <Link to={`/dashboard/${book.EDIT.lastEditByUid}`}>{lastEditBy}</Link> {timeSince(new Date(book.EDIT.lastEdit_num))}</span> 
+                      <span>Modificato da <Link to={`/dashboard/${book.EDIT.lastEditByUid}`}>{lastEditBy}</Link> {timeSince(book.EDIT.lastEdit_num)}</span> 
                     ) : (
-                      <span>Creato da <Link to={`/dashboard/${book.EDIT.createdByUid}`}>{createdBy}</Link> {timeSince(new Date(book.EDIT.created_num))}</span>
+                      <span>Creato da <Link to={`/dashboard/${book.EDIT.createdByUid}`}>{createdBy}</Link> {timeSince(book.EDIT.created_num)}</span>
                     )}>
                       <span className="counter">{icon.informationOutline}</span>
                     </Tooltip>
@@ -199,8 +221,8 @@ const BookProfile = ({
                   tabIndex={0}
                   role="button"
                   className={`text-center ${book ? setFormatClass(book.format) : 'book'}-format ${book?.incipit ? 'hoverable-items' : ''}`}
-                  onClick={book?.incipit ? onToggleIncipit : null}
-                  onKeyDown={book?.incipit ? onToggleIncipit : null}>
+                  onClick={book?.incipit ? onToggleIncipit : undefined}
+                  onKeyDown={book?.incipit ? onToggleIncipit : undefined}>
                   <Cover book={book} rating={false} showMedal={false} info={false} />
                   {book?.incipit && <button type="button" className="btn xs rounded flat centered btn-incipit">Leggi incipit</button>}
                 </div>
@@ -213,8 +235,8 @@ const BookProfile = ({
 
                     <ShareButtons 
                       className="btn-share-container"
-                      hashtags={['biblo', 'libri', 'twittalibro']}
-                      cover={book.covers && book.covers[0]}
+                      // hashtags={['biblo', 'libri', 'twittalibro']}
+                      // cover={book.covers && book.covers[0]}
                       text={`${userBook.bookInShelf ? 'Ho aggiunto alla mia libreria' : userBook.bookInWishlist ? 'Ho aggiunto alla mia lista dei desideri' : 'Consiglio'} il libro "${book.title}" di ${Object.keys(book.authors)[0]}. Leggi un estratto su ${app.name}.`}
                       url={`${app.url}${location.pathname}`}
                       via="BibloSpace"
@@ -225,7 +247,7 @@ const BookProfile = ({
 
               <div className="col book-profile">
                 <h2 className="title flex">
-                  {loading ? <span className="skltn area" /> : (
+                  {loading ? <span className="skltn area" /> : book && (
                     <Fragment>
                       {book.title} <span className="mention">
                         <CopyToClipboard icon={icon.at} text={`@book/${book.bid}/${normURL(book.title)}`}/>
@@ -291,16 +313,29 @@ const BookProfile = ({
                         <div className="info-row">
                           {userBook.bookInShelf ? (
                             <Fragment>
-                              <button type="button" className="btn success rounded error-on-hover" onClick={onRemoveBookFromShelfRequest}>
+                              <button
+                                type="button"
+                                className="btn success rounded error-on-hover"
+                                onClick={onRemoveBookFromShelfRequest}>
                                 <span className="hide-on-hover">{icon.check} libreria</span>
                                 <span className="show-on-hover">{icon.close} libreria</span>
                               </button>
-                              <button type="button" className="btn rounded" onClick={onToggleReadingState}>
+                              <button
+                                type="button"
+                                className="btn rounded"
+                                onClick={onToggleReadingState}>
                                 <span className="hide-xs">Stato</span> lettura
                               </button>
                             </Fragment>
                           ) : (
-                            <button type="button" className="btn primary rounded" ref={addBookToShelfRef} disabled={!hasBid || !isEditor} onClick={onAddBookToShelf}>{icon.plus} libreria</button>
+                            <button
+                              type="button"
+                              className="btn primary rounded"
+                              ref={addBookToShelfRef}
+                              disabled={!hasBid || !isEditor}
+                              onClick={onAddBookToShelf}>
+                              {icon.plus} libreria
+                            </button>
                           )}
                           {userBook.bookInWishlist && (
                             <button type="button" className="btn success rounded error-on-hover" onClick={onRemoveBookFromWishlist}>
@@ -309,7 +344,14 @@ const BookProfile = ({
                             </button>
                           )}
                           {(!userBook.bookInWishlist && !userBook.bookInShelf) && (
-                            <button type="button" className="btn flat rounded" ref={addBookToWishlistRef} disabled={!hasBid || !isEditor} onClick={onAddBookToWishlist}>{icon.plus} desideri</button>
+                            <button
+                              type="button"
+                              className="btn flat rounded"
+                              ref={addBookToWishlistRef}
+                              disabled={!hasBid || !isEditor}
+                              onClick={onAddBookToWishlist}>
+                              {icon.plus} desideri
+                            </button>
                           )}
                         </div>
                         {userBook.bookInShelf && (
@@ -348,18 +390,18 @@ const BookProfile = ({
               <Fragment>
                 {isAuth && isEditor && userBook.bookInShelf && (
                   <ReviewForm
-                    addReview={addReview}
+                    // addReview={addReview}
                     bid={book.bid}
-                    removeReview={removeReview}
+                    // removeReview={removeReview}
                     userBook={userBook}
                   />
                 )}
                 <Reviews bid={book.bid} />
-                {book.collections[0] && (
+                {book.collections?.[0] && (
                   <InView triggerOnce rootMargin="200px">
                     {({ inView, ref }) => (
                       <div className="card dark card-fullwidth-sm" ref={ref} style={{ marginBottom: 0, }}>
-                        <BookCollection cid={book.collections[0]} pagination={false} limit={7} inView={inView} scrollable />
+                        <BookCollection cid={book.collections?.[0] as string} pagination={false} limit={7} inView={inView} scrollable />
                       </div>
                     )}
                   </InView>
@@ -394,31 +436,6 @@ const BookProfile = ({
       )}
     </Fragment>
   );
-};
-
-BookProfile.propTypes = {
-  addReview: funcType.isRequired,
-  addBookToShelf: funcType.isRequired,
-  addBookToShelfRef: refType.isRequired,
-  addBookToWishlist: funcType.isRequired,
-  addBookToWishlistRef: refType.isRequired,
-  book: bookType,
-  history: objectType.isRequired,
-  loading: boolType,
-  location: locationType,
-  removeBookFromShelf: funcType.isRequired,
-  removeBookFromWishlist: funcType.isRequired,
-  removeReview: funcType.isRequired,
-  rateBook: funcType.isRequired,
-  onEditing: funcType.isRequired,
-  userBook: userBookType
-};
-
-BookProfile.defaultProps = {
-  book: null,
-  loading: null,
-  location: null,
-  userBook: null
 };
  
 export default BookProfile;
