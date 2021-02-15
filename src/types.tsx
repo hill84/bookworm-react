@@ -261,28 +261,29 @@ export interface CollectionBookModel extends Pick<BookModel, 'authors' | 'bid' |
 }
 
 export interface ModeratorModel {
-  uid: string;
   displayName: string;
   photoURL: string;
   timestamp: number;
+  uid: string;
 }
 
 export interface GroupModel {
-  gid: string;
-  title: string;
-  description: string;
-  rules: string;
-  photoURL: string;
-  followers_num: number;
-  type: 'private' | 'public';
-  location: string;
   created_num: number;
-  owner: string;
-  ownerUid: string;
+  description: string;
+  edit: boolean;
+  followers_num: number;
+  gid: string;
   lastEdit_num: number;
   lastEditBy: string;
   lastEditByUid: string;
+  location: string;
   moderators: string[];
+  owner: string;
+  ownerUid: string;
+  photoURL: string;
+  rules: string;
+  title: string;
+  type: 'private' | 'public';
 }
 
 export interface DiscussionModel {

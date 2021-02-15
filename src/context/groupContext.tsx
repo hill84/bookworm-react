@@ -2,7 +2,7 @@ import { DocumentData, FirestoreError } from '@firebase/firestore-types';
 import React, { createContext, Dispatch, FC, SetStateAction, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { groupFollowersRef, groupRef, userRef } from '../config/firebase';
 import { handleFirestoreError } from '../config/shared';
-import { GroupModel, ModeratorModel, UserModel } from '../types';
+import { FollowerModel, GroupModel, ModeratorModel } from '../types';
 import SnackbarContext from './snackbarContext';
 import UserContext from './userContext';
 
@@ -11,7 +11,7 @@ let groupFollowersFetch: (() => void) | undefined;
 
 interface StateModel {
   follow: boolean;
-  followers: UserModel[];
+  followers: FollowerModel[];
   item: GroupModel | null;
   loading: boolean;
   moderators: ModeratorModel[];
@@ -29,7 +29,7 @@ interface GroupContextModel {
   clearStates: () => void;
   fetchGroup: (gid: string) => void;
   follow: boolean;
-  followers: UserModel[];
+  followers: FollowerModel[];
   isOwner: boolean;
   isModerator: boolean;
   item: GroupModel | null;
@@ -65,7 +65,7 @@ export const GroupProvider: FC = ({ children }) => {
   const { user } = useContext(UserContext);
   const { openSnackbar } = useContext(SnackbarContext);
   const [follow, setFollow] = useState<boolean>(initialState.follow);
-  const [followers, setFollowers] = useState<UserModel[]>(initialState.followers);
+  const [followers, setFollowers] = useState<FollowerModel[]>(initialState.followers);
   const [item, setItem] = useState<GroupModel | null>(initialState.item);
   const [loading, setLoading] = useState<boolean>(initialState.loading);
   const [moderators, setModerators] = useState<ModeratorModel[]>(initialState.moderators);
@@ -79,14 +79,14 @@ export const GroupProvider: FC = ({ children }) => {
     setLoading(true);
     groupFollowersFetch = groupFollowersRef(gid).onSnapshot((snap: DocumentData): void => {
       if (!snap.empty) {
-        const followers: UserModel[] = [];
+        const followers: FollowerModel[] = [];
         snap.forEach((follower: DocumentData): number => followers.push(follower.data()));
         setFollowers(followers);
       } else {
         setFollowers(initialState.followers);
         setFollow(initialState.follow);
       }
-    }, (err: FirestoreError) => openSnackbar(handleFirestoreError(err), 'error'));
+    }, (err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
   }, [openSnackbar]);
 
   const fetchModerators = useCallback((moderators: string[]): void => {
@@ -96,7 +96,7 @@ export const GroupProvider: FC = ({ children }) => {
         if (snap.exists) {
           items.push(snap.data());
         }
-      }).catch((err: FirestoreError) => openSnackbar(handleFirestoreError(err), 'error'));
+      }).catch((err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
     });
     setModerators(items);
   }, [openSnackbar]);
@@ -112,11 +112,11 @@ export const GroupProvider: FC = ({ children }) => {
           fetchModerators(snap.data()?.moderators);
         }
       }
-    }, (err: FirestoreError) => openSnackbar(handleFirestoreError(err), 'error'));
+    }, (err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
   }, [fetchFollowers, fetchModerators, openSnackbar]);
 
   useEffect(() => {
-    setFollow(followers.some((follower: UserModel): boolean => follower.uid === user?.uid));
+    setFollow(followers.some((follower: FollowerModel): boolean => follower.uid === user?.uid));
   }, [followers, user]);
 
   useEffect(() => () => {

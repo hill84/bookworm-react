@@ -1,3 +1,4 @@
+import { FirestoreError } from '@firebase/firestore-types';
 import Avatar from '@material-ui/core/Avatar';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -6,18 +7,19 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grow from '@material-ui/core/Grow';
 import Tooltip from '@material-ui/core/Tooltip';
-import React, { forwardRef, Fragment, lazy, useContext, useEffect, useRef, useState } from 'react';
+import { TransitionProps } from '@material-ui/core/transitions';
+import React, { FC, forwardRef, Fragment, lazy, MouseEvent, ReactElement, Ref, useContext, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Zoom from 'react-medium-image-zoom';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Redirect, RouteComponentProps } from 'react-router-dom';
 import { groupFollowersRef, groupRef } from '../../config/firebase';
 import icon from '../../config/icons';
 import { app, getInitials, handleFirestoreError } from '../../config/shared';
-import { historyType, locationType, matchType } from '../../config/proptypes';
 import GroupContext from '../../context/groupContext';
 import SnackbarContext from '../../context/snackbarContext';
 import UserContext from '../../context/userContext';
 import '../../css/groups.css';
+import { EventTargetWithDataset, ModeratorModel } from '../../types';
 import Discussions from '../discussions';
 import DiscussionForm from '../forms/discussionForm';
 import GroupForm from '../forms/groupForm';
@@ -26,14 +28,24 @@ import Bubbles from './bubbles';
 
 const NoMatch = lazy(() => import('../noMatch'));
 
-// eslint-disable-next-line react/display-name
-const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} />);
+const Transition = forwardRef(function Transition(
+  props: TransitionProps & { children?: ReactElement<any, any> },
+  ref: Ref<unknown>,
+) {
+  return <Grow ref={ref} {...props} />;
+});
 
 const seo = {
   title: `${app.name} | Groups`
 };
 
-const Group = ({ history, location, match }) => {
+type GroupProps = RouteComponentProps<MatchParams>;
+
+interface MatchParams {
+  gid: string;
+}
+
+const Group: FC<GroupProps> = ({ history, location, match }: GroupProps) => {
   const { isAdmin, isAuth, isEditor, user } = useContext(UserContext);
   const { openSnackbar } = useContext(SnackbarContext);
   const { 
@@ -50,83 +62,83 @@ const Group = ({ history, location, match }) => {
     setModerators 
   } = useContext(GroupContext);
   
-  const [isOpenEditDialog, setIsOpenEditDialog] = useState(false);
-  const [redirectToReferrer, setRedirectToReferrer] = useState(null);
-  const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState(false);
-  const [isOpenModeratorsDialog, setIsOpenModeratorsDialog] = useState(false);
+  const [isOpenEditDialog, setIsOpenEditDialog] = useState<boolean>(false);
+  const [redirectToReferrer, setRedirectToReferrer] = useState<boolean>(false);
+  const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState<boolean>(false);
+  const [isOpenModeratorsDialog, setIsOpenModeratorsDialog] = useState<boolean>(false);
   const { gid } = match.params;
-  const is = useRef(true);
 
   useEffect(() => {
     fetchGroup(gid);
   }, [fetchGroup, gid]);
 
   useEffect(() => () => {
-    is.current = false;
     clearStates();
   }, [clearStates]);
 
-  const onFollow = () => {
-    if (follow) {
-      groupFollowersRef(gid).doc(user.uid).delete().then(() => setFollow(false)).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
-    } else {
-      groupFollowersRef(gid).doc(user.uid).set({
-        gid,
-        uid: user.uid,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        timestamp: Date.now()
-      }).then(() => setFollow(true)).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
-    }
+  const onFollow = (): void => {
+    if (user) {
+      if (follow) {
+        groupFollowersRef(gid).doc(user.uid).delete().then((): void => setFollow(false)).catch((err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
+      } else {
+        groupFollowersRef(gid).doc(user.uid).set({
+          gid,
+          uid: user.uid,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          timestamp: Date.now()
+        }).then((): void => setFollow(true)).catch((err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
+      }
+    } else console.warn('No user');
   };
 
-  const onEditGroup = () => setIsOpenEditDialog(true);
+  const onEditGroup = (): void => setIsOpenEditDialog(true);
 
-  const onToggleEditDialog = () => setIsOpenEditDialog(isOpenEditDialog => !isOpenEditDialog);
+  const onToggleEditDialog = (): void => setIsOpenEditDialog(isOpenEditDialog => !isOpenEditDialog);
 
-  const onDeleteRequest = () => setIsOpenDeleteDialog(true);
+  const onDeleteRequest = (): void => setIsOpenDeleteDialog(true);
 
-  const onCloseDeleteDialog = () => setIsOpenDeleteDialog(false);
+  const onCloseDeleteDialog = (): void => setIsOpenDeleteDialog(false);
 
-  const onDelete = () => {
-    if (is.current) {
-      setIsOpenDeleteDialog(false);
-      setRedirectToReferrer(true);
-    }
+  const onDelete = (): void => {
+    setIsOpenDeleteDialog(false);
+    setRedirectToReferrer(true);
 
-    groupRef(gid).delete().then(() => {
+    groupRef(gid).delete().then((): void => {
       // TODO: delete group discussions
       openSnackbar('Gruppo cancellato', 'success');
-    }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
+    }).catch((err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
   };
 
-  const onInvite = () => console.log('onInvite');
+  const onInvite = (): void => console.log('onInvite'); // TODO
 
-  const onOpenModeratorsDialog = () => setIsOpenModeratorsDialog(true);
+  const onOpenModeratorsDialog = (): void => setIsOpenModeratorsDialog(true);
 
-  const onCloseModeratorsDialog = () => setIsOpenModeratorsDialog(false);
+  const onCloseModeratorsDialog = (): void => setIsOpenModeratorsDialog(false);
 
-  const onDeleteModerator = e => {
-    const { muid } = e.currentTarget.dataset;
-    const restList = item.moderators.filter(m => m !== muid);
-    const rest = groupModerators.filter(m => m.uid !== muid);
+  const onDeleteModerator = (e: MouseEvent): void => {
+    const muid: string = (e.currentTarget as EventTargetWithDataset).dataset?.muid || '';
+    const restList: string[] = item?.moderators?.filter((m: string): boolean => m !== muid) || [];
+    const rest: ModeratorModel[] = groupModerators.filter((m: ModeratorModel): boolean => m.uid !== muid);
 
     groupRef(gid).update({
       ...item,
       moderators: restList
-    }).then(() => {
-      if (is.current) setModerators(rest);
-    }).catch(err => {
+    }).then((): void => {
+      setModerators(rest);
+    }).catch((err: FirestoreError): void => {
       openSnackbar(handleFirestoreError(err), 'error');
     });
   };
 
-  const onLock = () => {
-    groupRef(gid).update({ edit: !item.edit }).then(() => {
-      openSnackbar(`Gruppo ${item.edit ? '' : 's'}bloccato`, 'success');
-    }).catch(err => {
-      openSnackbar(handleFirestoreError(err), 'error');
-    });
+  const onLock = (): void => {
+    if (item) {
+      groupRef(gid).update({ edit: !item.edit }).then((): void => {
+        openSnackbar(`Gruppo ${item.edit ? '' : 's'}bloccato`, 'success');
+      }).catch((err: FirestoreError): void => {
+        openSnackbar(handleFirestoreError(err), 'error');
+      });
+    } else console.warn('No item');
   };
 
   if (redirectToReferrer) return <Redirect to='/groups' />;
@@ -134,7 +146,7 @@ const Group = ({ history, location, match }) => {
   if (!loading && !item) return <NoMatch title='Gruppo non trovato' history={history} location={location} />;
 
   return (
-    <div className='container' ref={is}>
+    <div className='container'>
       <Helmet>
         <title>{seo.title}</title>
       </Helmet>
@@ -279,7 +291,7 @@ const Group = ({ history, location, match }) => {
                         <Link to={`/dashboard/${user.uid}`} className='col name'>{user.displayName}</Link>
                         {isEditor && (
                           <div className='col-auto'>
-                            {user.uid === item.ownerUid ? (
+                            {user.uid === item?.ownerUid ? (
                               <button type='button' className='btn sm rounded flat' disabled>Creatore</button>
                             ) : (isOwner || isAdmin) && (
                               <button
@@ -326,16 +338,6 @@ const Group = ({ history, location, match }) => {
       )}
     </div>
   );
-};
-
-Group.propTypes = {
-  history: historyType.isRequired,
-  location: locationType.isRequired,
-  match: matchType
-};
-
-Group.defaultProps = {
-  match: null
 };
 
 export default Group;

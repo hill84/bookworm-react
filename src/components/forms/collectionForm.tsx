@@ -71,14 +71,14 @@ const CollectionForm: FC<CollectionFormProps> = ({
   const [errors, setErrors] = useState<ErrorsModel>({});
 
   const fetch = useCallback(() => {
-    if (typeof id === 'string') {
+    if (id) {
       setLoading(true);
 
       collectionRef(id).get().then((snap: DocumentData): void => {
         if (!snap.empty) {
           setData(snap.data());
         }
-      }).catch((err: Error): void => {
+      }).catch((err: FirestoreError): void => {
         console.warn(err);
       }).finally((): void => {
         setLoading(false);
@@ -86,7 +86,7 @@ const CollectionForm: FC<CollectionFormProps> = ({
     }
   }, [id]);
 
-  const onChange = (e: ChangeEvent<{ name?: string; value: unknown }>): void => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>): void => {
     e.persist();
     const { name, value } = e.target;
     if (typeof name === 'string') {
@@ -96,7 +96,7 @@ const CollectionForm: FC<CollectionFormProps> = ({
     }
   };
 
-  const onChangeMaxChars = (e: ChangeEvent<{ name?: string; value: unknown }>): void => {
+  const onChangeMaxChars = (e: ChangeEvent<HTMLInputElement>): void => {
     e.persist();
     const { name, value } = e.target;
     if (typeof name === 'string') {

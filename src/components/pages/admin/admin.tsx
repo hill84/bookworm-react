@@ -130,34 +130,32 @@ const Admin: FC<AdminProps> = ({ history, match }: AdminProps) => {
     }
   };
 
-  const son = (id: string): string => id ? typeof id === 'string' ? id : typeof id === 'number' ? String(id) : '' : '';
+  const son = (id?: string): string => id ? typeof id === 'string' ? id : typeof id === 'number' ? String(id) : '' : '';
 
-  const onToggleAuthorDialog = (id: string): void => {
-    setIsOpenAuthorDialog(!isOpenAuthorDialog);
+  const onToggleAuthorDialog = (id?: string): void => {
+    setIsOpenAuthorDialog(isOpenAuthorDialog => !isOpenAuthorDialog);
     setSelectedId(son(id));
   };
 
   const onToggleCollectionDialog = (id?: string): void => {
-    setIsOpenCollectionDialog(!isOpenCollectionDialog);
-    id && setSelectedId(son(id));
+    setIsOpenCollectionDialog(isOpenCollectionDialog => !isOpenCollectionDialog);
+    setSelectedId(son(id));
   };
 
   const onToggleUserDialog = (item?: UserModel): void => {
-    setIsOpenUserDialog(!isOpenUserDialog);
-    if (item) {
-      setSelectedId(son(item.uid));
-      setSelectedItem(item);
-    }
+    setIsOpenUserDialog(isOpenUserDialog => !isOpenUserDialog);
+    setSelectedId(son(item?.uid));
+    setSelectedItem(item);
   };
 
   const onToggleNoteDialog = (id?: string, el?: string): void => {
-    setIsOpenNoteDialog(!isOpenNoteDialog);
-    id && setSelectedId(son(id));
-    el && setSelectedEl(son(el));
+    setIsOpenNoteDialog(isOpenNoteDialog => !isOpenNoteDialog);
+    setSelectedId(son(id));
+    setSelectedEl(son(el));
   };
 
-  const onToggleQuoteDialog = (id: string): void => {
-    setIsOpenQuoteDialog(!isOpenQuoteDialog);
+  const onToggleQuoteDialog = (id?: string): void => {
+    setIsOpenQuoteDialog(isOpenQuoteDialog => !isOpenQuoteDialog);
     setSelectedId(son(id));
   };
 
@@ -184,17 +182,17 @@ const Admin: FC<AdminProps> = ({ history, match }: AdminProps) => {
         <button type='button' title='Crea libro' className='btn rounded primary'>
           <Link to='/new-book'><span className='hide-sm'>{icon.plus} libro</span><span className='show-sm'>{icon.book}</span></Link>
         </button>
-        <button type='button' onClick={() => onToggleAuthorDialog} title='Crea autore' className={`btn rounded ${isOpenAuthorDialog ? 'flat' : 'primary'}`}>
+        <button type='button' onClick={() => onToggleAuthorDialog()} title='Crea autore' className={`btn rounded ${isOpenAuthorDialog ? 'flat' : 'primary'}`}>
           <span className='hide-sm'>{icon.plus} autore</span><span className='show-sm'>{icon.accountEdit}</span>
         </button>
-        <button type='button' onClick={() => onToggleCollectionDialog} title='Crea collezione' className={`btn rounded ${isOpenCollectionDialog ? 'flat' : 'primary'}`}>
+        <button type='button' onClick={() => onToggleCollectionDialog()} title='Crea collezione' className={`btn rounded ${isOpenCollectionDialog ? 'flat' : 'primary'}`}>
           <span className='hide-sm'>{icon.plus} collezione</span><span className='show-sm'>{icon.viewCarousel}</span>
         </button>
-        <button type='button' onClick={() => onToggleQuoteDialog} title='Crea citazione' className={`btn rounded ${isOpenQuoteDialog ? 'flat' : 'primary'}`}>
+        <button type='button' onClick={() => onToggleQuoteDialog()} title='Crea citazione' className={`btn rounded ${isOpenQuoteDialog ? 'flat' : 'primary'}`}>
           <span className='hide-sm'>{icon.plus} citazione</span><span className='show-sm'>{icon.quote}</span>
         </button>
         {
-          // <button type='button' onClick={() => onToggleNoteDialog} title='Crea notifica' className='btn rounded primary'><span className='hide-sm'>{icon.plus} notifica</span><span className='show-sm'>{icon.bell}</span></button>
+          // <button type='button' onClick={() => onToggleNoteDialog()} title='Crea notifica' className='btn rounded primary'><span className='hide-sm'>{icon.plus} notifica</span><span className='show-sm'>{icon.bell}</span></button>
         }
       </div>
       <AppBar position='static' className='appbar flat'>
@@ -238,14 +236,13 @@ const Admin: FC<AdminProps> = ({ history, match }: AdminProps) => {
       </BindKeyboardSwipeableViews>
 
       {isOpenUserDialog && selectedItem && <UserForm user={selectedItem} onToggle={onToggleUserDialog} />}
-      {selectedId && (
-        <Fragment>
-          {isOpenAuthorDialog && <AuthorForm id={selectedId} onToggle={onToggleAuthorDialog} />}
-          {isOpenCollectionDialog && <CollectionForm id={selectedId} onToggle={onToggleCollectionDialog} />}
-          {isOpenNoteDialog && <NoteForm uid={selectedId} nid={selectedEl} onToggle={onToggleNoteDialog} />}
-          {isOpenQuoteDialog && <QuoteForm id={selectedId} onToggle={onToggleQuoteDialog} />}
-        </Fragment>
-      )}
+    
+      <Fragment>
+        {isOpenAuthorDialog && <AuthorForm id={selectedId} onToggle={onToggleAuthorDialog} />}
+        {isOpenCollectionDialog && <CollectionForm id={selectedId} onToggle={onToggleCollectionDialog} />}
+        {isOpenNoteDialog && <NoteForm uid={selectedId} nid={selectedEl} onToggle={onToggleNoteDialog} />}
+        {isOpenQuoteDialog && <QuoteForm id={selectedId} onToggle={onToggleQuoteDialog} />}
+      </Fragment>
     </div>
   );
 };

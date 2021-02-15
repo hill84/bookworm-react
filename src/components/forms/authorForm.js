@@ -40,7 +40,7 @@ const AuthorForm = ({ id, onToggle }) => {
   const is = useRef(true);
 
   const fetch = useCallback(() => {
-    if (typeof id === 'string') {
+    if (id) {
       if (is.current) setLoading(true);
 
       authorRef(id).get().then(snap => {

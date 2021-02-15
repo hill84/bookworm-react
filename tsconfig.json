@@ -35,7 +35,7 @@
     "**/*.ts",
     "**/*.tsx",
     "types/main.d.ts"
-, "src/components/hocs/withScrollToTop.js"  ],
+, "src/components/hocs/withScrollToTop.js", "src/components/pages/authorsPage.js"  ],
   "exclude": [
     "node_modules",
     "build"
