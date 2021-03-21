@@ -52,7 +52,7 @@ interface StateModel {
 
 const initialState: StateModel = {
   count: 0,
-  desc: false,
+  desc: true,
   firstVisible: null,
   isOpenDeleteDialog: false,
   items: [],
@@ -230,7 +230,9 @@ const QuotesDash: FC<QuotesDashProps> = ({ onToggleDialog }: QuotesDashProps) =>
 
   const skeletons = [...Array(limit)].map((_, i: number) => <li key={i} className='avatar-row skltn dash' />);
 
-  const itemsList = loading ? skeletons : !items ? <li className='empty text-center'>Nessun elemento</li> : (
+  const itemsList = loading ? skeletons : !items ? (
+    <li className='empty text-center'>Nessun elemento</li>
+  ) : (
     items.map(({ author, bid, bookTitle, coverURL, edit, lastEdit_num, lastEditBy, lastEditByUid, qid, quote }: QuoteModel) => (
       <li key={qid} className={`${edit ? '' : 'locked'}`}>
         <div className='row'>
@@ -265,10 +267,11 @@ const QuotesDash: FC<QuotesDashProps> = ({ onToggleDialog }: QuotesDashProps) =>
       <div className='head nav'>
         <div className='row'>
           <div className='col'>
-            <span className='counter hide-md'>{`${items ? items.length : 0} di ${count || 0}`}</span>
+            <span className='counter hide-md'>{`${items.length || 0} di ${count || 0}`}</span>
             <button
               type='button'
               className='btn sm flat counter last'
+              disabled={!items.length}
               onClick={onOpenLimitMenu}
             >
               {limit} <span className='hide-xs'>per pagina</span>
@@ -281,30 +284,32 @@ const QuotesDash: FC<QuotesDashProps> = ({ onToggleDialog }: QuotesDashProps) =>
               {limitByOptions}
             </Menu>
           </div>
-          <div className='col-auto'>
-            <button
-              type='button'
-              className='btn sm flat counter'
-              onClick={onOpenOrderMenu}
-            >
-              <span className='hide-xs'>Ordina per</span> {orderBy[orderByIndex].label}
-            </button>
-            <button
-              type='button'
-              className={`btn sm flat counter icon rounded ${desc ? 'desc' : 'asc'}`}
-              title={desc ? 'Ascendente' : 'Discendente'}
-              onClick={onToggleDesc}
-            >
-              {icon.arrowDown}
-            </button>
-            <Menu 
-              className='dropdown-menu'
-              anchorEl={orderMenuAnchorEl} 
-              open={Boolean(orderMenuAnchorEl)} 
-              onClose={onCloseOrderMenu}>
-              {orderByOptions}
-            </Menu>
-          </div>
+          {Boolean(items.length) && (
+            <div className='col-auto'>
+              <button
+                type='button'
+                className='btn sm flat counter'
+                onClick={onOpenOrderMenu}
+              >
+                <span className='hide-xs'>Ordina per</span> {orderBy[orderByIndex].label}
+              </button>
+              <button
+                type='button'
+                className={`btn sm flat counter icon rounded ${desc ? 'desc' : 'asc'}`}
+                title={desc ? 'Ascendente' : 'Discendente'}
+                onClick={onToggleDesc}
+              >
+                {icon.arrowDown}
+              </button>
+              <Menu 
+                className='dropdown-menu'
+                anchorEl={orderMenuAnchorEl} 
+                open={Boolean(orderMenuAnchorEl)} 
+                onClose={onCloseOrderMenu}>
+                {orderByOptions}
+              </Menu>
+            </div>
+          )}
         </div>
       </div>
 

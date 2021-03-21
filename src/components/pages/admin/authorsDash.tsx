@@ -56,7 +56,7 @@ interface StateModel {
 
 const initialState: StateModel = {
   count: 0,
-  desc: false,
+  desc: true,
   firstVisible: null,
   isOpenDeleteDialog: false,
   items: [],
@@ -267,7 +267,7 @@ const AuthorsDash: FC<AuthorsDashProps> = ({ onToggleDialog }: AuthorsDashProps)
     ))
   );
 
-  const sitemapData: string[][] = items?.map((item: AuthorModel): string[] => ([
+  const sitemapData: string[][] = items.map((item: AuthorModel): string[] => ([
     `<url> <loc>${app.url}/author/${normURL(item.displayName)}</loc> </url>`
   ]));
 
@@ -276,10 +276,11 @@ const AuthorsDash: FC<AuthorsDashProps> = ({ onToggleDialog }: AuthorsDashProps)
       <div className='head nav'>
         <div className='row'>
           <div className='col'>
-            <span className='counter hide-md'>{`${items ? items.length : 0} di ${count || 0}`}</span>
+            <span className='counter hide-md'>{`${items.length || 0} di ${count || 0}`}</span>
             <button
               type='button'
               className='btn sm flat counter last'
+              disabled={!items.length}
               onClick={onOpenLimitMenu}
             >
               {limitBy[limitByIndex]} <span className='hide-xs'>per pagina</span>
@@ -292,7 +293,7 @@ const AuthorsDash: FC<AuthorsDashProps> = ({ onToggleDialog }: AuthorsDashProps)
               {limitByOptions}
             </Menu>
           </div>
-          {items && (
+          {Boolean(items.length) && (
             <div className='col-auto'>
               <CSVLink data={sitemapData} className='counter' filename='sitemap_authors.csv'>Sitemap</CSVLink>
               <button

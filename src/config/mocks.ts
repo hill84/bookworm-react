@@ -26,10 +26,10 @@ export const user: UserModel = {
 };
 
 export const notes: NoteModel[] = [
-  { text: 'Benvenuto su Biblo', created_num: 1534239242276, read: false },
-  { text: '<a href="/user/Mario">Mario</a> ti ha inviato un messaggio', created_num: 1534188592106, read: true },
-  { text: 'Completa il tuo profilo', created_num: 1534158592106, read: false },
-  { text: 'Sara ha iniziato a seguirti', created_num: 1534147592106, read: false }
+  { nid: '1', text: 'Benvenuto su Biblo', created_num: 1534239242276, read: false },
+  { nid: '2', text: '<a href="/user/Mario">Mario</a> ti ha inviato un messaggio', created_num: 1534188592106, read: true },
+  { nid: '3', text: 'Completa il tuo profilo', created_num: 1534158592106, read: false },
+  { nid: '4', text: 'Sara ha iniziato a seguirti', created_num: 1534147592106, read: false }
 ];
 
 export const groups: GroupModel[] = [{

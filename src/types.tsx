@@ -233,7 +233,7 @@ export interface UserChallengeModel {
 }
 
 export interface NoteModel {
-  nid?: string;
+  nid: string;
   text: string;
   created_num: number;
   createdBy?: string;

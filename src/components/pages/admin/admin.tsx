@@ -9,7 +9,6 @@ import SwipeableViews from 'react-swipeable-views';
 import { bindKeyboard } from 'react-swipeable-views-utils';
 import icon from '../../../config/icons';
 import { app, screenSize } from '../../../config/shared';
-import SnackbarContext from '../../../context/snackbarContext';
 import UserContext from '../../../context/userContext';
 import { ScreenSizeType, UserContextModel, UserModel } from '../../../types';
 import AuthorForm from '../../forms/authorForm';
@@ -76,7 +75,6 @@ const initialState: StateModel = {
 
 const Admin: FC<AdminProps> = ({ history, match }: AdminProps) => {
   const { isAdmin, user } = useContext<UserContextModel>(UserContext);
-  const { openSnackbar } = useContext(SnackbarContext);
   const [selectedEl, setSelectedEl] = useState<string>(initialState.selectedEl);
   const [selectedId, setSelectedId] = useState<string>(initialState.selectedId);
   const [selectedItem, setSelectedItem] = useState<UserModel | undefined>(initialState.selectedItem);
@@ -231,7 +229,7 @@ const Admin: FC<AdminProps> = ({ history, match }: AdminProps) => {
           {tabSelected === 4 && <QuotesDash onToggleDialog={onToggleQuoteDialog} />}
         </div>
         <div className='card dark'>
-          {tabSelected === 5 && <NotesDash user={user} openSnackbar={openSnackbar} onToggleDialog={onToggleNoteDialog} />}
+          {tabSelected === 5 && <NotesDash onToggleDialog={onToggleNoteDialog} />}
         </div>
       </BindKeyboardSwipeableViews>
 

@@ -11,7 +11,7 @@ import { CSVLink } from 'react-csv';
 import { Link, Redirect } from 'react-router-dom';
 import { collectionBooksRef, collectionRef, collectionsRef, countRef } from '../../../config/firebase';
 import icon from '../../../config/icons';
-import { app, handleFirestoreError, normURL } from '../../../config/shared';
+import { app, handleFirestoreError, normURL, timeSince } from '../../../config/shared';
 import SnackbarContext from '../../../context/snackbarContext';
 import useToggle from '../../../hooks/useToggle';
 import { BookModel, CollectionModel, EventTargetWithDataset } from '../../../types';
@@ -21,7 +21,10 @@ type OrderByType = Record<'type' | 'label', string>;
 
 const limitBy: number[] = [15, 25, 50, 100, 250, 500];
 const orderBy: OrderByType[] = [ 
-  { type: 'title', label: 'Titolo'}
+  { type: 'lastEdit_num', label: 'Data ultima modifica' },
+  { type: 'lastEditByUid', label: 'Modificato da' },
+  { type: 'title', label: 'Titolo' },
+  { type: 'books_num', label: 'Libri' },
 ];
 
 let itemsFetch: (() => void) | undefined;
@@ -238,14 +241,18 @@ const CollectionsDash: FC<CollectionsDashProps> = ({ onToggleDialog }: Collectio
   const itemsList = loading ? skeletons : !items ? (
     <li className='empty text-center'>Nessun elemento</li>
   ) : (
-    items.map(({ books_num, description, edit, title }: CollectionModel) => (
+    items.map(({ books_num, description, edit, lastEditBy, lastEditByUid, lastEdit_num, title }: CollectionModel) => (
       <li key={title} className={`${edit ? '' : 'locked'}`}>
         <div className='row'>
           <Link to={`/collection/${normURL(title)}`} className='col'>
             {title}
           </Link>
+          <div className='col-1'>{books_num}</div>
           <div className='col-5 col-lg-8' title={description}>{description}</div>
-          <div className='col-1 text-right'>{books_num}</div>
+          <Link to={`/dashboard/${lastEditByUid}`} title={lastEditByUid} className='col col-sm-2 col-lg-1'>{lastEditBy}</Link>
+          <div className='col col-sm-2 col-lg-1 text-right'>
+            <div className='timestamp'>{timeSince(lastEdit_num)}</div>
+          </div>
           <div className='absolute-row right btns xs'>
             <button type='button' className='btn icon green' onClick={() => onView({ id: title })} title='Anteprima'>{icon.eye}</button>
             <button type='button' className='btn icon primary' onClick={() => onEdit({ id: title })} title='Modifica'>{icon.pencil}</button>
@@ -257,7 +264,7 @@ const CollectionsDash: FC<CollectionsDashProps> = ({ onToggleDialog }: Collectio
     ))
   );
 
-  const sitemapData = items?.map(item => ([
+  const sitemapData = items.map(item => ([
     `<url> <loc>${app.url}/collection/${normURL(item.title)}</loc> </url>`
   ]));
 
@@ -266,10 +273,11 @@ const CollectionsDash: FC<CollectionsDashProps> = ({ onToggleDialog }: Collectio
       <div className='head nav'>
         <div className='row'>
           <div className='col'>
-            <span className='counter hide-md'>{`${items ? items.length : 0} di ${count || 0}`}</span>
+            <span className='counter hide-md'>{`${items.length || 0} di ${count || 0}`}</span>
             <button
               type='button'
               className='btn sm flat counter last'
+              disabled={!items.length}
               onClick={onOpenLimitMenu}
             >
               {limitBy[limitByIndex]} <span className='hide-xs'>per pagina</span>
@@ -282,7 +290,7 @@ const CollectionsDash: FC<CollectionsDashProps> = ({ onToggleDialog }: Collectio
               {limitByOptions}
             </Menu>
           </div>
-          {items && (
+          {Boolean(items.length) && (
             <div className='col-auto'>
               <CSVLink data={sitemapData} className='counter' filename='sitemap_collections.csv'>Sitemap</CSVLink>
               <button
@@ -299,7 +307,14 @@ const CollectionsDash: FC<CollectionsDashProps> = ({ onToggleDialog }: Collectio
                 onClose={onCloseOrderMenu}>
                 {orderByOptions}
               </Menu>
-              <button type='button' className={`btn sm flat counter icon rounded ${desc ? 'desc' : 'asc'}`} title={desc ? 'Ascendente' : 'Discendente'} onClick={onToggleDesc}>{icon.arrowDown}</button>
+              <button
+                type='button'
+                className={`btn sm flat counter icon rounded ${desc ? 'desc' : 'asc'}`}
+                title={desc ? 'Ascendente' : 'Discendente'}
+                onClick={onToggleDesc}
+              >
+                {icon.arrowDown}
+              </button>
             </div>
           )}
         </div>
@@ -309,8 +324,10 @@ const CollectionsDash: FC<CollectionsDashProps> = ({ onToggleDialog }: Collectio
         <li className='labels'>
           <div className='row'>
             <div className='col'>Titolo</div>
+            <div className='col-1'>Libri</div>
             <div className='col-5 col-lg-8'>Descrizione</div>
-            <div className='col-1 text-right'>Libri</div>
+            <div className='col col-sm-2 col-lg-1'>Modificato da</div>
+            <div className='col col-sm-2 col-lg-1 text-right'>Modificato</div>
           </div>
         </li>
         {itemsList}

@@ -5,42 +5,42 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import React, { FC, Fragment, MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
-import { CSVLink } from 'react-csv';
-import { Data } from 'react-csv/components/CommonPropTypes';
-import Zoom from 'react-medium-image-zoom';
-import { Link, Redirect } from 'react-router-dom';
-import useToggle from 'src/hooks/useToggle';
-import { bookRef, booksRef, countRef /* , reviewRef */ } from '../../../config/firebase';
+import { countRef, noteRef, /* notesGroupRef, */ notesRef, notificationsRef } from '../../../config/firebase';
 import icon from '../../../config/icons';
-import { app, handleFirestoreError, isToday, normURL, timeSince } from '../../../config/shared';
+import { handleFirestoreError, timeSince } from '../../../config/shared';
+// import { Redirect } from 'react-router-dom';
 import SnackbarContext from '../../../context/snackbarContext';
-import { BookModel, EventTargetWithDataset } from '../../../types';
+import useToggle from '../../../hooks/useToggle';
+import { EventTargetWithDataset, NoteModel } from '../../../types';
 import CopyToClipboard from '../../copyToClipboard';
 import PaginationControls from '../../paginationControls';
 
 type OrderByType = Record<'type' | 'label', string>;
 
+interface NoteDashModel {
+  id: string;
+  count: number;
+  notes?: NoteModel[];
+}
+
 const limitBy: number[] = [15, 25, 50, 100, 250, 500];
 const orderBy: OrderByType[] = [ 
-  { type: 'EDIT.lastEdit_num', label: 'Data ultima modifica'}, 
-  { type: 'EDIT.lastEditByUid', label: 'Modificato da'},
-  { type: 'EDIT.created_num', label: 'Data creazione'}, 
-  { type: 'EDIT.createdByUid', label: 'Creato da'},  
-  { type: 'title', label: 'Titolo'},
-  { type: 'rating_num', label: 'Voto'},
-  { type: 'ratings_num', label: 'Voti'},
-  { type: 'readers_num', label: 'Lettori'},
-  { type: 'reviews_num', label: 'Recensioni'}
+  { type: 'count', label: 'Conteggio'}
 ];
 
 let itemsFetch: (() => void) | undefined;
+let subItemsFetch: (() => void) | undefined;
+
+interface NotesDashProps {
+  onToggleDialog: (id?: string, el?: string) => void;
+}
 
 interface StateModel {
   count: number;
   desc: boolean;
   firstVisible: DocumentData | null;
   isOpenDeleteDialog: boolean;
-  items: BookModel[];
+  items: NoteDashModel[];
   lastVisible: DocumentData | null;
   limitByIndex: number;
   limitMenuAnchorEl?: Element;
@@ -48,6 +48,7 @@ interface StateModel {
   orderByIndex: number;
   orderMenuAnchorEl?: Element;
   page: number;
+  selectedEl: string;
   redirectTo: string;
   selectedId: string;
 }
@@ -66,10 +67,11 @@ const initialState: StateModel = {
   orderMenuAnchorEl: undefined,
   page: 1,
   redirectTo: '',
+  selectedEl: '',
   selectedId: '',
 };
 
-const BooksDash: FC = () => {
+const NotesDash: FC<NotesDashProps> = ({ onToggleDialog }: NotesDashProps) => {
   const [count, setCount] = useState<StateModel['count']>(initialState.count);
   const [desc, onToggleDesc] = useToggle(initialState.desc);
   const [firstVisible, setFirstVisible] = useState<StateModel['firstVisible']>(initialState.firstVisible);
@@ -81,23 +83,25 @@ const BooksDash: FC = () => {
   const [orderMenuAnchorEl, setOrderMenuAnchorEl] = useState<StateModel['orderMenuAnchorEl']>(initialState.orderMenuAnchorEl);
   const [orderByIndex, setOrderByIndex] = useState<StateModel['orderByIndex']>(initialState.orderByIndex);
   const [page, setPage] = useState<StateModel['page']>(initialState.page);
-  const [redirectTo, setRedirectTo] = useState<StateModel['redirectTo']>(initialState.redirectTo);
+  // const [redirectTo, setRedirectTo] = useState<StateModel['redirectTo']>(initialState.redirectTo);
+  const [selectedEl, setSelectedEl] = useState<StateModel['selectedEl']>(initialState.selectedEl);
   const [selectedId, setSelectedId] = useState<StateModel['selectedId']>(initialState.selectedId);
   const [loading, setLoading] = useState<StateModel['loading']>(initialState.loading);
 
   const { openSnackbar } = useContext(SnackbarContext);
 
   const limit: number = limitBy[limitByIndex];
+  // const orderByIndex: StateModel['orderByIndex'] = initialState.orderByIndex;
   const order: OrderByType = orderBy[orderByIndex];
 
   const fetcher = useCallback(() => {
-    const ref: Query<DocumentData> = booksRef.orderBy(order.type, desc ? 'desc' : 'asc').limit(limit);
+    const ref: Query<DocumentData> = notificationsRef.orderBy(order.type, desc ? 'desc' : 'asc').limit(limit);
 
     setLoading(true);
     itemsFetch = ref.onSnapshot((snap: DocumentData): void => {
       if (!snap.empty) {
-        const items: BookModel[] = [];
-        snap.forEach((item: DocumentData): number => items.push(item.data()));
+        const items: NoteDashModel[] = [];
+        snap.forEach((item: DocumentData): number => items.push({ id: item.id, count: item.data().count }));
         setFirstVisible(snap.docs[0]);
         setItems(items);
         setLastVisible(snap.docs[snap.size - 1]);
@@ -115,13 +119,13 @@ const BooksDash: FC = () => {
 
   const fetch = (e: MouseEvent): void => {
     const prev: boolean = (e.currentTarget as EventTargetWithDataset).dataset.direction === 'prev';
-    const ref: Query<DocumentData> = booksRef.orderBy(order.type, desc === prev ? 'asc' : 'desc').limit(limit);
+    const ref: Query<DocumentData> = notificationsRef.orderBy(order.type, desc === prev ? 'asc' : 'desc').limit(limit);
     const paginatedRef: Query<DocumentData> = ref.startAfter(prev ? firstVisible : lastVisible);
 
     itemsFetch = paginatedRef.onSnapshot((snap: DocumentData): void => {
       if (!snap.empty) {
-        const items: BookModel[] = [];
-        snap.forEach((item: DocumentData): number => items.push(item.data()));
+        const items: NoteDashModel[] = [];
+        snap.forEach((item: DocumentData) => items.push({ id: item.id, count: item.data().count }));
         setFirstVisible(snap.docs[prev ? snap.size - 1 : 0]);
         setItems(prev ? items.reverse() : items);
         setLastVisible(snap.docs[prev ? 0 : snap.size - 1]);
@@ -137,9 +141,9 @@ const BooksDash: FC = () => {
       console.warn(err);
     });
   };
-
+    
   useEffect(() => {
-    countRef('books').get().then((fullSnap: DocumentData): void => {
+    countRef('notifications').get().then((fullSnap: DocumentData): void => {
       if (fullSnap.exists) {
         setCount(fullSnap.data()?.count);
         fetcher();
@@ -153,10 +157,9 @@ const BooksDash: FC = () => {
 
   useEffect(() => () => {
     itemsFetch?.();
+    subItemsFetch?.();
   }, []);
 
-  // const onToggleDesc = (): void => setDesc(desc => !desc);
-  
   const onOpenOrderMenu = (e: MouseEvent): void => setOrderMenuAnchorEl(e.currentTarget);
   const onChangeOrderBy = (i: number): void => {
     setOrderByIndex(i);
@@ -173,49 +176,61 @@ const BooksDash: FC = () => {
   };
   const onCloseLimitMenu = (): void => setLimitMenuAnchorEl(undefined);
 
-  const onView = ({ bid, title }: { bid: string; title: string }): void => {
-    setRedirectTo(title ? `${bid}/${title}` : bid);
-  };
-  
-  const onEdit = ({ bid, title }: { bid: string; title: string }): void => {
-    setRedirectTo(title ? `${bid}/${title}` : bid); // TODO
-  };
+  // const onView = ({ id }: { id: string }): void => setRedirectTo(id);
 
-  const onLock = ({ bid, state }: { bid: string; state: boolean }): void => {
-    if (state) {
-      // console.log(`Locking ${bid}`);
-      bookRef(bid).update({ 'EDIT.edit': false }).then(() => {
-        openSnackbar('Elemento bloccato', 'success');
-      }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
-    } else {
-      // console.log(`Unlocking ${bid}`);
-      bookRef(bid).update({ 'EDIT.edit': true }).then(() => {
-        openSnackbar('Elemento sbloccato', 'success');
-      }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
-    }
-  };
+  const onEdit = ({ id, el }: { id: string; el: string }): void => onToggleDialog(id, el);
 
-  const onDeleteRequest = ({ bid }: { bid: string }): void => {
+  const onDeleteRequest = ({ id, el }: { id: string; el: string }): void => {
     setIsOpenDeleteDialog(true);
-    setSelectedId(bid);
+    setSelectedId(id);
+    setSelectedEl(el);
   };
+
   const onCloseDeleteDialog = (): void => {
     setIsOpenDeleteDialog(false);
     setSelectedId('');
+    setSelectedEl('');
   };
+
   const onDelete = (): void => {
     setIsOpenDeleteDialog(false);
-    bookRef(selectedId).delete().then((): void => {
-      /* reviewRef(selectedId).delete().then(() => {
-        console.log(`✔ Reviews deleted`);
-      }).catch(err => openSnackbar(handleFirestoreError(err), 'error')); */
+    noteRef(selectedId, selectedEl).delete().then((): void => {
       openSnackbar('Elemento cancellato', 'success');
     }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
   };
-  
+
+  const onToggleExpansion = (id: string): void => {
+    if (id) {
+      setSelectedId(id);
+      const selectedObj: number = items.findIndex(obj => obj.id === id);
+      subItemsFetch = notesRef(id).orderBy('created_num', 'desc').limit(200).onSnapshot((snap: DocumentData): void => {
+        if (!snap.empty) {
+          setItems(prevItems => {
+            const notes: NoteModel[] = [];
+            snap.forEach((note: DocumentData): number => notes.push(note.data()));
+            const items: NoteDashModel[] = [ ...prevItems ];
+            items[selectedObj] = { ...items[selectedObj], notes };
+            return items;
+          });
+        }
+      });
+    } else console.log('No id');
+  };
+
+  /* getLastNotes = (limit = 5) => {
+    const lRef = notesGroupRef.limit(limit);
+    lRef.get().then(snap => {
+      if (!snap.empty) {
+        const items = [];
+        snap.forEach(item => items.push(item.data()));
+        console.log(items);
+      }
+    })
+  }
+
   if (redirectTo) return (
-    <Redirect to={`/book/${redirectTo}`} />
-  );
+    <Redirect to={`/notifications/${redirectTo}`} />
+  ); */
 
   const orderByOptions = orderBy.map((option: OrderByType, index: number) => (
     <MenuItem
@@ -242,92 +257,46 @@ const BooksDash: FC = () => {
   const itemsList = loading ? skeletons : !items ? (
     <li className='empty text-center'>Nessun elemento</li>
   ) : (
-    items.map(({ authors, bid, covers, EDIT, /* ISBN_10, */ ISBN_13, rating_num, ratings_num, readers_num, reviews_num, title }: BookModel) => (
-      <li key={bid} className={`avatar-row ${EDIT.edit ? '' : 'locked'}`}>
+    items.map(({ id, count, notes }: NoteDashModel) => (
+      <li 
+        key={id} 
+        role='treeitem'
+        className={`expandible-parent ${selectedId === id ? 'expanded' : 'compressed'}`} 
+        onKeyDown={() => onToggleExpansion(id)}
+        onClick={() => onToggleExpansion(id)}>
         <div className='row'>
-          <div className='col-auto'>
-            <Zoom overlayBgColorEnd='rgba(var(--canvasClr), .8)' zoomMargin={10}>
-              <img alt='cover' src={covers[0]} className='mock-cover xs' />
-            </Zoom>
-          </div>
-          <Link to={`/book/${bid}/${normURL(title)}`} className='col'>
-            {title}
-          </Link>
-          <Link to={`/author/${normURL(Object.keys(authors)[0])}`} className="col">
-            {Object.keys(authors)[0]}
-          </Link>
-          <div className='col-lg col-md-2 hide-md'>
-            <div className='row text-center monotype'>
-              <div className={`col ${!rating_num && 'lightest-text'}`}>
-                {Math.round(rating_num / ratings_num * 10) / 10 || 0}
-              </div>
-              <div className={`col ${!ratings_num && 'lightest-text'}`}>{ratings_num}</div>
-              <div className={`col ${!readers_num && 'lightest-text'}`}>{readers_num}</div>
-              <div className={`col ${!reviews_num && 'lightest-text'}`}>{reviews_num}</div>
-            </div>
-          </div>
-          <div className='col hide-md monotype' title={bid}>
-            <CopyToClipboard text={bid}/>
-          </div>
-          <div className='col hide-md monotype' title={String(ISBN_13)}>
-            <CopyToClipboard text={String(ISBN_13)}/>
-          </div>
-          {/* <div className='col-1 hide-md monotype' title={ISBN_10}>
-            <CopyToClipboard text={ISBN_10} />
-          </div> */}
-          <Link to={`/dashboard/${EDIT.createdByUid}`} title={EDIT.createdByUid} className='col hide-sm col-lg-1'>
-            {EDIT.createdBy}
-          </Link>
-          <div className='col col-lg-1 hide-sm'>
-            <div className='timestamp' title={new Date(EDIT.created_num).toLocaleString()}>
-              {isToday(EDIT.created_num) ? new Date(EDIT.created_num).toLocaleTimeString() : new Date(EDIT.created_num).toLocaleDateString()}
-            </div>
-          </div>
-          <Link to={`/dashboard/${EDIT.lastEditByUid}`} title={EDIT.lastEditByUid} className='col col-lg-1'>
-            {EDIT.lastEditBy}
-          </Link>
-          <div className='col col-lg-1 text-right'>
-            <div className='timestamp'>
-              {isToday(EDIT.lastEdit_num) ? new Date(EDIT.lastEdit_num).toLocaleTimeString() : timeSince(EDIT.lastEdit_num)}
-            </div>
-          </div>
-          <div className='absolute-row right btns xs'>
-            <button
-              type='button'
-              className='btn icon green'
-              onClick={() => onView({ bid, title })}
-              title='Anteprima'>
-              {icon.eye}
-            </button>
-            <button
-              type='button'
-              className='btn icon primary'
-              onClick={() => onEdit({ bid, title })}
-              title='Modifica'>
-              {icon.pencil}
-            </button>
-            <button
-              type='button'
-              className={`btn icon ${EDIT.edit ? 'secondary' : 'flat' }`}
-              onClick={() => onLock({ bid, state: EDIT.edit })}
-              title={EDIT.edit ? 'Blocca' : 'Sblocca'}>
-              {icon.lock}
-            </button>
-            <button
-              type='button'
-              className='btn icon red'
-              onClick={() => onDeleteRequest({ bid })}>
-              {icon.close}
-            </button>
+          <div className='col-auto'>{count || 0}</div>
+          <div className='col monotype'><CopyToClipboard text={id}/></div>
+          <div className='col-1 text-right expandible-icon'>
+            {icon.chevronDown}
           </div>
         </div>
+        {Boolean(notes?.length) && (
+          <ul className='expandible'>
+            {notes?.map(({ created_num, nid, read, text }: NoteModel, i: number) =>
+              <li key={nid} className={read ? 'read' : 'not-read'}>
+                <div className='row'>
+                  <div className='col-auto'>{i + 1}</div>
+                  <div className='col'><div dangerouslySetInnerHTML={{__html: text}} /></div>
+                  <div className='col-sm-3 col-lg-2 monotype hide-sm text-center'>
+                    <CopyToClipboard text={nid} />
+                  </div>
+                  <div className='col-auto' title={read ? 'Letta' : 'Non letta'}>{read ? icon.check : icon.close}</div>
+                  <div className='col-auto col-sm-2 col-lg-1 text-right'>
+                    <div className='timestamp'>{timeSince(created_num)}</div>
+                  </div>
+                  <div className='absolute-row right btns xs'>
+                    <button type='button' className='btn icon primary' onClick={() => onEdit({ id, el: nid })}>{icon.pencil}</button>
+                    <button type='button' className='btn icon red' onClick={() => onDeleteRequest({ id, el: nid })}>{icon.close}</button>
+                  </div>
+                </div>
+              </li>
+            )}
+          </ul>
+        )}
       </li>
     ))
   );
-
-  const sitemapData: Data | undefined = items.map(item => ([
-    `<url> <loc>${app.url}/book/${item.bid}/${normURL(item.title)}</loc> </url>`
-  ]));
 
   return (
     <Fragment>
@@ -346,24 +315,19 @@ const BooksDash: FC = () => {
             <Menu 
               anchorEl={limitMenuAnchorEl}
               className='dropdown-menu'
-              open={Boolean(limitMenuAnchorEl)}
-              onClose={onCloseLimitMenu}
-            >
+              open={Boolean(limitMenuAnchorEl)} 
+              onClose={onCloseLimitMenu}>
               {limitByOptions}
             </Menu>
           </div>
-          
           {Boolean(items.length) && (
             <div className='col-auto'>
-              {sitemapData && (
-                <CSVLink
-                  data={sitemapData}
-                  className='counter'
-                  filename='sitemap_books.csv'>
-                  Sitemap
-                </CSVLink>
-              )}
-              <button type='button' className='btn sm flat counter' onClick={onOpenOrderMenu}>
+              <button
+                type='button'
+                className='btn sm flat counter'
+                disabled={orderBy.length === 1}
+                onClick={onOpenOrderMenu}
+              >
                 <span className='hide-xs'>Ordina per</span> {orderBy[orderByIndex].label}
               </button>
               <Menu 
@@ -377,40 +341,26 @@ const BooksDash: FC = () => {
                 type='button'
                 className={`btn sm flat counter icon rounded ${desc ? 'desc' : 'asc'}`}
                 title={desc ? 'Ascendente' : 'Discendente'}
-                onClick={onToggleDesc}>
+                onClick={onToggleDesc}
+              >
                 {icon.arrowDown}
               </button>
             </div>
           )}
         </div>
       </div>
-
-      <ul className='table dense nolist font-sm'>
+      
+      <ul className='table dense nolist font-sm' role='tree'>
         <li className='labels'>
           <div className='row'>
-            <div className='col-auto'><div className='mock-cover xs hidden' /></div>
-            <div className='col'>Titolo</div>
-            <div className='col'>Autore</div>
-            <div className='col-lg col-md-2 hide-md'>
-              <div className='row text-center'>
-                <div className='col' title='Voto'>{icon.star}</div>
-                <div className='col' title='Voti'>{icon.starOutline}</div>
-                <div className='col' title='Lettori'>{icon.reader}</div>
-                <div className='col' title='Recensioni'>{icon.review}</div>
-              </div>
-            </div>
-            <div className='col hide-md'>Bid</div>
-            <div className='col hide-md'>ISBN-13</div>
-            {/* <div className='col-1 hide-md'>ISBN-10</div> */}
-            <div className='col col-lg-1 hide-sm'>Creato da</div>
-            <div className='col col-lg-1 hide-sm'>Creato</div>
-            <div className='col col-lg-1'>Modificato da</div>
-            <div className='col col-lg-1 text-right'>Modificato</div>
+            <div className='col-auto'>#</div>
+            <div className='col'>Uid</div>
+            <div className='col col-sm-2 col-lg-1 text-right'>Creato</div>
           </div>
         </li>
         {itemsList}
       </ul>
-      
+
       <PaginationControls 
         count={count} 
         fetch={fetch}
@@ -437,4 +387,4 @@ const BooksDash: FC = () => {
   );
 };
 
-export default BooksDash;
+export default NotesDash;

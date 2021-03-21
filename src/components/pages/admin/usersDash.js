@@ -36,7 +36,7 @@ const unsub = {
 
 const initialState = {
   firstVisible: null,
-  items: null,
+  items: [],
   lastVisible: null,
   limitByIndex: 0,
   orderByIndex: 0,
@@ -261,9 +261,9 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
 
   const onChangeRole = e => {
     const { uid } = e.currentTarget?.parentNode?.dataset;
-    const { role } = e.currentTarget?.dataset;
-    const state = e.currentTarget?.dataset.state === 'true';
-    userRef(uid).update({ [`roles.${role}`]: !state }).catch(err => console.warn(err));
+    const { role, state } = e.currentTarget?.dataset;
+    const prevState = state === 'true';
+    userRef(uid).update({ [`roles.${role}`]: !prevState }).catch(err => console.warn(err));
   };
 
   if (redirectTo) return <Redirect to={`/dashboard/${redirectTo}`} />;
@@ -290,17 +290,19 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
   
   const skeletons = [...Array(limit)].map((e, i) => <li key={i} className="avatar-row skltn dash" />);
   
-  const itemsList = loading ? skeletons : !items ? <li className="empty text-center">Nessun elemento</li> : (
+  const itemsList = loading ? skeletons : !items ? (
+    <li className='empty text-center'>Nessun elemento</li>
+  ) : (
     items.map(item => (
       <li key={item.uid} className={`avatar-row ${item.roles?.editor ? 'editor' : 'locked'}`}>
         <div className="row">
           <div className="col-auto avatar-container">
             <Avatar className="avatar">
-              {item.photoURL ? 
+              {item.photoURL ? (
                 <Zoom overlayBgColorEnd="rgba(var(--canvasClr), .8)" zoomMargin={10}>
                   <img alt={item.displayName} src={item.photoURL} className="avatar thumb" />
                 </Zoom>
-                : getInitials(item.displayName)}
+              ) : getInitials(item.displayName)}
             </Avatar>
           </div>
           <Link to={`/dashboard/${item.uid}`} className="col col-lg-2" title={item.displayName}>
@@ -313,9 +315,9 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
             <CopyToClipboard text={item.email} />
           </div>
           <div role="group" className="col col-md-2 col-lg-1 btns xs rounded text-center" data-uid={item.uid}>
-            <button type="button" className={`btn ${item.roles?.editor ? '' : 'flat'}`} data-role="editor" onClick={onChangeRole} title="editor">E</button>
-            <button type="button" className={`btn ${item.roles?.premium ? '' : 'flat'}`} data-role="premium" onClick={onChangeRole} title="premium">P</button>
-            <button type="button" className={`btn ${item.roles?.admin ? '' : 'flat'}`} data-role="admin" onClick={onChangeRole} title="admin">A</button>
+            <button type="button" className={`btn ${item.roles?.editor ? '' : 'flat'}`} data-role="editor" data-state={item.roles?.editor} onClick={onChangeRole} title="editor">E</button>
+            <button type="button" className={`btn ${item.roles?.premium ? '' : 'flat'}`} data-role="premium" data-state={item.roles?.premium} onClick={onChangeRole} title="premium">P</button>
+            <button type="button" className={`btn ${item.roles?.admin ? '' : 'flat'}`} data-role="admin" data-state={item.roles?.admin} onClick={onChangeRole} title="admin">A</button>
           </div>
           <div className="col col-sm-3 hide-xs">
             <div className="row text-center monotype">
@@ -399,8 +401,15 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
       <div className="head nav" ref={is}>
         <div className="row">
           <div className="col">
-            <span className="counter hide-md">{`${items?.length || 0} di ${count || 0}`}</span>
-            <button type="button" className="btn sm flat counter last" onClick={onOpenLimitMenu}>{limitBy[limitByIndex]} <span className="hide-xs">per pagina</span></button>
+            <span className="counter hide-md">{`${items.length || 0} di ${count || 0}`}</span>
+            <button
+              type="button"
+              className="btn sm flat counter last"
+              disabled={!items.length}
+              onClick={onOpenLimitMenu}
+            >
+              {limitBy[limitByIndex]} <span className="hide-xs">per pagina</span>
+            </button>
             <Menu 
               className="dropdown-menu"
               anchorEl={limitMenuAnchorEl} 
@@ -409,17 +418,32 @@ const UsersDash = ({ onToggleDialog, onToggleNoteDialog }) => {
               {limitByOptions}
             </Menu>
           </div>
-          <div className="col-auto">
-            <button type="button" className="btn sm flat counter" onClick={onOpenOrderMenu}><span className="hide-xs">Ordina per</span> {orderBy[orderByIndex].label}</button>
-            <button type="button" className={`btn sm flat counter icon rounded ${desc ? 'desc' : 'asc'}`} title={desc ? 'Ascendente' : 'Discendente'} onClick={onToggleDesc}>{icon.arrowDown}</button>
-            <Menu 
-              className="dropdown-menu"
-              anchorEl={orderMenuAnchorEl} 
-              open={Boolean(orderMenuAnchorEl)} 
-              onClose={onCloseOrderMenu}>
-              {orderByOptions}
-            </Menu>
-          </div>
+          {Boolean(items.length) && (
+            <div className="col-auto">
+              <button
+                type="button"
+                className="btn sm flat counter"
+                onClick={onOpenOrderMenu}
+              >
+                <span className="hide-xs">Ordina per</span> {orderBy[orderByIndex].label}
+              </button>
+              <button
+                type="button"
+                className={`btn sm flat counter icon rounded ${desc ? 'desc' : 'asc'}`}
+                title={desc ? 'Ascendente' : 'Discendente'}
+                onClick={onToggleDesc}
+              >
+                {icon.arrowDown}
+              </button>
+              <Menu 
+                className="dropdown-menu"
+                anchorEl={orderMenuAnchorEl} 
+                open={Boolean(orderMenuAnchorEl)} 
+                onClose={onCloseOrderMenu}>
+                {orderByOptions}
+              </Menu>
+            </div>
+          )}
         </div>
       </div>
 
