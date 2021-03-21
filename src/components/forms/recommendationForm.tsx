@@ -117,7 +117,7 @@ const RecommendationForm: FC<RecommendationFormProps> = ({
 
   const onRecommendBook = (e: MouseEvent): void => {
     e.preventDefault();
-    const fuid = (e.currentTarget as EventTargetWithDataset)?.dataset?.fuid || '';
+    const { fuid } = (e.currentTarget as EventTargetWithDataset).dataset;
     const { bid, covers, title } = book;
 
     const recommendation = {

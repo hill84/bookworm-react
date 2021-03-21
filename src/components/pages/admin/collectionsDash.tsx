@@ -1,46 +1,41 @@
 import { DocumentData, FirestoreError, Query } from '@firebase/firestore-types';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import React, { FC, Fragment, MouseEvent, useCallback, useContext, useEffect, useState } from 'react';
 import { CSVLink } from 'react-csv';
-import { Data } from 'react-csv/components/CommonPropTypes';
-import Zoom from 'react-medium-image-zoom';
 import { Link, Redirect } from 'react-router-dom';
-import useToggle from 'src/hooks/useToggle';
-import { bookRef, booksRef, countRef /* , reviewRef */ } from '../../../config/firebase';
+import { collectionBooksRef, collectionRef, collectionsRef, countRef } from '../../../config/firebase';
 import icon from '../../../config/icons';
-import { app, handleFirestoreError, isToday, normURL, timeSince } from '../../../config/shared';
+import { app, handleFirestoreError, normURL } from '../../../config/shared';
 import SnackbarContext from '../../../context/snackbarContext';
-import { BookModel, EventTargetWithDataset } from '../../../types';
-import CopyToClipboard from '../../copyToClipboard';
+import useToggle from '../../../hooks/useToggle';
+import { BookModel, CollectionModel, EventTargetWithDataset } from '../../../types';
 import PaginationControls from '../../paginationControls';
 
 type OrderByType = Record<'type' | 'label', string>;
 
-const limitBy: number[] = [ 15, 25, 50, 100, 250, 500 ];
+const limitBy: number[] = [15, 25, 50, 100, 250, 500];
 const orderBy: OrderByType[] = [ 
-  { type: 'EDIT.lastEdit_num', label: 'Data ultima modifica'}, 
-  { type: 'EDIT.lastEditByUid', label: 'Modificato da'},
-  { type: 'EDIT.created_num', label: 'Data creazione'}, 
-  { type: 'EDIT.createdByUid', label: 'Creato da'},  
-  { type: 'title', label: 'Titolo'},
-  { type: 'rating_num', label: 'Voto'},
-  { type: 'ratings_num', label: 'Voti'},
-  { type: 'readers_num', label: 'Lettori'},
-  { type: 'reviews_num', label: 'Recensioni'}
+  { type: 'title', label: 'Titolo'}
 ];
 
 let itemsFetch: (() => void) | undefined;
+
+interface CollectionsDashProps {
+  onToggleDialog: (id?: string) => void;
+}
 
 interface StateModel {
   count: number;
   desc: boolean;
   firstVisible: DocumentData | null;
   isOpenDeleteDialog: boolean;
-  items: BookModel[];
+  items: CollectionModel[];
   lastVisible: DocumentData | null;
   limitByIndex: number;
   limitMenuAnchorEl?: Element;
@@ -54,7 +49,7 @@ interface StateModel {
 
 const initialState: StateModel = {
   count: 0,
-  desc: true,
+  desc: false,
   firstVisible: null,
   isOpenDeleteDialog: false,
   items: [],
@@ -69,7 +64,7 @@ const initialState: StateModel = {
   selectedId: '',
 };
 
-const BooksDash: FC = () => {
+const CollectionsDash: FC<CollectionsDashProps> = ({ onToggleDialog }: CollectionsDashProps) => {
   const [count, setCount] = useState<StateModel['count']>(initialState.count);
   const [desc, onToggleDesc] = useToggle(initialState.desc);
   const [firstVisible, setFirstVisible] = useState<StateModel['firstVisible']>(initialState.firstVisible);
@@ -91,12 +86,12 @@ const BooksDash: FC = () => {
   const order: OrderByType = orderBy[orderByIndex];
 
   const fetcher = useCallback(() => {
-    const ref: Query<DocumentData> = booksRef.orderBy(order.type, desc ? 'desc' : 'asc').limit(limit);
+    const ref: Query<DocumentData> = collectionsRef.orderBy(order.type, desc ? 'desc' : 'asc').limit(limit);
 
     setLoading(true);
     itemsFetch = ref.onSnapshot((snap: DocumentData): void => {
       if (!snap.empty) {
-        const items: BookModel[] = [];
+        const items: CollectionModel[] = [];
         snap.forEach((item: DocumentData): number => items.push(item.data()));
         setFirstVisible(snap.docs[0]);
         setItems(items);
@@ -115,13 +110,21 @@ const BooksDash: FC = () => {
 
   const fetch = (e: MouseEvent): void => {
     const prev: boolean = (e.currentTarget as EventTargetWithDataset).dataset.direction === 'prev';
-    const ref: Query<DocumentData> = booksRef.orderBy(order.type, desc === prev ? 'asc' : 'desc').limit(limit);
+    const ref: Query<DocumentData> = collectionsRef.orderBy(order.type, desc === prev ? 'asc' : 'desc').limit(limit);
     const paginatedRef: Query<DocumentData> = ref.startAfter(prev ? firstVisible : lastVisible);
 
     itemsFetch = paginatedRef.onSnapshot((snap: DocumentData): void => {
       if (!snap.empty) {
-        const items: BookModel[] = [];
-        snap.forEach((item: DocumentData): number => items.push(item.data()));
+        const items: CollectionModel[] = [];
+        snap.forEach((item: DocumentData): void => {
+          const books: BookModel[] = [];
+          collectionBooksRef(item.id).orderBy('bcid', 'desc').get().then((snap: DocumentData): void => {
+            if (!snap.empty) {
+              snap.forEach((book: DocumentData): number => books.push(book.data().bid));
+            }
+          });
+          items.push({ ...item.data(), title: item.id, books });
+        });
         setFirstVisible(snap.docs[prev ? snap.size - 1 : 0]);
         setItems(prev ? items.reverse() : items);
         setLastVisible(snap.docs[prev ? 0 : snap.size - 1]);
@@ -139,7 +142,7 @@ const BooksDash: FC = () => {
   };
 
   useEffect(() => {
-    countRef('books').get().then((fullSnap: DocumentData): void => {
+    countRef('collections').get().then((fullSnap: DocumentData): void => {
       if (fullSnap.exists) {
         setCount(fullSnap.data()?.count);
         fetcher();
@@ -155,8 +158,6 @@ const BooksDash: FC = () => {
     itemsFetch?.();
   }, []);
 
-  // const onToggleDesc = (): void => setDesc(desc => !desc);
-  
   const onOpenOrderMenu = (e: MouseEvent): void => setOrderMenuAnchorEl(e.currentTarget);
   const onChangeOrderBy = (i: number): void => {
     setOrderByIndex(i);
@@ -173,48 +174,43 @@ const BooksDash: FC = () => {
   };
   const onCloseLimitMenu = (): void => setLimitMenuAnchorEl(undefined);
 
-  const onView = ({ bid, title }: { bid: string; title: string }): void => {
-    setRedirectTo(title ? `${bid}/${title}` : bid);
-  };
-  
-  const onEdit = ({ bid, title }: { bid: string; title: string }): void => {
-    setRedirectTo(title ? `${bid}/${title}` : bid); // TODO
-  };
+  const onView = ({ id }: { id: string }): void => setRedirectTo(normURL(id));
 
-  const onLock = ({ bid, state }: { bid: string; state: boolean }): void => {
+  const onEdit = ({ id }: { id: string }): void => onToggleDialog(id);
+
+  const onLock = ({ id, state }: { id: string; state: boolean }): void => {
     if (state) {
-      // console.log(`Locking ${bid}`);
-      bookRef(bid).update({ 'EDIT.edit': false }).then(() => {
+      // console.log(`Locking ${id}`);
+      collectionRef(id).update({ edit: false }).then(() => {
         openSnackbar('Elemento bloccato', 'success');
       }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
     } else {
-      // console.log(`Unlocking ${bid}`);
-      bookRef(bid).update({ 'EDIT.edit': true }).then(() => {
+      // console.log(`Unlocking ${id}`);
+      collectionRef(id).update({ edit: true }).then(() => {
         openSnackbar('Elemento sbloccato', 'success');
       }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
     }
   };
 
-  const onDeleteRequest = ({ bid }: { bid: string }): void => {
+  const onDeleteRequest = ({ id }: { id: string }): void => {
     setIsOpenDeleteDialog(true);
-    setSelectedId(bid);
+    setSelectedId(id);
   };
+
   const onCloseDeleteDialog = (): void => {
     setIsOpenDeleteDialog(false);
     setSelectedId('');
   };
+
   const onDelete = (): void => {
     setIsOpenDeleteDialog(false);
-    bookRef(selectedId).delete().then((): void => {
-      /* reviewRef(selectedId).delete().then(() => {
-        console.log(`✔ Reviews deleted`);
-      }).catch(err => openSnackbar(handleFirestoreError(err), 'error')); */
+    collectionRef(selectedId).delete().then((): void => {
       openSnackbar('Elemento cancellato', 'success');
     }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
   };
-  
+
   if (redirectTo) return (
-    <Redirect to={`/book/${redirectTo}`} />
+    <Redirect to={`/collection/${redirectTo}`} />
   );
 
   const orderByOptions = orderBy.map((option: OrderByType, index: number) => (
@@ -242,91 +238,27 @@ const BooksDash: FC = () => {
   const itemsList = loading ? skeletons : !items ? (
     <li className='empty text-center'>Nessun elemento</li>
   ) : (
-    items.map(({ authors, bid, covers, EDIT, /* ISBN_10, */ ISBN_13, rating_num, ratings_num, readers_num, reviews_num, title }: BookModel) => (
-      <li key={bid} className={`avatar-row ${EDIT.edit ? '' : 'locked'}`}>
+    items.map(({ books_num, description, edit, title }: CollectionModel) => (
+      <li key={title} className={`${edit ? '' : 'locked'}`}>
         <div className='row'>
-          <div className='col-auto'>
-            <Zoom overlayBgColorEnd='rgba(var(--canvasClr), .8)' zoomMargin={10}>
-              <img alt='cover' src={covers[0]} className='mock-cover xs' />
-            </Zoom>
-          </div>
-          <Link to={`/book/${bid}/${normURL(title)}`} className='col'>
+          <Link to={`/collection/${normURL(title)}`} className='col'>
             {title}
           </Link>
-          <Link to={`/author/${normURL(Object.keys(authors)[0])}`} className="col">
-            {Object.keys(authors)[0]}
-          </Link>
-          <div className='col-lg col-md-2 hide-md'>
-            <div className='row text-center monotype'>
-              <div className={`col ${!rating_num && 'lightest-text'}`}>
-                {Math.round(rating_num / ratings_num * 10) / 10 || 0}
-              </div>
-              <div className={`col ${!ratings_num && 'lightest-text'}`}>{ratings_num}</div>
-              <div className={`col ${!readers_num && 'lightest-text'}`}>{readers_num}</div>
-              <div className={`col ${!reviews_num && 'lightest-text'}`}>{reviews_num}</div>
-            </div>
-          </div>
-          <div className='col hide-md monotype' title={bid}>
-            <CopyToClipboard text={bid}/>
-          </div>
-          <div className='col hide-md monotype' title={String(ISBN_13)}>
-            <CopyToClipboard text={String(ISBN_13)}/>
-          </div>
-          {/* <div className='col-1 hide-md monotype' title={ISBN_10}>
-            <CopyToClipboard text={ISBN_10} />
-          </div> */}
-          <Link to={`/dashboard/${EDIT.createdByUid}`} title={EDIT.createdByUid} className='col hide-sm col-lg-1'>
-            {EDIT.createdBy}
-          </Link>
-          <div className='col col-lg-1 hide-sm'>
-            <div className='timestamp' title={new Date(EDIT.created_num).toLocaleString()}>
-              {isToday(EDIT.created_num) ? new Date(EDIT.created_num).toLocaleTimeString() : new Date(EDIT.created_num).toLocaleDateString()}
-            </div>
-          </div>
-          <Link to={`/dashboard/${EDIT.lastEditByUid}`} title={EDIT.lastEditByUid} className='col col-lg-1'>
-            {EDIT.lastEditBy}
-          </Link>
-          <div className='col col-lg-1 text-right'>
-            <div className='timestamp'>
-              {isToday(EDIT.lastEdit_num) ? new Date(EDIT.lastEdit_num).toLocaleTimeString() : timeSince(EDIT.lastEdit_num)}
-            </div>
-          </div>
+          <div className='col-5 col-lg-8' title={description}>{description}</div>
+          <div className='col-1 text-right'>{books_num}</div>
           <div className='absolute-row right btns xs'>
-            <button
-              type='button'
-              className='btn icon green'
-              onClick={() => onView({ bid, title })}
-              title='Anteprima'>
-              {icon.eye}
-            </button>
-            <button
-              type='button'
-              className='btn icon primary'
-              onClick={() => onEdit({ bid, title })}
-              title='Modifica'>
-              {icon.pencil}
-            </button>
-            <button
-              type='button'
-              className={`btn icon ${EDIT.edit ? 'secondary' : 'flat' }`}
-              onClick={() => onLock({ bid, state: EDIT.edit })}
-              title={EDIT.edit ? 'Blocca' : 'Sblocca'}>
-              {icon.lock}
-            </button>
-            <button
-              type='button'
-              className='btn icon red'
-              onClick={() => onDeleteRequest({ bid })}>
-              {icon.close}
-            </button>
+            <button type='button' className='btn icon green' onClick={() => onView({ id: title })} title='Anteprima'>{icon.eye}</button>
+            <button type='button' className='btn icon primary' onClick={() => onEdit({ id: title })} title='Modifica'>{icon.pencil}</button>
+            <button type='button' className={`btn icon ${edit ? 'secondary' : 'flat' }`} onClick={() => onLock({ id: title, state: edit })} title={edit ? 'Blocca' : 'Sblocca'}>{icon.lock}</button>
+            <button type='button' className='btn icon red' onClick={() => onDeleteRequest({ id: title })}>{icon.close}</button>
           </div>
         </div>
       </li>
     ))
   );
 
-  const sitemapData: Data | undefined = items?.map(item => ([
-    `<url> <loc>${app.url}/book/${item.bid}/${normURL(item.title)}</loc> </url>`
+  const sitemapData = items?.map(item => ([
+    `<url> <loc>${app.url}/collection/${normURL(item.title)}</loc> </url>`
   ]));
 
   return (
@@ -334,9 +266,13 @@ const BooksDash: FC = () => {
       <div className='head nav'>
         <div className='row'>
           <div className='col'>
-            <span className='counter hide-md'>{`${items?.length || 0} di ${count || 0}`}</span>
-            <button type='button' className='btn sm flat counter last' onClick={onOpenLimitMenu}>
-              {limit} <span className='hide-xs'>per pagina</span>
+            <span className='counter hide-md'>{`${items ? items.length : 0} di ${count || 0}`}</span>
+            <button
+              type='button'
+              className='btn sm flat counter last'
+              onClick={onOpenLimitMenu}
+            >
+              {limitBy[limitByIndex]} <span className='hide-xs'>per pagina</span>
             </button>
             <Menu 
               className='dropdown-menu'
@@ -346,18 +282,14 @@ const BooksDash: FC = () => {
               {limitByOptions}
             </Menu>
           </div>
-          
           {items && (
             <div className='col-auto'>
-              {sitemapData && (
-                <CSVLink
-                  data={sitemapData}
-                  className='counter'
-                  filename='sitemap_books.csv'>
-                  Sitemap
-                </CSVLink>
-              )}
-              <button type='button' className='btn sm flat counter' onClick={onOpenOrderMenu}>
+              <CSVLink data={sitemapData} className='counter' filename='sitemap_collections.csv'>Sitemap</CSVLink>
+              <button
+                type='button'
+                className='btn sm flat counter'
+                onClick={onOpenOrderMenu}
+              >
                 <span className='hide-xs'>Ordina per</span> {orderBy[orderByIndex].label}
               </button>
               <Menu 
@@ -367,44 +299,23 @@ const BooksDash: FC = () => {
                 onClose={onCloseOrderMenu}>
                 {orderByOptions}
               </Menu>
-              <button
-                type='button'
-                className={`btn sm flat counter icon rounded ${desc ? 'desc' : 'asc'}`}
-                title={desc ? 'Ascendente' : 'Discendente'}
-                onClick={onToggleDesc}>
-                {icon.arrowDown}
-              </button>
+              <button type='button' className={`btn sm flat counter icon rounded ${desc ? 'desc' : 'asc'}`} title={desc ? 'Ascendente' : 'Discendente'} onClick={onToggleDesc}>{icon.arrowDown}</button>
             </div>
           )}
         </div>
       </div>
-
+      
       <ul className='table dense nolist font-sm'>
         <li className='labels'>
           <div className='row'>
-            <div className='col-auto'><div className='mock-cover xs hidden' /></div>
             <div className='col'>Titolo</div>
-            <div className='col'>Autore</div>
-            <div className='col-lg col-md-2 hide-md'>
-              <div className='row text-center'>
-                <div className='col' title='Voto'>{icon.star}</div>
-                <div className='col' title='Voti'>{icon.starOutline}</div>
-                <div className='col' title='Lettori'>{icon.reader}</div>
-                <div className='col' title='Recensioni'>{icon.review}</div>
-              </div>
-            </div>
-            <div className='col hide-md'>Bid</div>
-            <div className='col hide-md'>ISBN-13</div>
-            {/* <div className='col-1 hide-md'>ISBN-10</div> */}
-            <div className='col col-lg-1 hide-sm'>Creato da</div>
-            <div className='col col-lg-1 hide-sm'>Creato</div>
-            <div className='col col-lg-1'>Modificato da</div>
-            <div className='col col-lg-1 text-right'>Modificato</div>
+            <div className='col-5 col-lg-8'>Descrizione</div>
+            <div className='col-1 text-right'>Libri</div>
           </div>
         </li>
         {itemsList}
       </ul>
-      
+
       <PaginationControls 
         count={count} 
         fetch={fetch}
@@ -421,6 +332,11 @@ const BooksDash: FC = () => {
           aria-labelledby='delete-dialog-title'
           aria-describedby='delete-dialog-description'>
           <DialogTitle id='delete-dialog-title'>Procedere con l&apos;eliminazione?</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Ricordati di rimuovere il riferimento alla collezione nei singoli libri.
+            </DialogContentText>
+          </DialogContent>
           <DialogActions className='dialog-footer flex no-gutter'>
             <button type='button' className='btn btn-footer flat' onClick={onCloseDeleteDialog}>Annulla</button>
             <button type='button' className='btn btn-footer primary' onClick={onDelete}>Procedi</button>
@@ -431,4 +347,4 @@ const BooksDash: FC = () => {
   );
 };
 
-export default BooksDash;
+export default CollectionsDash;

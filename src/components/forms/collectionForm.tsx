@@ -92,7 +92,7 @@ const CollectionForm: FC<CollectionFormProps> = ({
     if (typeof name === 'string') {
       setChanges(true);
       setData({ ...data, [name]: value }); 
-      setErrors({ ...errors, [name]: null });
+      setErrors({ ...errors, [name]: undefined });
     }
   };
 
@@ -103,7 +103,7 @@ const CollectionForm: FC<CollectionFormProps> = ({
       setChanges(true);
       setData({ ...data, [name]: value });
       setLeftChars({ ...leftChars, [name]: max.chars[name as keyof MaxModel['chars']] - String(value).length });
-      setErrors({ ...errors, [name]: null });
+      setErrors({ ...errors, [name]: undefined });
     }
   };
 
@@ -112,7 +112,7 @@ const CollectionForm: FC<CollectionFormProps> = ({
     const { value } = e.target;
     setChanges(true);
     setData({ ...data, [name]: value });
-    setErrors({ ...errors, [name]: null });
+    setErrors({ ...errors, [name]: undefined });
   };
 
   const checkTitle = async (title: string): Promise<boolean> => {
@@ -193,6 +193,7 @@ const CollectionForm: FC<CollectionFormProps> = ({
     fetch();
   }, [fetch]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const menuItemsMap = (arr: any[], values?: string[]) => arr.map((item: any) => (
     <MenuItem 
       value={item.name} 

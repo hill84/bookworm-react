@@ -117,7 +117,7 @@ const Group: FC<GroupProps> = ({ history, location, match }: GroupProps) => {
   const onCloseModeratorsDialog = (): void => setIsOpenModeratorsDialog(false);
 
   const onDeleteModerator = (e: MouseEvent): void => {
-    const muid: string = (e.currentTarget as EventTargetWithDataset).dataset?.muid || '';
+    const { muid } = (e.currentTarget as EventTargetWithDataset).dataset;
     const restList: string[] = item?.moderators?.filter((m: string): boolean => m !== muid) || [];
     const rest: ModeratorModel[] = groupModerators.filter((m: ModeratorModel): boolean => m.uid !== muid);
 

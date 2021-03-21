@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 
-function useLocalStorage<T>(key: string, initialValue: T) {
+const useLocalStorage = <T>(key: string, initialValue: T) => {
   // Get from local storage then
   // parse stored json or return initialValue
-  const readValue = () => {
+  const readValue = (): T => {
     // Prevent build error "window is undefined" but keep keep working
     if (typeof window === 'undefined') {
       return initialValue;
     }
     try {
-      const item = window.localStorage.getItem(key);
+      const item: string = window.localStorage.getItem(key) || '';
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
       console.warn(`Error reading localStorage key “${key}”:`, error);
@@ -22,16 +22,14 @@ function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState(readValue);
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to localStorage.
-  const setValue = (value: T) => {
+  const setValue = (value: T): void => {
     // Prevent build error "window is undefined" but keep keep working
     if (typeof window === 'undefined') {
-      console.warn(
-        `Tried setting localStorage key “${key}” even though environment is not a client`,
-      );
+      console.warn(`Tried setting localStorage key “${key}” even though environment is not a client`);
     }
     try {
       // Allow value to be a function so we have the same API as useState
-      const newValue = value instanceof Function ? value(storedValue) : value;
+      const newValue: T = value instanceof Function ? value(storedValue) : value;
       // Save to local storage
       window.localStorage.setItem(key, JSON.stringify(newValue));
       // Save state
@@ -49,20 +47,19 @@ function useLocalStorage<T>(key: string, initialValue: T) {
   }, []);
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      setStoredValue(readValue());
-    };
+    const handleStorageChange = (): void => setStoredValue(readValue());
     // this only works for other documents, not the current one
     window.addEventListener('storage', handleStorageChange);
     // this is a custom event, triggered in writeValueToLocalStorage
     window.addEventListener('local-storage', handleStorageChange);
-    return () => {
+    return (): void => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('local-storage', handleStorageChange);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return [storedValue, setValue];
-}
+  return [storedValue, setValue] as const;
+};
+
 export default useLocalStorage;

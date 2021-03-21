@@ -225,7 +225,7 @@ const Admin: FC<AdminProps> = ({ history, match }: AdminProps) => {
           {tabSelected === 2 && <AuthorsDash onToggleDialog={onToggleAuthorDialog} />}
         </div>
         <div className='card dark'>
-          {tabSelected === 3 && <CollectionsDash user={user} openSnackbar={openSnackbar} onToggleDialog={onToggleCollectionDialog} />}
+          {tabSelected === 3 && <CollectionsDash onToggleDialog={onToggleCollectionDialog} />}
         </div>
         <div className='card dark'>
           {tabSelected === 4 && <QuotesDash user={user} openSnackbar={openSnackbar} onToggleDialog={onToggleQuoteDialog} />}
