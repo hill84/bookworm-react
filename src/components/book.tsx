@@ -1,5 +1,5 @@
 import { DocumentData, FirestoreError } from '@firebase/firestore-types';
-import React, { FC, Fragment, lazy, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { CSSProperties, FC, Fragment, lazy, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { RouteComponentProps } from 'react-router-dom';
 import { bookRef, collectionBookRef, reviewerRef, userBookRef, userRef } from '../config/firebase';
@@ -394,7 +394,7 @@ const Book: FC<BookProps> = ({
     <NoMatch title='Libro non trovato' history={history} location={location} />
   );
 
-  const bgStyle = book ? { backgroundImage: `url(${book.covers[0]})`, } : {};
+  const bgStyle: CSSProperties | undefined = book ? { backgroundImage: `url(${book.covers[0]})`, } : undefined;
 
   return (
     <Fragment>
@@ -408,7 +408,7 @@ const Book: FC<BookProps> = ({
           <meta property='og:url' content={seo.url} />
           <meta property='og:title' content={seo.title} />
           {seo.image && <meta property='og:image' content={seo.image} />}
-          <meta property='book:author' content={seo.author[0]} />
+          <meta property='book:author' content={seo.author?.[0]} />
           <meta property='book:isbn' content={seo.isbn} />
           <meta property='book:release_date' content={seo.release_date} />
           <meta property='books:rating:value' content={seo.rating.value} />

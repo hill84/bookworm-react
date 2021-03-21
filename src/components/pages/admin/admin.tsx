@@ -2,7 +2,7 @@ import { CircularProgress } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import React, { ChangeEvent, FC, Fragment, ReactNode, useContext, useEffect, useState } from 'react';
+import React, { ChangeEvent, CSSProperties, FC, Fragment, ReactNode, useContext, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import SwipeableViews from 'react-swipeable-views';
@@ -24,7 +24,7 @@ import NotesDash from './notesDash';
 import QuotesDash from './quotesDash';
 import UsersDash from './usersDash';
 
-const containerStyle: Record<'maxWidth', number> = { maxWidth: 1280, };
+const containerStyle: CSSProperties = { maxWidth: 1280, };
 const BindKeyboardSwipeableViews = bindKeyboard(SwipeableViews);
 
 interface TabModel {
@@ -228,7 +228,7 @@ const Admin: FC<AdminProps> = ({ history, match }: AdminProps) => {
           {tabSelected === 3 && <CollectionsDash onToggleDialog={onToggleCollectionDialog} />}
         </div>
         <div className='card dark'>
-          {tabSelected === 4 && <QuotesDash user={user} openSnackbar={openSnackbar} onToggleDialog={onToggleQuoteDialog} />}
+          {tabSelected === 4 && <QuotesDash onToggleDialog={onToggleQuoteDialog} />}
         </div>
         <div className='card dark'>
           {tabSelected === 5 && <NotesDash user={user} openSnackbar={openSnackbar} onToggleDialog={onToggleNoteDialog} />}
