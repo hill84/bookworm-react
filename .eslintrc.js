@@ -1,4 +1,4 @@
-const airbnbStyleRules = require('eslint-config-airbnb-base/rules/style').rules;
+// const airbnbStyleRules = require('eslint-config-airbnb-base/rules/style').rules;
 
 module.exports = {
   env: {
@@ -9,11 +9,9 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'plugin:react/recommended', // Uses the recommended rules from @eslint-plugin-react
+    'plugin:react/recommended',
     'plugin:react-hooks/recommended',
-    // 'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended', // Uses the recommended rules from @typescript-eslint/eslint-plugin
-    // 'plugin:prettier/recommended', // Enables eslint-plugin-prettier and displays prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
+    'plugin:@typescript-eslint/recommended',
   ],
   globals: {
     Atomics: 'readonly',

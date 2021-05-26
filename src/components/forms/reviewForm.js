@@ -28,7 +28,9 @@ import emojiMartLocale from '../../locales/emojiMart';
 import Overlay from '../overlay';
 import Rating from '../rating';
 
-const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} /> );
+const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} />);
+
+Transition.displayName = 'Transition';
 
 const EmojiPickerStyle = {
   position: 'absolute',

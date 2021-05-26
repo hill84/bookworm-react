@@ -10,13 +10,15 @@ import Input from '@material-ui/core/Input';
 import { ThemeProvider } from '@material-ui/styles';
 import React, { forwardRef, Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { notesRef, reviewerCommenterRef, reviewerRef, userBookRef } from '../../config/firebase';
+import { funcType, stringType } from '../../config/proptypes';
 import { checkBadWords, extractUrls, getInitials, handleFirestoreError, join, normURL, truncateString } from '../../config/shared';
 import { darkTheme } from '../../config/themes';
-import { funcType, stringType } from '../../config/proptypes';
 import SnackbarContext from '../../context/snackbarContext';
 import UserContext from '../../context/userContext';
 
-const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} /> );
+const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} />);
+
+Transition.displayName = 'Transition';
 
 const max = {
   chars: {

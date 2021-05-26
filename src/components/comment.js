@@ -7,13 +7,15 @@ import React, { forwardRef, useCallback, useContext, useEffect, useMemo, useRef,
 import { Link } from 'react-router-dom';
 import { notesRef, reviewerCommenterRef } from '../config/firebase';
 import icon from '../config/icons';
-import { abbrNum, getInitials, handleFirestoreError, normURL, timeSince, truncateString } from '../config/shared';
 import { commentType, funcType, stringType } from '../config/proptypes';
+import { abbrNum, getInitials, handleFirestoreError, normURL, timeSince, truncateString } from '../config/shared';
 import SnackbarContext from '../context/snackbarContext';
 import UserContext from '../context/userContext';
 import FlagDialog from './flagDialog';
 
 const Transition = forwardRef((props, ref) => <Grow {...props} ref={ref} />);
+
+Transition.displayName = 'Transition';
 
 const Comment = ({ bid, comment, onEdit, reviewerDisplayName, rid }) => {
   const { isAdmin, isEditor, user } = useContext(UserContext);
