@@ -11,7 +11,7 @@ import { handleFirestoreError, timeSince } from '../../../config/shared';
 // import { Redirect } from 'react-router-dom';
 import SnackbarContext from '../../../context/snackbarContext';
 import useToggle from '../../../hooks/useToggle';
-import { EventTargetWithDataset, NoteModel } from '../../../types';
+import { CurrentTarget, NoteModel } from '../../../types';
 import CopyToClipboard from '../../copyToClipboard';
 import PaginationControls from '../../paginationControls';
 
@@ -118,7 +118,7 @@ const NotesDash: FC<NotesDashProps> = ({ onToggleDialog }: NotesDashProps) => {
   }, [desc, limit, order.type]);
 
   const fetch = (e: MouseEvent): void => {
-    const prev: boolean = (e.currentTarget as EventTargetWithDataset).dataset.direction === 'prev';
+    const prev: boolean = (e.currentTarget as CurrentTarget).dataset?.direction === 'prev';
     const ref: Query<DocumentData> = notificationsRef.orderBy(order.type, desc === prev ? 'asc' : 'desc').limit(limit);
     const paginatedRef: Query<DocumentData> = ref.startAfter(prev ? firstVisible : lastVisible);
 

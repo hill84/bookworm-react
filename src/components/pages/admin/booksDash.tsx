@@ -9,12 +9,12 @@ import { CSVLink } from 'react-csv';
 import { Data } from 'react-csv/components/CommonPropTypes';
 import Zoom from 'react-medium-image-zoom';
 import { Link, Redirect } from 'react-router-dom';
-import useToggle from 'src/hooks/useToggle';
 import { bookRef, booksRef, countRef /* , reviewRef */ } from '../../../config/firebase';
 import icon from '../../../config/icons';
 import { app, handleFirestoreError, isToday, normURL, timeSince } from '../../../config/shared';
 import SnackbarContext from '../../../context/snackbarContext';
-import { BookModel, EventTargetWithDataset } from '../../../types';
+import useToggle from '../../../hooks/useToggle';
+import { BookModel, CurrentTarget } from '../../../types';
 import CopyToClipboard from '../../copyToClipboard';
 import PaginationControls from '../../paginationControls';
 
@@ -77,7 +77,7 @@ const BooksDash: FC = () => {
   const [items, setItems] = useState<StateModel['items']>(initialState.items);
   const [lastVisible, setLastVisible] = useState<StateModel['lastVisible']>(initialState.lastVisible);
   const [limitMenuAnchorEl, setLimitMenuAnchorEl] = useState<StateModel['limitMenuAnchorEl']>(initialState.limitMenuAnchorEl);
-  const [limitByIndex, setLimitByIndex] = useState<number>(initialState.limitByIndex);
+  const [limitByIndex, setLimitByIndex] = useState<StateModel['limitByIndex']>(initialState.limitByIndex);
   const [orderMenuAnchorEl, setOrderMenuAnchorEl] = useState<StateModel['orderMenuAnchorEl']>(initialState.orderMenuAnchorEl);
   const [orderByIndex, setOrderByIndex] = useState<StateModel['orderByIndex']>(initialState.orderByIndex);
   const [page, setPage] = useState<StateModel['page']>(initialState.page);
@@ -114,7 +114,7 @@ const BooksDash: FC = () => {
   }, [desc, limit, order.type]);
 
   const fetch = (e: MouseEvent): void => {
-    const prev: boolean = (e.currentTarget as EventTargetWithDataset).dataset.direction === 'prev';
+    const prev: boolean = (e.currentTarget as CurrentTarget).dataset?.direction === 'prev';
     const ref: Query<DocumentData> = booksRef.orderBy(order.type, desc === prev ? 'asc' : 'desc').limit(limit);
     const paginatedRef: Query<DocumentData> = ref.startAfter(prev ? firstVisible : lastVisible);
 
@@ -184,14 +184,14 @@ const BooksDash: FC = () => {
   const onLock = ({ bid, state }: { bid: string; state: boolean }): void => {
     if (state) {
       // console.log(`Locking ${bid}`);
-      bookRef(bid).update({ 'EDIT.edit': false }).then(() => {
+      bookRef(bid).update({ 'EDIT.edit': false }).then((): void => {
         openSnackbar('Elemento bloccato', 'success');
-      }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
+      }).catch((err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
     } else {
       // console.log(`Unlocking ${bid}`);
-      bookRef(bid).update({ 'EDIT.edit': true }).then(() => {
+      bookRef(bid).update({ 'EDIT.edit': true }).then((): void => {
         openSnackbar('Elemento sbloccato', 'success');
-      }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
+      }).catch((err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
     }
   };
 
@@ -206,11 +206,11 @@ const BooksDash: FC = () => {
   const onDelete = (): void => {
     setIsOpenDeleteDialog(false);
     bookRef(selectedId).delete().then((): void => {
-      /* reviewRef(selectedId).delete().then(() => {
+      /* reviewRef(selectedId).delete().then((): void => {
         console.log(`✔ Reviews deleted`);
-      }).catch(err => openSnackbar(handleFirestoreError(err), 'error')); */
+      }).catch((err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error')); */
       openSnackbar('Elemento cancellato', 'success');
-    }).catch(err => openSnackbar(handleFirestoreError(err), 'error'));
+    }).catch((err: FirestoreError): void => openSnackbar(handleFirestoreError(err), 'error'));
   };
   
   if (redirectTo) return (

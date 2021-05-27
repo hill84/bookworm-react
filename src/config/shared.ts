@@ -78,7 +78,7 @@ export const arrayToObj = (array: string[]): Record<string, 'author'> => {
 
 export const hasRole = (user: UserModel, role: RolesType): boolean => user.roles?.[role] === true;
 
-export const asyncForEach = async (array: Array<unknown>, callback: Function): Promise<void> => {
+export const asyncForEach = async <G, >(array: Array<G>, callback: Function): Promise<void> => {
   const results = [];
   for (let i = 0; i < array.length; i++) {
     results.push(callback(array[i], i, array));

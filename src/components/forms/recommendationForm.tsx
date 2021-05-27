@@ -8,7 +8,7 @@ import { app, diffDates, getInitials, handleFirestoreError, normURL, truncateStr
 import SnackbarContext from '../../context/snackbarContext';
 import UserContext from '../../context/userContext';
 import '../../css/recommendationForm.css';
-import { BookModel, EventTargetWithDataset, FollowingsModel, RecommendationModel, RecommendModel } from '../../types';
+import { BookModel, CurrentTarget, FollowingsModel, RecommendationModel, RecommendModel } from '../../types';
 import Overlay from '../overlay';
 import { skltn_avatarRow } from '../skeletons';
 
@@ -117,7 +117,7 @@ const RecommendationForm: FC<RecommendationFormProps> = ({
 
   const onRecommendBook = (e: MouseEvent): void => {
     e.preventDefault();
-    const { fuid } = (e.currentTarget as EventTargetWithDataset).dataset;
+    const { fuid } = (e.currentTarget as CurrentTarget).dataset || {};
     const { bid, covers, title } = book;
 
     const recommendation = {

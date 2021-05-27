@@ -14,7 +14,6 @@ import { TransitionProps } from '@material-ui/core/transitions';
 import { ThemeProvider } from '@material-ui/styles';
 import React, { ChangeEvent, CSSProperties, FC, FormEvent, forwardRef, MouseEvent, ReactElement, Ref, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { EventTargetWithDataset } from 'src/types';
 import { groupDiscussionsRef, notesRef } from '../../config/firebase';
 import icon from '../../config/icons';
 import { app, checkBadWords, extractMuids, extractUrls, getInitials, handleFirestoreError, join, normURL, truncateString } from '../../config/shared';
@@ -23,6 +22,7 @@ import GroupContext from '../../context/groupContext';
 import SnackbarContext from '../../context/snackbarContext';
 import UserContext from '../../context/userContext';
 import '../../css/discussionForm.css';
+import { CurrentTarget } from '../../types';
 
 const Transition = forwardRef(function Transition(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,9 +74,7 @@ type ErrorsModel = Partial<Record<'text', string>>;
 
 const formControlStyle: CSSProperties = { marginTop: '8px', };
 
-const DiscussionForm: FC<DiscussionFormProps> = ({
-  gid = '',
-}: DiscussionFormProps) => {
+const DiscussionForm: FC<DiscussionFormProps> = ({ gid = '' }: DiscussionFormProps) => {
   const { isEditor, user } = useContext(UserContext);
   const { closeSnackbar, openSnackbar, snackbarIsOpen } = useContext(SnackbarContext);
   const { followers, item: group } = useContext(GroupContext);
@@ -207,16 +205,16 @@ const DiscussionForm: FC<DiscussionFormProps> = ({
     setChanges(true);
   };
 
-  const onOpenBriefDialog = () => setIsOpenBriefDialog(true);
+  const onOpenBriefDialog = (): void => setIsOpenBriefDialog(true);
 
-  const onCloseBriefDialog = () => setIsOpenBriefDialog(false);
+  const onCloseBriefDialog = (): void => setIsOpenBriefDialog(false);
 
-  const onOpenFollowersDialog = () => setIsOpenFollowersDialog(true);
+  const onOpenFollowersDialog = (): void => setIsOpenFollowersDialog(true);
 
-  const onCloseFollowersDialog = () => setIsOpenFollowersDialog(false);
+  const onCloseFollowersDialog = (): void => setIsOpenFollowersDialog(false);
 
-  const onMentionFollower = (e: MouseEvent) => {
-    const { displayName, fuid } = (e.currentTarget as EventTargetWithDataset).dataset;
+  const onMentionFollower = (e: MouseEvent): void => {
+    const { displayName, fuid } = (e.currentTarget as CurrentTarget).dataset || {};
     const mention = `${discussion.text ? ' ' : ''}@dashboard/${fuid}/${normURL(displayName)} `;
 
     if (snackbarIsOpen) closeSnackbar(e);
@@ -226,7 +224,7 @@ const DiscussionForm: FC<DiscussionFormProps> = ({
     setChanges(true);
     setIsOpenFollowersDialog(false);
     setTimeout(() => {
-      const ref = textInput.current;
+      const ref: HTMLInputElement | null = textInput.current;
       if (ref) {
         ref.selectionStart = 10000;
         ref.selectionEnd = ref.selectionStart;

@@ -346,9 +346,15 @@ export interface RolesModel {
   'premium': boolean;
 }
 
-type EventTargetElement = EventTarget & Element;
-export interface EventTargetWithDataset extends EventTargetElement {
-  dataset: Record<string, string>;
+export type EventTargetElement = EventTarget & Element;
+
+export interface CurrentTarget {
+  dataset?: Record<string, string>;
+  parentNode?: ParentNodeWithDataset;
+}
+
+export interface ParentNodeWithDataset extends ParentNode {
+  dataset?: Record<string, string>;
 }
 
 export type FollowersModel = Record<string, FollowerModel>;

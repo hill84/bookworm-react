@@ -5,7 +5,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import React, { FC, Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import Rater from 'react-rater';
-import { UserBookModel, UserContextModel } from 'src/types';
 import { userBooksRef } from '../config/firebase';
 import icon from '../config/icons';
 import { MonthModel, months, ratingLabels, readingStates } from '../config/lists';
@@ -15,6 +14,7 @@ import SnackbarContext, { SnackbarContextModel } from '../context/snackbarContex
 import UserContext from '../context/userContext';
 import '../css/readingStats.css';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { UserBookModel, UserContextModel } from '../types';
 
 const shelf = 'bookInShelf';
 const votes: number[] = [1, 2, 3, 4, 5];
@@ -115,7 +115,11 @@ const ReadingStats: FC<ReadingStatsProps> = ({
     return rangeYear ? [] : booksRead?.filter(book => new Date(book.readingState.end_num || -1).getFullYear() === new Date().getFullYear());
   }, [booksRead, rangeYear]);
 
-  const readByMonth = useMemo(() => !rangeYear && monthsArr?.map((_month, i: number) => currentYearBooks?.filter(book => new Date(book.readingState.end_num || -1).getMonth() === i).length), [currentYearBooks, monthsArr, rangeYear]);
+  const readByMonth = useMemo((): number[] => {
+    return !rangeYear ? monthsArr?.map((_month, i: number): number => {
+      return currentYearBooks?.filter(book => new Date(book.readingState.end_num || -1).getMonth() === i).length;
+    }) : [];
+  }, [currentYearBooks, monthsArr, rangeYear]);
   
   const item = useCallback((year: number): ReadByYear => readByYear.filter((item: ReadByYear): boolean => item.year === year)[0], [readByYear]);
   const pages = useCallback((item: ReadByYear): number => item.books.reduce((acc: number, book: UserBookModel) => {
@@ -151,7 +155,9 @@ const ReadingStats: FC<ReadingStatsProps> = ({
   
   const tableSkltn = useMemo(() => [...Array(data ? 3 : 5)].map((_e, i: number) => <li key={i} className='avatar-row skltn dash' />), [data]);
   
-  if (!loading && !userBooks) return <div className='text-center'>Statistiche non disponibili</div>;
+  if (!loading && !userBooks) return (
+    <div className='text-center'>Statistiche non disponibili</div>
+  );
   
   return (
     <div>

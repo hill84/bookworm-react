@@ -12,7 +12,7 @@ import { DatePicker, LocalizationProvider } from '@material-ui/pickers';
 import { storage } from 'firebase';
 import moment from 'moment';
 import 'moment/locale/it';
-import React, { ChangeEvent, FC, FormEvent, Fragment, ReactText, useContext, useState } from 'react';
+import React, { ChangeEvent, FC, FormEvent, Fragment, ReactText, useCallback, useContext, useState } from 'react';
 import { storageRef, userRef } from '../../config/firebase';
 import icon from '../../config/icons';
 import { continents, europeanCountries, italianProvinces, languages, northAmericanCountries } from '../../config/lists';
@@ -72,12 +72,12 @@ const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) =>
   const luid: string | undefined = contextUser?.uid;
   const uid: string = user?.uid;
 
-  const setChange = (name: string, value: string): void => {
+  const setChange = useCallback((name: string, value: string): void => {
     setUser({ ...user, [name]: value });
     if (errors[name]) setErrors({ ...errors, [name]: null });
     setSaved(false);
     setChanges(true);
-  };
+  }, [errors, user]);
 
   const onChange = (e: ChangeEvent<HTMLInputElement>): void => {
     e.persist();
@@ -91,10 +91,10 @@ const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) =>
     if (name) setChange(name, value as string);
   };
 
-  const onChangeDate = (name: string) => (date: number): void => {
+  const onChangeDate = useCallback((name: string) => (date: Date | null): void => {
     const value = String(date);
     setChange(name, value);
-  };
+  }, [setChange]);
 
   const onSetDatePickerError = (name: string, reason: string): void => {
     const errorMessages: Record<string, string> = {
@@ -305,7 +305,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ user: _user }: ProfileFormProps) =>
                   label='Data di nascita'
                   // autoOk
                   value={user.birth_date ? new Date(user.birth_date) : null}
-                  onChange={() => onChangeDate('birth_date')}
+                  onChange={onChangeDate('birth_date')}
                   onError={reason => onSetDatePickerError('birth_date', reason || '')}
                   renderInput={props => (
                     <TextField {...props} margin='normal' fullWidth helperText={errors.birth_date} />

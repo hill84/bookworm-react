@@ -15,7 +15,7 @@ import icon from '../../../config/icons';
 import { app, getInitials, handleFirestoreError, normalizeString, normURL, timeSince } from '../../../config/shared';
 import SnackbarContext from '../../../context/snackbarContext';
 import useToggle from '../../../hooks/useToggle';
-import { AuthorModel, EventTargetWithDataset } from '../../../types';
+import { AuthorModel, CurrentTarget } from '../../../types';
 import CopyToClipboard from '../../copyToClipboard';
 import PaginationControls from '../../paginationControls';
 
@@ -116,7 +116,7 @@ const AuthorsDash: FC<AuthorsDashProps> = ({ onToggleDialog }: AuthorsDashProps)
   }, [desc, limit, order.type]);
 
   const fetch = (e: MouseEvent): void => {
-    const prev: boolean = (e.currentTarget as EventTargetWithDataset).dataset.direction === 'prev';
+    const prev: boolean = (e.currentTarget as CurrentTarget).dataset?.direction === 'prev';
     const ref: Query<DocumentData> = authorsRef.orderBy(order.type, desc === prev ? 'asc' : 'desc').limit(limit);
     const paginatedRef: Query<DocumentData> = ref.startAfter(prev ? firstVisible : lastVisible);
 

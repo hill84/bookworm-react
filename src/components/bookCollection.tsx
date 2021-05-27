@@ -7,7 +7,7 @@ import icon from '../config/icons';
 import { GenreModel, genres } from '../config/lists';
 import { booksPerRow as _booksPerRow, denormURL, handleFirestoreError /* , isTouchDevice */, normURL } from '../config/shared';
 import SnackbarContext from '../context/snackbarContext';
-import { CollectionBookModel, EventTargetWithDataset } from '../types';
+import { CollectionBookModel, CurrentTarget } from '../types';
 import Cover from './cover';
 import { skltn_shelfRow, skltn_shelfStack } from './skeletons';
 
@@ -63,7 +63,7 @@ const BookCollection: FC<BookCollectionProps> = ({
   const limit = useMemo((): number => _limit || (pagination ? _booksPerRow() : 98), [pagination, _limit]);
   
   const fetch = useCallback((e?: MouseEvent): void => {
-    const direction: string = (e?.currentTarget as EventTargetWithDataset)?.dataset?.direction || '';
+    const direction: string = (e?.currentTarget as CurrentTarget)?.dataset?.direction || '';
     const prev: boolean = direction === 'prev';
     // const startAfter = (direction === 'prev') ? firstVisible : lastVisible;
     const startAfter: number = prev ? page > 1 ? (page - 1) * limit - limit : 0 : ((page * limit) > count) ? (page - 1) * limit : page * limit;

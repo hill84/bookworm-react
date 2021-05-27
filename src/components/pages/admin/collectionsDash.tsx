@@ -14,7 +14,7 @@ import icon from '../../../config/icons';
 import { app, handleFirestoreError, normURL, timeSince } from '../../../config/shared';
 import SnackbarContext from '../../../context/snackbarContext';
 import useToggle from '../../../hooks/useToggle';
-import { BookModel, CollectionModel, EventTargetWithDataset } from '../../../types';
+import { BookModel, CollectionModel, CurrentTarget } from '../../../types';
 import PaginationControls from '../../paginationControls';
 
 type OrderByType = Record<'type' | 'label', string>;
@@ -112,7 +112,7 @@ const CollectionsDash: FC<CollectionsDashProps> = ({ onToggleDialog }: Collectio
   }, [desc, limit, order.type]);
 
   const fetch = (e: MouseEvent): void => {
-    const prev: boolean = (e.currentTarget as EventTargetWithDataset).dataset.direction === 'prev';
+    const prev: boolean = (e.currentTarget as CurrentTarget).dataset?.direction === 'prev';
     const ref: Query<DocumentData> = collectionsRef.orderBy(order.type, desc === prev ? 'asc' : 'desc').limit(limit);
     const paginatedRef: Query<DocumentData> = ref.startAfter(prev ? firstVisible : lastVisible);
 

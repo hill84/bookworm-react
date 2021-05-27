@@ -19,7 +19,7 @@ import GroupContext from '../../context/groupContext';
 import SnackbarContext from '../../context/snackbarContext';
 import UserContext from '../../context/userContext';
 import '../../css/groups.css';
-import { EventTargetWithDataset, ModeratorModel } from '../../types';
+import { CurrentTarget, ModeratorModel } from '../../types';
 import Discussions from '../discussions';
 import DiscussionForm from '../forms/discussionForm';
 import GroupForm from '../forms/groupForm';
@@ -29,6 +29,7 @@ import Bubbles from './bubbles';
 const NoMatch = lazy(() => import('../noMatch'));
 
 const Transition = forwardRef(function Transition(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: TransitionProps & { children?: ReactElement<any, any> },
   ref: Ref<unknown>,
 ) {
@@ -117,7 +118,7 @@ const Group: FC<GroupProps> = ({ history, location, match }: GroupProps) => {
   const onCloseModeratorsDialog = (): void => setIsOpenModeratorsDialog(false);
 
   const onDeleteModerator = (e: MouseEvent): void => {
-    const { muid } = (e.currentTarget as EventTargetWithDataset).dataset;
+    const { muid } = (e.currentTarget as CurrentTarget).dataset || {};
     const restList: string[] = item?.moderators?.filter((m: string): boolean => m !== muid) || [];
     const rest: ModeratorModel[] = groupModerators.filter((m: ModeratorModel): boolean => m.uid !== muid);
 

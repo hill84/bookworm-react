@@ -32,6 +32,7 @@ import ShareButtons from '../shareButtons';
 const NoMatch = lazy(() => import('../noMatch'));
 
 const Transition = forwardRef(function Transition(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: TransitionProps & { children?: ReactElement<any, any> },
   ref: Ref<unknown>,
 ) {
@@ -159,9 +160,12 @@ const BookProfile: FC<BookProfileProps> = ({
   const createdBy = useMemo((): string => truncateString(_createdBy, 12), [_createdBy]);
   const hasBid = Boolean(book?.bid);
   const isLocked: boolean = !book?.EDIT.edit && !isAdmin;
+  const bookAuthors = useMemo((): string[] => {
+    return book?.authors ? Object.keys(book.authors).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0) : [];
+  }, [book?.authors]);
 
   if (!book && !loading) return (
-    <NoMatch title="Libro non trovato" history={history} location={location} />
+    <NoMatch title='Libro non trovato' history={history} location={location} />
   );
 
   // const authors = book && <Link to={`/author/${normURL(Object.keys(book.authors)[0])}`}>{Object.keys(book.authors)[0]}</Link>;
@@ -178,7 +182,7 @@ const BookProfile: FC<BookProfileProps> = ({
         />
       )}
     
-      <div id="BookProfile">
+      <div id='BookProfile'>
         {book && isOpenReadingState && (
           <ReadingStateForm
             bid={book.bid}
@@ -195,14 +199,14 @@ const BookProfile: FC<BookProfileProps> = ({
           />
         )}
 
-        <div className="container top">
-          <div className="card light main text-center-md">
-            <div className="row relative">
+        <div className='container top'>
+          <div className='card light main text-center-md'>
+            <div className='row relative'>
               {((book?.EDIT && isAdmin) || book?.awards) && (
-                <div className="absolute-content right bookdetails" style={{ zIndex: 1, }}>
+                <div className='absolute-content right bookdetails' style={{ zIndex: 1, }}>
                   {book?.awards?.map(award => (
                     <Tooltip title={award} key={award}>
-                      <span className="counter popIn reveal delay2 accent-text">{icon.medal}</span>
+                      <span className='counter popIn reveal delay2 accent-text'>{icon.medal}</span>
                     </Tooltip>
                   ))}
                   {book?.EDIT && isAdmin && (
@@ -211,126 +215,126 @@ const BookProfile: FC<BookProfileProps> = ({
                     ) : (
                       <span>Creato da <Link to={`/dashboard/${book.EDIT.createdByUid}`}>{createdBy}</Link> {timeSince(book.EDIT.created_num)}</span>
                     )}>
-                      <span className="counter">{icon.informationOutline}</span>
+                      <span className='counter'>{icon.informationOutline}</span>
                     </Tooltip>
                   )}
                 </div>
               )}
-              <div className="col-md-auto col-sm-12" style={{ marginBottom: 15, }}>
+              <div className='col-md-auto col-sm-12' style={{ marginBottom: 15, }}>
                 <div
                   tabIndex={0}
-                  role="button"
+                  role='button'
                   className={`text-center ${book ? setFormatClass(book.format) : 'book'}-format ${book?.incipit ? 'hoverable-items' : ''}`}
                   onClick={book?.incipit ? onToggleIncipit : undefined}
                   onKeyDown={book?.incipit ? onToggleIncipit : undefined}>
                   <Cover book={book} rating={false} showMedal={false} info={false} />
-                  {book?.incipit && <button type="button" className="btn xs rounded flat centered btn-incipit">Leggi incipit</button>}
+                  {book?.incipit && <button type='button' className='btn xs rounded flat centered btn-incipit'>Leggi incipit</button>}
                 </div>
                 
                 {book && (
                   <Fragment>
                     {book.trailerURL && (
-                      <button type="button" onClick={() => window.open(book.trailerURL, '_blank')} className="btn xs rounded flat centered btn-trailer">Trailer</button>
+                      <button type='button' onClick={() => window.open(book.trailerURL, '_blank')} className='btn xs rounded flat centered btn-trailer'>Trailer</button>
                     )}
 
                     <ShareButtons 
-                      className="btn-share-container"
+                      className='btn-share-container'
                       // hashtags={['biblo', 'libri', 'twittalibro']}
                       // cover={book.covers && book.covers[0]}
-                      text={`${userBook.bookInShelf ? 'Ho aggiunto alla mia libreria' : userBook.bookInWishlist ? 'Ho aggiunto alla mia lista dei desideri' : 'Consiglio'} il libro "${book.title}" di ${Object.keys(book.authors)[0]}. Leggi un estratto su ${app.name}.`}
+                      text={`${userBook.bookInShelf ? 'Ho aggiunto alla mia libreria' : userBook.bookInWishlist ? 'Ho aggiunto alla mia lista dei desideri' : 'Consiglio'} il libro '${book.title}' di ${Object.keys(book.authors)[0]}. Leggi un estratto su ${app.name}.`}
                       url={`${app.url}${location.pathname}`}
-                      via="BibloSpace"
+                      via='BibloSpace'
                     />
                   </Fragment>
                 )}
               </div>
 
-              <div className="col book-profile">
-                <h2 className="title flex">
-                  {loading ? <span className="skltn area" /> : book && (
+              <div className='col book-profile'>
+                <h2 className='title flex'>
+                  {loading ? <span className='skltn area' /> : book && (
                     <Fragment>
-                      {book.title} <span className="mention">
+                      {book.title} <span className='mention'>
                         <CopyToClipboard icon={icon.at} text={`@book/${book.bid}/${normURL(book.title)}`}/>
                       </span>
                     </Fragment>
                   )}
                 </h2>
-                {book?.subtitle && <h3 className="subtitle">{book.subtitle}</h3>}
+                {book?.subtitle && <h3 className='subtitle'>{book.subtitle}</h3>}
                 {loading ? (
-                  <div className="skltn rows" style={{ marginTop: '2em', }} />
+                  <div className='skltn rows' style={{ marginTop: '2em', }} />
                 ) : book && (
                   <Fragment>
-                    <div className="info-row">
-                      {book.authors && <span className="counter comma author">di {Object.keys(book.authors).map(author => 
-                        <Link to={`/author/${normURL(author)}`} className="counter" key={author}>{author}</Link> 
+                    <div className='info-row'>
+                      {book.authors && <span className='counter comma author'>di {bookAuthors.map((author: string) => 
+                        <Link to={`/author/${normURL(author)}`} className='counter' key={author}>{author}</Link> 
                       )}</span>}
-                      {book.publisher && <span className="counter hide-sm">editore: {book.publisher}</span>}
+                      {book.publisher && <span className='counter hide-sm'>editore: {book.publisher}</span>}
                       {isAuth && hasBid && isEditor && (
                         <Fragment>
                           {isAdmin && (
-                            <button type="button" onClick={onLock} className={`link counter ${book.EDIT.edit ? 'flat' : 'active'}`}>
-                              <span className="show-sm">{book.EDIT.edit ? icon.lock : icon.lockOpen}</span>
-                              <span className="hide-sm">{book.EDIT.edit ? 'Blocca' : 'Sblocca'}</span>
+                            <button type='button' onClick={onLock} className={`link counter ${book.EDIT.edit ? 'flat' : 'active'}`}>
+                              <span className='show-sm'>{book.EDIT.edit ? icon.lock : icon.lockOpen}</span>
+                              <span className='hide-sm'>{book.EDIT.edit ? 'Blocca' : 'Sblocca'}</span>
                             </button>
                           )}
-                          <button type="button" onClick={onEditing} className="link counter" disabled={isLocked} title="Modifica disabilitata">
-                            <span className="show-sm">{book.EDIT.edit ? icon.pencil : icon.pencilOff}</span>
-                            <span className="hide-sm">Modifica</span>
+                          <button type='button' onClick={onEditing} className='link counter' disabled={isLocked} title='Modifica disabilitata'>
+                            <span className='show-sm'>{book.EDIT.edit ? icon.pencil : icon.pencilOff}</span>
+                            <span className='hide-sm'>Modifica</span>
                           </button>
-                          <button type="button" className="link counter" onClick={onToggleSuggest}>
-                            <span className="show-sm">{icon.accountHeart}</span>
-                            <span className="hide-sm">Consiglia</span>
+                          <button type='button' className='link counter' onClick={onToggleSuggest}>
+                            <span className='show-sm'>{icon.accountHeart}</span>
+                            <span className='hide-sm'>Consiglia</span>
                           </button>
                         </Fragment>
                       )}
                     </div>
 
-                    <div className="info-row hide-sm">
-                      <span className="counter">
-                        <Tooltip title="Cambia tipo ISBN">
-                          <select className="select-isbn" onChange={onChangeISBN} defaultValue={ISBN} disabled={book.ISBN_10 === 0}>
-                            <option value="ISBN_13">ISBN-13</option>
-                            <option value="ISBN_10">ISBN-10</option>
+                    <div className='info-row hide-sm'>
+                      <span className='counter'>
+                        <Tooltip title='Cambia tipo ISBN'>
+                          <select className='select-isbn' onChange={onChangeISBN} defaultValue={ISBN} disabled={book.ISBN_10 === 0}>
+                            <option value='ISBN_13'>ISBN-13</option>
+                            <option value='ISBN_10'>ISBN-10</option>
                           </select>
                         </Tooltip> <CopyToClipboard text={book[ISBN]}/>
                       </span>
-                      {/* book.ISBN_10 !== 0 && <span className="counter">ISBN-10 <CopyToClipboard text={book.ISBN_10}/></span> */}
-                      {book.publication && <span className="counter">Pubblicazione {new Date(book.publication).toLocaleDateString()}</span>}
-                      {/* book.edition_num !== 0 && <span className="counter">Edizione {book.edition_num}</span> */}
-                      {book.format !== 'Audiolibro' && book.pages_num !== 0 && <span className="counter">Pagine {book.pages_num}</span>}
-                      {book.format === 'Audiolibro' && book.duration && <span className="counter">Durata {msToTime(book.duration)}</span>}
-                      {book.format !== 'Libro' && <span className="counter">Formato {book.format}</span>}
-                      {book.genres && book.genres[0] && <span className="counter comma">Gener{book.genres[1] ? 'i' : 'e'} {book.genres.map(genre => <Link to={`/genre/${normURL(genre)}`} className="counter" key={genre}>{genre}</Link> )}</span>}
-                      {book.collections && book.collections[0] && <span className="counter comma">Collezion{book.collections[1] ? 'i' : 'e'} {book.collections.map(collection => <Link to={`/collection/${normURL(collection)}`} className="counter" key={collection}>{collection}</Link> )}</span>}
+                      {/* book.ISBN_10 !== 0 && <span className='counter'>ISBN-10 <CopyToClipboard text={book.ISBN_10}/></span> */}
+                      {book.publication && <span className='counter'>Pubblicazione {new Date(book.publication).toLocaleDateString()}</span>}
+                      {/* book.edition_num !== 0 && <span className='counter'>Edizione {book.edition_num}</span> */}
+                      {book.format !== 'Audiolibro' && book.pages_num !== 0 && <span className='counter'>Pagine {book.pages_num}</span>}
+                      {book.format === 'Audiolibro' && book.duration && <span className='counter'>Durata {msToTime(book.duration)}</span>}
+                      {book.format !== 'Libro' && <span className='counter'>Formato {book.format}</span>}
+                      {book.genres && book.genres[0] && <span className='counter comma'>Gener{book.genres[1] ? 'i' : 'e'} {book.genres.map(genre => <Link to={`/genre/${normURL(genre)}`} className='counter' key={genre}>{genre}</Link> )}</span>}
+                      {book.collections && book.collections[0] && <span className='counter comma'>Collezion{book.collections[1] ? 'i' : 'e'} {book.collections.map(collection => <Link to={`/collection/${normURL(collection)}`} className='counter' key={collection}>{collection}</Link> )}</span>}
                     </div>
 
-                    <div className="info-row">
+                    <div className='info-row'>
                       <Rating labels ratings={{ ratings_num: book ? book.ratings_num : 0, rating_num: book ? book.rating_num : 0 }}/>
                     </div>
 
                     {isAuth && (
                       <Fragment>
-                        <div className="info-row">
+                        <div className='info-row'>
                           {userBook.bookInShelf ? (
                             <Fragment>
                               <button
-                                type="button"
-                                className="btn success rounded error-on-hover"
+                                type='button'
+                                className='btn success rounded error-on-hover'
                                 onClick={onRemoveBookFromShelfRequest}>
-                                <span className="hide-on-hover">{icon.check} libreria</span>
-                                <span className="show-on-hover">{icon.close} libreria</span>
+                                <span className='hide-on-hover'>{icon.check} libreria</span>
+                                <span className='show-on-hover'>{icon.close} libreria</span>
                               </button>
                               <button
-                                type="button"
-                                className="btn rounded"
+                                type='button'
+                                className='btn rounded'
                                 onClick={onToggleReadingState}>
-                                <span className="hide-xs">Stato</span> lettura
+                                <span className='hide-xs'>Stato</span> lettura
                               </button>
                             </Fragment>
                           ) : (
                             <button
-                              type="button"
-                              className="btn primary rounded"
+                              type='button'
+                              className='btn primary rounded'
                               ref={addBookToShelfRef}
                               disabled={!hasBid || !isEditor}
                               onClick={onAddBookToShelf}>
@@ -338,15 +342,15 @@ const BookProfile: FC<BookProfileProps> = ({
                             </button>
                           )}
                           {userBook.bookInWishlist && (
-                            <button type="button" className="btn success rounded error-on-hover" onClick={onRemoveBookFromWishlist}>
-                              <span className="hide-on-hover">{icon.check} desideri</span>
-                              <span className="show-on-hover">{icon.close} desideri</span>
+                            <button type='button' className='btn success rounded error-on-hover' onClick={onRemoveBookFromWishlist}>
+                              <span className='hide-on-hover'>{icon.check} desideri</span>
+                              <span className='show-on-hover'>{icon.close} desideri</span>
                             </button>
                           )}
                           {(!userBook.bookInWishlist && !userBook.bookInShelf) && (
                             <button
-                              type="button"
-                              className="btn flat rounded"
+                              type='button'
+                              className='btn flat rounded'
                               ref={addBookToWishlistRef}
                               disabled={!hasBid || !isEditor}
                               onClick={onAddBookToWishlist}>
@@ -355,11 +359,11 @@ const BookProfile: FC<BookProfileProps> = ({
                           )}
                         </div>
                         {userBook.bookInShelf && (
-                          <div className="info-row fadeIn reveal">
-                            <div className="user rating">
+                          <div className='info-row fadeIn reveal'>
+                            <div className='user rating'>
                               <Rater total={5} onRate={rate => onRateBook(rate)} rating={userBook.rating_num || 0} />
-                              {/* <span className="rating-num">{userBook.rating_num || 0}</span> */}
-                              <span className="label">Il tuo voto</span>
+                              {/* <span className='rating-num'>{userBook.rating_num || 0}</span> */}
+                              <span className='label'>Il tuo voto</span>
                             </div>
                           </div>
                         )}
@@ -367,15 +371,15 @@ const BookProfile: FC<BookProfileProps> = ({
                     )}
 
                     {book.description && (
-                      <div className="info-row description">
+                      <div className='info-row description'>
                         <MinifiableText text={book.description} maxChars={700} />
                       </div>
                     )}
 
-                    <div className="info-row bookdetails">
-                      <span className="counter">{icon.reader} <b>{abbrNum(book.readers_num || 0)}</b> <span className="hide-sm">Lettor{book.readers_num === 1 ? 'e' : 'i'}</span></span>
-                      <span className="counter">{icon.messageTextOutline} <b>{abbrNum(book.reviews_num || 0)}</b> <span className="hide-sm">Recension{book.reviews_num === 1 ? 'e' : 'i'}</span></span>
-                      {book.pages_num && <span className="counter">{icon.timer} <span className="hide-sm">Lettura</span> <b>{calcReadingTime(book.pages_num)}</b></span>}
+                    <div className='info-row bookdetails'>
+                      <span className='counter'>{icon.reader} <b>{abbrNum(book.readers_num || 0)}</b> <span className='hide-sm'>Lettor{book.readers_num === 1 ? 'e' : 'i'}</span></span>
+                      <span className='counter'>{icon.messageTextOutline} <b>{abbrNum(book.reviews_num || 0)}</b> <span className='hide-sm'>Recension{book.reviews_num === 1 ? 'e' : 'i'}</span></span>
+                      {book.pages_num && <span className='counter'>{icon.timer} <span className='hide-sm'>Lettura</span> <b>{calcReadingTime(book.pages_num)}</b></span>}
                     </div>
                   </Fragment>
                 )}
@@ -385,7 +389,7 @@ const BookProfile: FC<BookProfileProps> = ({
         </div>
 
         {book && (
-          <div className="container">
+          <div className='container'>
             {book.bid && (
               <Fragment>
                 {isAuth && isEditor && userBook.bookInShelf && (
@@ -398,9 +402,9 @@ const BookProfile: FC<BookProfileProps> = ({
                 )}
                 <Reviews bid={book.bid} />
                 {book.collections?.[0] && (
-                  <InView triggerOnce rootMargin="200px">
+                  <InView triggerOnce rootMargin='200px'>
                     {({ inView, ref }) => (
-                      <div className="card dark card-fullwidth-sm" ref={ref} style={{ marginBottom: 0, }}>
+                      <div className='card dark card-fullwidth-sm' ref={ref} style={{ marginBottom: 0, }}>
                         <BookCollection cid={book.collections?.[0] as string} pagination={false} limit={7} inView={inView} scrollable />
                       </div>
                     )}
@@ -418,8 +422,8 @@ const BookProfile: FC<BookProfileProps> = ({
           TransitionComponent={Transition}
           keepMounted
           onClose={onCloseRemoveDialog}
-          aria-labelledby="remove-dialog-title"
-          aria-describedby="remove-dialog-description">
+          aria-labelledby='remove-dialog-title'
+          aria-describedby='remove-dialog-description'>
           <DialogTitle>
             Procedere con la rimozione?
           </DialogTitle>
@@ -428,9 +432,9 @@ const BookProfile: FC<BookProfileProps> = ({
               Rimuovendo il libro perderai il voto, la recensione e lo stato di lettura.
             </DialogContentText>
           </DialogContent>
-          <DialogActions className="dialog-footer no-gutter">
-            <button type="button" className="btn btn-footer flat" onClick={onCloseRemoveDialog}>Annulla</button>
-            <button type="button" className="btn btn-footer primary" onClick={onRemoveBookFromShelf}>Procedi</button>
+          <DialogActions className='dialog-footer no-gutter'>
+            <button type='button' className='btn btn-footer flat' onClick={onCloseRemoveDialog}>Annulla</button>
+            <button type='button' className='btn btn-footer primary' onClick={onRemoveBookFromShelf}>Procedi</button>
           </DialogActions>
         </Dialog>
       )}

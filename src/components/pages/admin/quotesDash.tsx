@@ -12,7 +12,7 @@ import icon from '../../../config/icons';
 import { handleFirestoreError, normURL, timeSince } from '../../../config/shared';
 import SnackbarContext from '../../../context/snackbarContext';
 import useToggle from '../../../hooks/useToggle';
-import { EventTargetWithDataset, QuoteModel } from '../../../types';
+import { CurrentTarget, QuoteModel } from '../../../types';
 import CopyToClipboard from '../../copyToClipboard';
 import PaginationControls from '../../paginationControls';
 
@@ -112,7 +112,7 @@ const QuotesDash: FC<QuotesDashProps> = ({ onToggleDialog }: QuotesDashProps) =>
   }, [desc, limit, order.type]);
 
   const fetch = (e: MouseEvent): void => {
-    const prev: boolean = (e.currentTarget as EventTargetWithDataset).dataset.direction === 'prev';
+    const prev: boolean = (e.currentTarget as CurrentTarget).dataset?.direction === 'prev';
     const ref: Query<DocumentData> = quotesRef.orderBy(order.type, desc === prev ? 'asc' : 'desc').limit(limit);
     const paginatedRef: Query<DocumentData> = ref.startAfter(prev ? firstVisible : lastVisible);
 
